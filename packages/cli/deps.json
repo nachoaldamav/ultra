@@ -1,0 +1,34 @@
+[
+  {
+    "name": "axios",
+    "tarball": "https://registry.npmjs.org/axios/-/axios-0.27.2.tgz"
+  },
+  {
+    "name": "follow-redirects",
+    "tarball": "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.1.tgz"
+  },
+  {
+    "name": "form-data",
+    "tarball": "https://registry.npmjs.org/form-data/-/form-data-4.0.0.tgz"
+  },
+  {
+    "name": "combined-stream",
+    "tarball": "https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz"
+  },
+  {
+    "name": "mime-types",
+    "tarball": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.35.tgz"
+  },
+  {
+    "name": "delayed-stream",
+    "tarball": "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz"
+  },
+  {
+    "name": "mime-db",
+    "tarball": "https://registry.npmjs.org/mime-db/-/mime-db-1.52.0.tgz"
+  },
+  {
+    "name": "asynckit",
+    "tarball": "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
+  }
+]

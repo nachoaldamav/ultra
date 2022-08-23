@@ -1,0 +1,28 @@
+{
+  "name": "@npmf/cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "fpm": "./build/bin/cli.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/tar": "^6.1.2",
+    "axios": "^0.27.2",
+    "chalk": "^5.0.1",
+    "compressing": "^1.6.2",
+    "mv": "^2.1.1",
+    "ora": "^6.1.2",
+    "tar": "^6.1.11"
+  },
+  "devDependencies": {
+    "@types/mv": "^2.1.2"
+  }
+}
