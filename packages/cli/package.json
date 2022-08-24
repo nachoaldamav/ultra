@@ -5,6 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {

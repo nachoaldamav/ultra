@@ -2,17 +2,33 @@ import path from "path";
 import os from "os";
 import chalk from "chalk";
 import ora from "ora";
-import { mkdtemp, rm } from "fs/promises";
+import { mkdtemp, rm, readFile } from "fs/promises";
 import type { NPM_Info } from "../types/npm-info";
 import { downloadPackage } from "../utils/downloadPackage.js";
 
-let depsArray: { name: string; tarball: string }[] = [];
+let depsArray: { name: string; tarball: string; version: string }[] = [];
 
 export async function install(packages: string[]) {
-  /* console.log(chalk.green(`Installing packages: ${packages.join(", ")}...`)); */
   const loadingPackages = ora(
     chalk.green(`Installing packages: ${packages.join(", ")}...`)
   ).start();
+
+  // If no packages are passed, install dependencies from package.json
+  if (packages.length === 0) {
+    const packageJSON = await readFile(
+      path.join(process.cwd(), "package.json"),
+      "utf8"
+    );
+
+    const packageJSONObject = JSON.parse(packageJSON);
+    const dependencies = packageJSONObject.dependencies;
+    const devDependencies = packageJSONObject.devDependencies;
+    const allDependencies = [
+      ...Object.keys(dependencies),
+      ...Object.keys(devDependencies),
+    ];
+    packages = allDependencies;
+  }
 
   // Fetch packages from npm registry
   const promises = packages.map(fetchPackage);
@@ -53,6 +69,8 @@ export async function install(packages: string[]) {
     })
   )
     .then(async () => {
+      // Add dependencies to package.json
+
       // Remove tmp folder
       return await rm(tmpDir, { recursive: true });
     })
@@ -101,6 +119,7 @@ async function getAllDependencies(name: string): Promise<any> {
   depsArray.push({
     name,
     tarball: body?.versions[body?.latest]?.dist?.tarball || "",
+    version: body?.latest || "",
   });
 
   // Clear dependencies that are already in depsArray

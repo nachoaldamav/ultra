@@ -1,6 +1,5 @@
 import fs from "fs";
 import https from "https";
-import chalk from "chalk";
 import tar from "tar";
 import path from "path";
 import { rename, mkdir, rm } from "fs/promises";
