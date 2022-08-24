@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc",
+    "dev": "swc ./src -d ./build --watch",
+    "build": "swc ./src -d ./build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
@@ -20,13 +20,17 @@
     "@types/tar": "^6.1.2",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
+    "chokidar": "^3.5.3",
     "compressing": "^1.6.2",
     "glob": "^8.0.3",
     "mv": "^2.1.1",
+    "npm-pick-manifest": "^7.0.1",
     "ora": "^6.1.2",
     "tar": "^6.1.11"
   },
   "devDependencies": {
+    "@swc/cli": "^0.1.57",
+    "@swc/core": "^1.2.242",
     "@types/mv": "^2.1.2"
   }
 }
