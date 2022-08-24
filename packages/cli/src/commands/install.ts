@@ -2,9 +2,11 @@ import path from "path";
 import os from "os";
 import chalk from "chalk";
 import ora from "ora";
-import { mkdtemp, rm, readFile } from "fs/promises";
+import { mkdtemp, rm, readFile, writeFile, mkdir } from "fs/promises";
 import type { NPM_Info } from "../types/npm-info";
 import { downloadPackage } from "../utils/downloadPackage.js";
+import glob from "glob";
+import { chmodSync, existsSync } from "fs";
 
 let depsArray: { name: string; tarball: string; version: string }[] = [];
 
@@ -12,6 +14,8 @@ export async function install(packages: string[]) {
   const loadingPackages = ora(
     chalk.green(`Installing packages: ${packages.join(", ")}...`)
   ).start();
+
+  const isLocalInstall = packages.length === 0;
 
   // If no packages are passed, install dependencies from package.json
   if (packages.length === 0) {
@@ -22,7 +26,7 @@ export async function install(packages: string[]) {
 
     const packageJSONObject = JSON.parse(packageJSON);
     const dependencies = packageJSONObject.dependencies;
-    const devDependencies = packageJSONObject.devDependencies;
+    const devDependencies = packageJSONObject?.devDependencies || {};
     const allDependencies = [
       ...Object.keys(dependencies),
       ...Object.keys(devDependencies),
@@ -64,15 +68,133 @@ export async function install(packages: string[]) {
   // Download tarballs for each package inside test_packages folder
   Promise.all(
     depsArray.map(async (dep) => {
-      await downloadPackage(dep.tarball, dep.name, tmpDir);
-      downloadingPackages.text = chalk.green(`${dep.name} installed...`);
+      await downloadPackage(dep.tarball, dep.name, tmpDir)
+        .then(() => {
+          downloadingPackages.text = chalk.green(`${dep.name} installed...`);
+        })
+        .catch((error) => {
+          ora(
+            chalk.red(
+              `Error downloading ${dep.name}: ${JSON.stringify(dep, null, 0)}`
+            )
+          ).fail();
+          console.log(error);
+        });
     })
   )
     .then(async () => {
       // Add dependencies to package.json
+      const packageJSON = await readFile(
+        path.join(process.cwd(), "package.json"),
+        "utf8"
+      );
 
+      const packageJSONObject = JSON.parse(packageJSON);
+      const dependencies = packageJSONObject.dependencies;
+
+      // Add packages to dependencies
+      if (!isLocalInstall) {
+        packages.forEach((p) => {
+          const dep = depsArray.find((d) => d.name === p);
+          if (dep) {
+            dependencies[dep?.name] = dep?.version;
+          }
+        });
+
+        await writeFile(
+          path.join(process.cwd(), "package.json"),
+          JSON.stringify(packageJSONObject, null, 2),
+          "utf8"
+        );
+      }
       // Remove tmp folder
       return await rm(tmpDir, { recursive: true });
+    })
+    .then(async () => {
+      ora(chalk.green("Adding binaries...")).info();
+      // Get all package.json files inside cwd/node_modules
+
+      await mkdir(path.join(process.cwd(), "node_modules", ".bin"), {
+        recursive: true,
+      });
+
+      const packageJSONFiles = glob.sync("**/package.json");
+      const promises = packageJSONFiles.map(async (file) => {
+        try {
+          const packageJSON = await readFile(file, "utf8");
+          const packageJSONObject = JSON.parse(packageJSON);
+          const { bin } = packageJSONObject;
+          if (bin) {
+            const isObject = typeof bin === "object";
+            const isString = typeof bin === "string";
+
+            if (isObject) {
+              Object.keys(bin).forEach(async (key) => {
+                // Save binary in cwd/node_modules/package/bin/key
+                const binPath = bin[key];
+                ora(
+                  chalk.blue(
+                    `Adding binary ${key} from ${path.join(
+                      path.dirname(file),
+                      binPath
+                    )} to ${path.join(
+                      process.cwd(),
+                      "node_modules",
+                      ".bin",
+                      key
+                    )}`
+                  )
+                ).info();
+
+                const binFile = await readFile(
+                  path.join(path.dirname(file), binPath),
+                  "utf8"
+                );
+
+                await writeFile(
+                  path.join(process.cwd(), "node_modules", ".bin", key),
+                  binFile,
+                  "utf8"
+                );
+
+                // Change permissions of binary
+                chmodSync(
+                  path.join(process.cwd(), "node_modules", ".bin", key),
+                  0o755
+                );
+
+                ora(
+                  chalk.green(
+                    `Binary ${key} added to ${path.join(
+                      process.cwd(),
+                      "node_modules",
+                      ".bin",
+                      key
+                    )}`
+                  )
+                ).succeed();
+              });
+            } else if (isString) {
+              const binPath = path.join(
+                path.dirname(file),
+                "node_modules",
+                packageJSONObject.name,
+                "bin",
+                bin
+              );
+              const binFile = path.join(binPath, bin);
+              const binFileExists = existsSync(binFile);
+              if (binFileExists) {
+                chmodSync(binFile, 0o755);
+              }
+            }
+          }
+        } catch (error) {
+          ora(chalk.red(`Error adding bin to ${file}: ${error}`)).fail();
+        }
+      });
+
+      return await Promise.all(promises);
     })
     .finally(() => {
       downloadingPackages.succeed(
@@ -81,18 +203,61 @@ export async function install(packages: string[]) {
     });
 }
 
+function getVersion(name: string) {
+  const version = name.split("@");
+
+  if (name.startsWith("@")) {
+    if (version.length === 2) {
+      return {
+        name: "@" + version[1],
+        version: "latest",
+      };
+    } else {
+      return {
+        name: "@" + version[1],
+        version: version[2],
+      };
+    }
+  } else if (version.length === 2) {
+    return {
+      name: version[0],
+      version: version[1],
+    };
+  } else {
+    return {
+      name: version[0],
+      version: "latest",
+    };
+  }
+}
+
 async function fetchPackage(name: string): Promise<NPM_Info | null> {
+  // If name has version, fetch that version
+  if (!name) return null;
+
+  const pkgData = getVersion(name);
+  const url = `https://registry.npmjs.org/${pkgData.name}`;
+
   try {
-    const response = await fetch(`https://registry.npmjs.org/${name}`);
+    const response = await fetch(url);
     const body = await response.json();
 
+    const version =
+      (pkgData.version === "latest"
+        ? body["dist-tags"]?.latest
+        : pkgData.version) || body["dist-tags"]?.latest;
+
+    if (!body.versions) {
+      ora(chalk.red(`${url} not found`)).fail();
+    }
+
     return {
-      name,
-      latest: body["dist-tags"]?.latest || "",
-      versions: body?.versions || {},
+      name: body.name,
+      latest: version || body["dist-tags"].latest,
+      versions: body.versions,
     };
   } catch (error) {
-    console.log(error);
+    console.log(`Error fetching ${name}:`, error);
     return null;
   }
 }
@@ -116,11 +281,19 @@ async function getAllDependencies(name: string): Promise<any> {
 
   const allDependencies = [...deps];
 
-  depsArray.push({
+  const data = {
     name,
     tarball: body?.versions[body?.latest]?.dist?.tarball || "",
     version: body?.latest || "",
-  });
+  };
+
+  if (body.latest === undefined) {
+    ora(
+      chalk.red(`Error fetching ${name}: ${JSON.stringify(body, null, 0)}`)
+    ).fail();
+  }
+
+  depsArray.push(data);
 
   // Clear dependencies that are already in depsArray
   allDependencies.forEach((dependency) => {

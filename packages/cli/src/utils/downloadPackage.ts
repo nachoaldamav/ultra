@@ -2,13 +2,21 @@ import fs from "fs";
 import https from "https";
 import tar from "tar";
 import path from "path";
-import { rename, mkdir, rm } from "fs/promises";
+import { rename, mkdir, rm, readFile, symlink } from "fs/promises";
+import ora from "ora";
+import chalk from "chalk";
 
 export async function downloadPackage(
   tarball: string,
   name: string,
   tmpDir: string
 ) {
+  // First remove package if it already exists in node_modules
+  const packagePath = path.join(process.cwd(), "node_modules", name);
+  if (fs.existsSync(packagePath)) {
+    await rm(packagePath, { recursive: true });
+  }
+
   // Remove @ and / from package name
   const sanitizeName = name.replace(/@/g, "").replace(/\//g, "");
   const tmpPackageDir = path.join(tmpDir, name);
@@ -45,11 +53,16 @@ export async function downloadPackage(
           return await rm(tmpPackageTarball, { recursive: true });
         });
     } else {
-      // Rename package folder to /node_modules/package
+      // Rename package folder to /node_modules/{package name}
       await rename(tmpPackageDir, node_path)
-        .catch((error) => {})
+        .catch((error) => {
+          ora(
+            chalk.red(
+              `Error renaming ${tmpPackageDir} to ${node_path}: ${error}`
+            )
+          ).fail();
+        })
         .finally(async () => {
-          // Remove tmp package folder
           return await rm(tmpPackageTarball, { recursive: true });
         });
     }

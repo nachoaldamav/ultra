@@ -10,16 +10,18 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "fpm": "./build/bin/cli.js"
+    "snpm": "./build/bin/cli.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/glob": "^7.2.0",
     "@types/tar": "^6.1.2",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "compressing": "^1.6.2",
+    "glob": "^8.0.3",
     "mv": "^2.1.1",
     "ora": "^6.1.2",
     "tar": "^6.1.11"
