@@ -3,10 +3,12 @@ import os from "os";
 import chalk from "chalk";
 import ora from "ora";
 import { mkdtemp, rm, readFile, writeFile, mkdir } from "fs/promises";
-import type { NPM_Info } from "../types/npm-info";
+import type { NPM_Info } from "../../types/npm-info";
 import { downloadPackage } from "../utils/downloadPackage.js";
 import glob from "glob";
 import { chmodSync, existsSync } from "fs";
+import { getNearestVersion } from "../utils/getNearestVersion.js";
+import { clearName } from "../utils/clearName.js";
 
 let depsArray: { name: string; tarball: string; version: string }[] = [];
 
@@ -68,7 +70,7 @@ export async function install(packages: string[]) {
   // Download tarballs for each package inside test_packages folder
   Promise.all(
     depsArray.map(async (dep) => {
-      await downloadPackage(dep.tarball, dep.name, tmpDir)
+      await downloadPackage(dep.tarball, clearName(dep.name), tmpDir)
         .then(() => {
           downloadingPackages.text = chalk.green(`${dep.name} installed...`);
         })
@@ -111,9 +113,6 @@ export async function install(packages: string[]) {
       return await rm(tmpDir, { recursive: true });
     })
     .then(async () => {
-      ora(chalk.green("Adding binaries...")).info();
-      // Get all package.json files inside cwd/node_modules
-
       await mkdir(path.join(process.cwd(), "node_modules", ".bin"), {
         recursive: true,
       });
@@ -132,19 +131,6 @@ export async function install(packages: string[]) {
               Object.keys(bin).forEach(async (key) => {
                 // Save binary in cwd/node_modules/package/bin/key
                 const binPath = bin[key];
-                ora(
-                  chalk.blue(
-                    `Adding binary ${key} from ${path.join(
-                      path.dirname(file),
-                      binPath
-                    )} to ${path.join(
-                      process.cwd(),
-                      "node_modules",
-                      ".bin",
-                      key
-                    )}`
-                  )
-                ).info();
 
                 const binFile = await readFile(
                   path.join(path.dirname(file), binPath),
@@ -162,17 +148,6 @@ export async function install(packages: string[]) {
                   path.join(process.cwd(), "node_modules", ".bin", key),
                   0o755
                 );
-
-                ora(
-                  chalk.green(
-                    `Binary ${key} added to ${path.join(
-                      process.cwd(),
-                      "node_modules",
-                      ".bin",
-                      key
-                    )}`
-                  )
-                ).succeed();
               });
             } else if (isString) {
               const binPath = path.join(
@@ -189,9 +164,7 @@ export async function install(packages: string[]) {
               }
             }
           }
-        } catch (error) {
-          ora(chalk.red(`Error adding bin to ${file}: ${error}`)).fail();
-        }
+        } catch (error) {}
       });
 
       return await Promise.all(promises);
@@ -242,10 +215,7 @@ async function fetchPackage(name: string): Promise<NPM_Info | null> {
     const response = await fetch(url);
     const body = await response.json();
 
-    const version =
-      (pkgData.version === "latest"
-        ? body["dist-tags"]?.latest
-        : pkgData.version) || body["dist-tags"]?.latest;
+    const version = getNearestVersion(pkgData.version, body);
 
     if (!body.versions) {
       ora(chalk.red(`${url} not found`)).fail();
@@ -274,9 +244,12 @@ async function getAllDependencies(name: string): Promise<any> {
     return;
   }
 
-  // Convert to array of strings
+  // Convert to array of objects
   const deps = body?.versions[body?.latest]?.dependencies
-    ? Object.keys(body?.versions[body?.latest]?.dependencies)
+    ? Object.keys(body?.versions[body?.latest]?.dependencies).map((key) => ({
+        name: key,
+        version: body?.versions[body?.latest]?.dependencies[key],
+      }))
     : [];
 
   const allDependencies = [...deps];
@@ -297,7 +270,7 @@ async function getAllDependencies(name: string): Promise<any> {
 
   // Clear dependencies that are already in depsArray
   allDependencies.forEach((dependency) => {
-    if (depsArray.some((dep) => dep.name === dependency)) {
+    if (depsArray.some((dep) => dep.name === dependency.name)) {
       allDependencies.splice(allDependencies.indexOf(dependency), 1);
     }
   });
@@ -305,7 +278,7 @@ async function getAllDependencies(name: string): Promise<any> {
   // If there are dependencies, recursively fetch them
   if (allDependencies.length > 0) {
     const promises = allDependencies.map(
-      async (dep) => await getAllDependencies(dep)
+      async (dep) => await getAllDependencies(`${dep.name}@${dep.version}`)
     );
     await Promise.all(promises);
     return name;

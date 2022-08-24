@@ -2,7 +2,7 @@ import fs from "fs";
 import https from "https";
 import tar from "tar";
 import path from "path";
-import { rename, mkdir, rm, readFile, symlink } from "fs/promises";
+import { rename, mkdir, rm } from "fs/promises";
 import ora from "ora";
 import chalk from "chalk";
 
