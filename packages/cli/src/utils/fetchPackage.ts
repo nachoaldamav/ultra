@@ -39,7 +39,11 @@ export async function fetchPackage(name: string): Promise<NPM_Info | null> {
   const url = `https://registry.npmjs.org/${pkgData.name}`;
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/vnd.npm.install-v1+json",
+      },
+    });
     const body = await response.json();
 
     const version = getNearestVersion(pkgData.version, body);
