@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/glob": "^7.2.0",
+    "@types/pacote": "^11.1.5",
     "@types/tar": "^6.1.2",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
@@ -26,6 +27,8 @@
     "mv": "^2.1.1",
     "npm-pick-manifest": "^7.0.1",
     "ora": "^6.1.2",
+    "pacote": "^13.6.2",
+    "read-package-json-fast": "^2.0.3",
     "tar": "^6.1.11"
   },
   "devDependencies": {

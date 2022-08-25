@@ -1,72 +1,96 @@
 import fs from "fs";
-import https from "https";
-import tar from "tar";
 import path from "path";
-import { rename, mkdir, rm } from "fs/promises";
+import {
+  rename,
+  mkdir,
+  rm,
+  writeFile,
+  chmod,
+  readFile,
+  symlink,
+} from "fs/promises";
 import ora from "ora";
 import chalk from "chalk";
+import pacote from "pacote";
+import rpj from "read-package-json-fast";
+import glob from "glob";
 
 export async function downloadPackage(
   tarball: string,
   name: string,
-  tmpDir: string
+  parentFolder?: string
 ) {
   // First remove package if it already exists in node_modules
-  const packagePath = path.join(process.cwd(), "node_modules", name);
+  const packagePath = parentFolder
+    ? path.join(
+        process.cwd(),
+        "node_modules",
+        parentFolder,
+        "node_modules",
+        name
+      )
+    : path.join(process.cwd(), "node_modules", name);
+
   if (fs.existsSync(packagePath)) {
     await rm(packagePath, { recursive: true });
   }
 
-  // Remove @ and / from package name
-  const sanitizeName = name.replace(/@/g, "").replace(/\//g, "");
-  const tmpPackageDir = path.join(tmpDir, name);
-  const tmpPackageTarball = path.join(tmpDir, `${sanitizeName}.tgz`);
-  await mkdir(tmpPackageDir, { recursive: true });
-  const file = fs.createWriteStream(tmpPackageTarball);
-  const request = https.get(tarball, function (response) {
-    response.pipe(file);
+  await pacote.extract(tarball, packagePath).catch((error) => {
+    ora(
+      chalk.red(`Error downloading ${name}: ${JSON.stringify(error, null, 0)}`)
+    ).fail();
   });
-  await new Promise((resolve, reject) => {
-    request.on("error", (error) => {
-      reject(error);
-    });
-    file.on("finish", () => {
-      file.close();
-      resolve(true);
-    });
-  });
-  await tar.x({ file: tmpPackageTarball, C: tmpPackageDir });
-  // Save package into CWD node_modules folder
-  // Create folders if they don't exist
-  const node_path = path.join(process.cwd(), "/node_modules", name);
-  await mkdir(node_path, { recursive: true });
 
-  try {
-    // Check if /package folder exists inside tmpPackageDir
-    const packageFolder = path.join(tmpPackageDir, "/package");
-    if (fs.existsSync(packageFolder)) {
-      // Rename package folder to /node_modules/package
-      await rename(packageFolder, node_path)
-        .catch((error) => {})
-        .finally(async () => {
-          // Remove tmp package folder
-          return await rm(tmpPackageTarball, { recursive: true });
-        });
-    } else {
-      // Rename package folder to /node_modules/{package name}
-      await rename(tmpPackageDir, node_path)
-        .catch((error) => {
-          ora(
-            chalk.red(
-              `Error renaming ${tmpPackageDir} to ${node_path}: ${error}`
-            )
-          ).fail();
-        })
-        .finally(async () => {
-          return await rm(tmpPackageTarball, { recursive: true });
-        });
+  // Search for package.json in packagePath
+  const packages = glob.sync(path.join(packagePath, "**", "package.json"));
+  if (packages.length === 0) {
+    return;
+  }
+
+  for (const packageJSONFile of packages) {
+    const packageJSON = await rpj(packageJSONFile);
+    const { bin } = packageJSON;
+    if (bin) {
+      // Create .bin folder if it doesn't exist
+      const binPath = path.join(process.cwd(), "node_modules", ".bin");
+      if (!fs.existsSync(binPath)) {
+        await mkdir(binPath);
+      }
+
+      const isObject = typeof bin === "object";
+      const isString = typeof bin === "string";
+
+      if (isObject) {
+        const keys = Object.keys(bin);
+        for (const key of keys) {
+          const binPath = path.join(process.cwd(), "node_modules", ".bin", key);
+
+          // Remove bin if it already exists
+          if (fs.existsSync(binPath)) {
+            await rm(binPath, { recursive: true });
+          }
+
+          // Create symlink to bin file
+          await symlink(path.join(packagePath, bin[key]), binPath);
+
+          await chmod(binPath, 0o755);
+          break;
+        }
+        break;
+      } else if (isString) {
+        const binPath = path.join(process.cwd(), "node_modules", ".bin", bin);
+
+        // Remove bin if it already exists
+        if (fs.existsSync(binPath)) {
+          await rm(binPath, { recursive: true });
+        }
+
+        // Create symlink to bin file
+        await symlink(path.join(packagePath, bin), binPath);
+
+        await chmod(path.join(binPath), 0o755);
+        break;
+      }
     }
-  } catch (error) {
-    console.log(error);
   }
 }

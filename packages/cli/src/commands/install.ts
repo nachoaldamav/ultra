@@ -2,15 +2,18 @@ import path from "path";
 import os from "os";
 import chalk from "chalk";
 import ora from "ora";
-import { mkdtemp, rm, readFile, writeFile, mkdir } from "fs/promises";
-import type { NPM_Info } from "../../types/npm-info";
+import { mkdtemp, readFile, writeFile } from "fs/promises";
 import { downloadPackage } from "../utils/downloadPackage.js";
-import glob from "glob";
-import { chmodSync, existsSync } from "fs";
-import { getNearestVersion } from "../utils/getNearestVersion";
-import { clearName } from "../utils/clearName";
+import { clearName } from "../utils/clearName.js";
+import { fetchPackage } from "../utils/fetchPackage.js";
+import { compareSemanticVersions } from "../utils/sortVersions.js";
 
-let depsArray: { name: string; tarball: string; version: string }[] = [];
+let depsArray: {
+  name: string;
+  tarball: string;
+  version: string;
+  parent: string;
+}[] = [];
 
 export async function install(packages: string[]) {
   const loadingPackages = ora(
@@ -56,12 +59,22 @@ export async function install(packages: string[]) {
   fetchingPackages.text = chalk.green("All packages fetched!");
   fetchingPackages.succeed();
 
-  // Remove duplicates from depsArray
-  const depsArrayNoDuplicates = depsArray.filter(
-    (dep, index) => depsArray.findIndex((d) => d.name === dep.name) === index
+  // Write depsArray to file
+  const writingPackages = ora(chalk.green("Writing packages...")).start();
+  const depsArrayString = JSON.stringify(depsArray, null, 2);
+  await writeFile(
+    path.join(path.join(process.cwd(), "depsArray.json")),
+    depsArrayString
   );
+  writingPackages.succeed();
 
-  depsArray = depsArrayNoDuplicates;
+  // Remove duplicates from depsArray by name and version
+  const depsArrayNoDuplicates = depsArray.filter(
+    (dep, index) =>
+      depsArray.findIndex(
+        (d) => d.name === dep.name && d.version === dep.version
+      ) === index
+  );
 
   const downloadingPackages = ora(
     chalk.green("Downloading packages...")
@@ -69,19 +82,31 @@ export async function install(packages: string[]) {
 
   // Download tarballs for each package inside test_packages folder
   Promise.all(
-    depsArray.map(async (dep) => {
-      await downloadPackage(dep.tarball, clearName(dep.name), tmpDir)
-        .then(() => {
+    depsArrayNoDuplicates.map(async (dep) => {
+      // If there is more than one version of a package, send latest version to root, otherwise send version to parent folder
+      const packageArray = depsArrayNoDuplicates.filter(
+        (d) => d.name === dep.name
+      );
+
+      if (packageArray.length > 1) {
+        const sortedVersions = packageArray.sort(compareSemanticVersions);
+        const latestVersion = sortedVersions[sortedVersions.length - 1];
+        const isLatestVersion = dep.version === latestVersion.version;
+
+        await downloadPackage(
+          dep.tarball,
+          dep.name,
+          isLatestVersion ? "" : dep.parent
+        ).then(() => {
           downloadingPackages.text = chalk.green(`${dep.name} installed...`);
-        })
-        .catch((error) => {
-          ora(
-            chalk.red(
-              `Error downloading ${dep.name}: ${JSON.stringify(dep, null, 0)}`
-            )
-          ).fail();
-          console.log(error);
         });
+      } else {
+        await downloadPackage(dep.tarball, dep.name)
+          .then(() => {
+            downloadingPackages.text = chalk.green(`${dep.name} installed...`);
+          })
+          .catch((error) => {});
+      }
     })
   )
     .then(async () => {
@@ -97,7 +122,7 @@ export async function install(packages: string[]) {
       // Add packages to dependencies
       if (!isLocalInstall) {
         packages.forEach((p) => {
-          const dep = depsArray.find((d) => d.name === p);
+          const dep = depsArrayNoDuplicates.find((d) => d.name === p);
           if (dep) {
             dependencies[dep?.name] = dep?.version;
           }
@@ -109,65 +134,6 @@ export async function install(packages: string[]) {
           "utf8"
         );
       }
-      // Remove tmp folder
-      return await rm(tmpDir, { recursive: true });
-    })
-    .then(async () => {
-      await mkdir(path.join(process.cwd(), "node_modules", ".bin"), {
-        recursive: true,
-      });
-
-      const packageJSONFiles = glob.sync("**/package.json");
-      const promises = packageJSONFiles.map(async (file) => {
-        try {
-          const packageJSON = await readFile(file, "utf8");
-          const packageJSONObject = JSON.parse(packageJSON);
-          const { bin } = packageJSONObject;
-          if (bin) {
-            const isObject = typeof bin === "object";
-            const isString = typeof bin === "string";
-
-            if (isObject) {
-              Object.keys(bin).forEach(async (key) => {
-                // Save binary in cwd/node_modules/package/bin/key
-                const binPath = bin[key];
-
-                const binFile = await readFile(
-                  path.join(path.dirname(file), binPath),
-                  "utf8"
-                );
-
-                await writeFile(
-                  path.join(process.cwd(), "node_modules", ".bin", key),
-                  binFile,
-                  "utf8"
-                );
-
-                // Change permissions of binary
-                chmodSync(
-                  path.join(process.cwd(), "node_modules", ".bin", key),
-                  0o755
-                );
-              });
-            } else if (isString) {
-              const binPath = path.join(
-                path.dirname(file),
-                "node_modules",
-                packageJSONObject.name,
-                "bin",
-                bin
-              );
-              const binFile = path.join(binPath, bin);
-              const binFileExists = existsSync(binFile);
-              if (binFileExists) {
-                chmodSync(binFile, 0o755);
-              }
-            }
-          }
-        } catch (error) {}
-      });
-
-      return await Promise.all(promises);
     })
     .finally(() => {
       downloadingPackages.succeed(
@@ -176,65 +142,9 @@ export async function install(packages: string[]) {
     });
 }
 
-function getVersion(name: string) {
-  const version = name.split("@");
-
-  if (name.startsWith("@")) {
-    if (version.length === 2) {
-      return {
-        name: "@" + version[1],
-        version: "latest",
-      };
-    } else {
-      return {
-        name: "@" + version[1],
-        version: version[2],
-      };
-    }
-  } else if (version.length === 2) {
-    return {
-      name: version[0],
-      version: version[1],
-    };
-  } else {
-    return {
-      name: version[0],
-      version: "latest",
-    };
-  }
-}
-
-async function fetchPackage(name: string): Promise<NPM_Info | null> {
-  // If name has version, fetch that version
-  if (!name) return null;
-
-  const pkgData = getVersion(name);
-  const url = `https://registry.npmjs.org/${pkgData.name}`;
-
-  try {
-    const response = await fetch(url);
-    const body = await response.json();
-
-    const version = getNearestVersion(pkgData.version, body);
-
-    if (!body.versions) {
-      ora(chalk.red(`${url} not found`)).fail();
-    }
-
-    return {
-      name: body.name,
-      latest: version || body["dist-tags"].latest,
-      versions: body.versions,
-    };
-  } catch (error) {
-    console.log(`Error fetching ${name}:`, error);
-    return null;
-  }
-}
-
-async function getAllDependencies(name: string): Promise<any> {
-  // Check if package is already in depsArray
-  if (depsArray.some((dep) => dep.name === name)) {
+async function getAllDependencies(name: string, parent?: string): Promise<any> {
+  // Check if package is already in depsArray by name and version
+  if (depsArray.find((d) => d.name === name && d.version === parent)) {
     return null;
   }
 
@@ -253,11 +163,11 @@ async function getAllDependencies(name: string): Promise<any> {
     : [];
 
   const allDependencies = [...deps];
-
   const data = {
-    name,
+    name: clearName(name),
     tarball: body?.versions[body?.latest]?.dist?.tarball || "",
     version: body?.latest || "",
+    parent: parent ? clearName(parent) : "",
   };
 
   if (body.latest === undefined) {
@@ -278,7 +188,8 @@ async function getAllDependencies(name: string): Promise<any> {
   // If there are dependencies, recursively fetch them
   if (allDependencies.length > 0) {
     const promises = allDependencies.map(
-      async (dep) => await getAllDependencies(`${dep.name}@${dep.version}`)
+      async (dep) =>
+        await getAllDependencies(`${dep.name}@${dep.version}`, name)
     );
     await Promise.all(promises);
     return name;
