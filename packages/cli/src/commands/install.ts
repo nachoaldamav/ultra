@@ -2,17 +2,18 @@ import path from "path";
 import os from "os";
 import chalk from "chalk";
 import ora from "ora";
-import { mkdtemp, readFile, writeFile } from "fs/promises";
+import { mkdtemp, readFile, writeFile, rm } from "fs/promises";
 import { downloadPackage } from "../utils/downloadPackage.js";
 import { clearName } from "../utils/clearName.js";
 import { fetchPackage } from "../utils/fetchPackage.js";
 import { compareSemanticVersions } from "../utils/sortVersions.js";
+import { existsSync } from "fs";
 
 let depsArray: {
   name: string;
   tarball: string;
   version: string;
-  parent: string;
+  parent?: string;
 }[] = [];
 
 export async function install(packages: string[]) {
@@ -21,6 +22,12 @@ export async function install(packages: string[]) {
   ).start();
 
   const isLocalInstall = packages.length === 0;
+
+  // Remove node_modules/.bin folder if it exists
+  const binPath = path.join(process.cwd(), "node_modules", ".bin");
+  if (existsSync(binPath)) {
+    await rm(binPath, { recursive: true });
+  }
 
   // If no packages are passed, install dependencies from package.json
   if (packages.length === 0) {
@@ -42,8 +49,6 @@ export async function install(packages: string[]) {
   // Fetch packages from npm registry
   const promises = packages.map(fetchPackage);
   const results = await Promise.all(promises);
-
-  const tmpDir = await mkdtemp(path.join(os.tmpdir(), "fpm-"));
 
   loadingPackages.succeed();
 
@@ -80,15 +85,18 @@ export async function install(packages: string[]) {
     chalk.green("Downloading packages...")
   ).start();
 
-  // Download tarballs for each package inside test_packages folder
+  // Download tarballs for each package
   Promise.all(
     depsArrayNoDuplicates.map(async (dep) => {
-      // If there is more than one version of a package, send latest version to root, otherwise send version to parent folder
-      const packageArray = depsArrayNoDuplicates.filter(
-        (d) => d.name === dep.name
-      );
+      // Get all dependencies with the same name
+      const deps = depsArrayNoDuplicates.filter((d) => d.name === dep.name);
 
-      if (packageArray.length > 1) {
+      // If there is more than one version of a package, send latest version to root, otherwise send version to parent folder
+      const packageArray = [...new Set(deps)];
+
+      if (packageArray.length === 1) {
+        await downloadPackage(dep.tarball, dep.name, null);
+      } else if (packageArray.length > 1) {
         const sortedVersions = packageArray.sort(compareSemanticVersions);
         const latestVersion = sortedVersions[sortedVersions.length - 1];
         const isLatestVersion = dep.version === latestVersion.version;
@@ -96,7 +104,7 @@ export async function install(packages: string[]) {
         await downloadPackage(
           dep.tarball,
           dep.name,
-          isLatestVersion ? "" : dep.parent
+          isLatestVersion ? null : dep.parent
         ).then(() => {
           downloadingPackages.text = chalk.green(`${dep.name} installed...`);
         });
