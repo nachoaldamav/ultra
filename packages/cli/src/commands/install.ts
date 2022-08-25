@@ -7,8 +7,8 @@ import type { NPM_Info } from "../../types/npm-info";
 import { downloadPackage } from "../utils/downloadPackage.js";
 import glob from "glob";
 import { chmodSync, existsSync } from "fs";
-import { getNearestVersion } from "../utils/getNearestVersion.js";
-import { clearName } from "../utils/clearName.js";
+import { getNearestVersion } from "../utils/getNearestVersion";
+import { clearName } from "../utils/clearName";
 
 let depsArray: { name: string; tarball: string; version: string }[] = [];
 
