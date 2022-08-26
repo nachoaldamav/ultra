@@ -1,3 +1,8 @@
 name = "snpm-edge"
 main = "src/index.ts"
 compatibility_date = "2022-08-26"
+
+[[r2_buckets]]
+binding = 'NPM_TAR'
+bucket_name = 'tar-cache'
+preview_bucket_name = 'npmcache-dev'
