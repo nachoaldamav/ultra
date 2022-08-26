@@ -36,6 +36,7 @@ export async function fetchPackage(name: string): Promise<NPM_Info | null> {
   if (!name) return null;
 
   const pkgData = getVersion(name);
+
   const url = `https://registry.npmjs.org/${pkgData.name}`;
 
   try {

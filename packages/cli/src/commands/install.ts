@@ -1,5 +1,4 @@
 import path from "path";
-import os from "os";
 import chalk from "chalk";
 import ora from "ora";
 import { mkdtemp, readFile, writeFile, rm } from "fs/promises";
@@ -8,12 +7,17 @@ import { clearName } from "../utils/clearName.js";
 import { fetchPackage } from "../utils/fetchPackage.js";
 import { compareSemanticVersions } from "../utils/sortVersions.js";
 import { existsSync } from "fs";
+import Arborist from "@npmcli/arborist";
 
-let depsArray: {
+const arb = new Arborist();
+
+export let depsArray: {
   name: string;
   tarball: string;
   version: string;
   parent?: string;
+  parentVersion?: string;
+  isPackage?: boolean;
 }[] = [];
 
 export async function install(packages: string[]) {
@@ -39,27 +43,33 @@ export async function install(packages: string[]) {
     const packageJSONObject = JSON.parse(packageJSON);
     const dependencies = packageJSONObject.dependencies;
     const devDependencies = packageJSONObject?.devDependencies || {};
+
+    // Create array of dependencies to install with name and version
     const allDependencies = [
-      ...Object.keys(dependencies),
-      ...Object.keys(devDependencies),
+      ...Object.keys(dependencies).map((key) => `${key}@${dependencies[key]}`),
+      ...Object.keys(devDependencies).map(
+        (key) => `${key}@${devDependencies[key]}`
+      ),
     ];
-    packages = allDependencies;
+
+    // Sort deps by alphabetical order
+    packages = allDependencies.sort();
   }
 
-  // Fetch packages from npm registry
-  const promises = packages.map(fetchPackage);
-  const results = await Promise.all(promises);
+  ora(
+    chalk.blue(`Fetching dependencies..., ${JSON.stringify(packages, null, 0)}`)
+  ).info();
 
   loadingPackages.succeed();
 
   const fetchingPackages = ora(chalk.green("Fetching packages...")).start();
 
-  // Asyncronus Get all dependencies for each package
-  await Promise.all(
-    results.map(async (result) => {
-      await getAllDependencies(result?.name as string);
-    })
+  // Fetch packages from npm registry
+  const promises = packages.map((packageName) =>
+    getAllDependencies(packageName)
   );
+
+  await Promise.all(promises);
 
   fetchingPackages.text = chalk.green("All packages fetched!");
   fetchingPackages.succeed();
@@ -73,11 +83,15 @@ export async function install(packages: string[]) {
   );
   writingPackages.succeed();
 
-  // Remove duplicates from depsArray by name and version
+  // Remove duplicates from depsArray by name, version, parent and parentVersion
   const depsArrayNoDuplicates = depsArray.filter(
     (dep, index) =>
       depsArray.findIndex(
-        (d) => d.name === dep.name && d.version === dep.version
+        (dep2) =>
+          dep.name === dep2.name &&
+          dep.version === dep2.version &&
+          dep.parent === dep2.parent &&
+          dep.parentVersion === dep2.parentVersion
       ) === index
   );
 
@@ -90,6 +104,36 @@ export async function install(packages: string[]) {
     depsArrayNoDuplicates.map(async (dep) => {
       // Get all dependencies with the same name
       const deps = depsArrayNoDuplicates.filter((d) => d.name === dep.name);
+
+      // Get dep that doesn't have a parent
+      const isLocal = deps.find((d) => d.parent === "");
+
+      // If no parent, download package to root
+      if (isLocal && isLocal === dep) {
+        await downloadPackage(dep.tarball, dep.name);
+        return;
+      }
+
+      // Find deps with same parent, but different version
+      const sameParent = deps.filter((d) => d.parent === dep.parent);
+      const sameParentDifferentVersion = sameParent.filter(
+        (d) => d.parentVersion !== dep.parentVersion
+      );
+
+      if (sameParentDifferentVersion.length > 1) {
+        // If there are deps with same parent, but different version, download package to parent
+        ora(
+          chalk.blue(
+            `${dep.name}@${dep.version} has ${
+              sameParentDifferentVersion.length
+            } other versions of ${
+              dep.parent
+            } with versions ${sameParentDifferentVersion
+              .map((d) => d.parentVersion)
+              .join(", ")}`
+          )
+        ).info();
+      }
 
       // If there is more than one version of a package, send latest version to root, otherwise send version to parent folder
       const packageArray = [...new Set(deps)];
@@ -104,7 +148,7 @@ export async function install(packages: string[]) {
         await downloadPackage(
           dep.tarball,
           dep.name,
-          isLatestVersion ? null : dep.parent
+          isLatestVersion && !isLocal ? null : dep.parent
         ).then(() => {
           downloadingPackages.text = chalk.green(`${dep.name} installed...`);
         });
@@ -143,16 +187,20 @@ export async function install(packages: string[]) {
         );
       }
     })
-    .finally(() => {
+    .finally(async () => {
       downloadingPackages.succeed(
         chalk.green(`${depsArray.length} packages installed!`)
       );
     });
 }
 
-async function getAllDependencies(name: string, parent?: string): Promise<any> {
+async function getAllDependencies(
+  name: string,
+  parent?: string,
+  parentVersion?: string
+): Promise<any> {
   // Check if package is already in depsArray by name and version
-  if (depsArray.find((d) => d.name === name && d.version === parent)) {
+  if (depsArray.find((d) => d.name === name && !parent)) {
     return null;
   }
 
@@ -176,6 +224,7 @@ async function getAllDependencies(name: string, parent?: string): Promise<any> {
     tarball: body?.versions[body?.latest]?.dist?.tarball || "",
     version: body?.latest || "",
     parent: parent ? clearName(parent) : "",
+    parentVersion: parentVersion || "",
   };
 
   if (body.latest === undefined) {
@@ -197,7 +246,11 @@ async function getAllDependencies(name: string, parent?: string): Promise<any> {
   if (allDependencies.length > 0) {
     const promises = allDependencies.map(
       async (dep) =>
-        await getAllDependencies(`${dep.name}@${dep.version}`, name)
+        await getAllDependencies(
+          `${dep.name}@${dep.version}`,
+          name,
+          body.latest
+        )
     );
     await Promise.all(promises);
     return name;

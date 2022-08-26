@@ -55,11 +55,6 @@ export async function downloadPackage(
       return;
     }
 
-    if (name === "react-scripts")
-      ora(
-        chalk.blue(`${name} has ${packages.length} package.json files`)
-      ).info();
-
     for (const packageJSONFile of packages) {
       const packageJSON = await rpj(packageJSONFile);
       const { bin } = packageJSON;
@@ -103,8 +98,8 @@ export async function downloadPackage(
       }
     }
   } catch (error) {
-    ora(
+    /* ora(
       chalk.red(`Error installing ${name}: ${JSON.stringify(error, null, 0)}`)
-    ).fail();
+    ).fail(); */
   }
 }
