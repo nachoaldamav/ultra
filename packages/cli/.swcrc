@@ -8,7 +8,7 @@
         "dynamicImport": true
       },
       "transform": null,
-      "target": "es2022",
+      "target": "es2017",
       "loose": true,
       "externalHelpers": false
     },

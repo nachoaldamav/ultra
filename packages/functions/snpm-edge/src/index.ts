@@ -108,8 +108,6 @@ export default {
           // Use waitUntil so you can return the response without blocking on
           // writing to cache
           context.waitUntil(cache.put(cacheKey, response.clone()));
-
-          return response;
         } else {
           console.log(`Could not find object in R2: ${objectKey}`);
 
@@ -158,19 +156,44 @@ export default {
           await env.NPM_TAR.put(filename, file);
 
           console.log(`Stored object in R2: ${objectKey}`);
-
-          // Return the response
-          return response;
         }
       } catch (err) {
         console.log("Failed to retrieve file from R2: ", err);
-        return new Response(JSON.stringify(err), {
+        const file = await fetch(
+          `https://registry.npmjs.com/${dependency}/-/${filename}`
+        )
+          .then((res) => res.blob())
+          .then((blob) => {
+            return blob;
+          })
+          .catch((err) => {
+            console.log("Failed to retrieve file from NPM: ", err);
+            return null;
+          });
+
+        if (!file) {
+          return new Response("File not found in NPM", {
+            headers: {
+              "Content-Type": "text/plain",
+              "Cache-Control": "public, max-age=0",
+            },
+          });
+        }
+
+        response = new Response(file, {
           headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "public, max-age=0",
+            "Content-Type": "application/octet-stream",
+            "Cache-Control": "public, max-age=84600, s-maxage=84600, inmutable",
+            "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(
+              filename
+            )}; filename="${filename}"`,
+            "content-length": `${file.size}`,
           },
         });
       }
+
+      // Return the response
+      return response;
     } else {
       return new Response("Not Found", { status: 404 });
     }

@@ -4,5 +4,5 @@ compatibility_date = "2022-08-26"
 
 [[r2_buckets]]
 binding = 'NPM_TAR'
-bucket_name = 'tar-cache'
+bucket_name = 'snpm-prod'
 preview_bucket_name = 'npmcache-dev'
