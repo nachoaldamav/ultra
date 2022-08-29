@@ -49,7 +49,7 @@ export default {
       }
 
       // Construct the cache key from the cache URL
-      const cacheKey = new Request(url.toString(), request);
+      const cacheKey = new Request(url.toString(), request).url;
       const cache = caches.default;
 
       // Check whether the value is already available in the cache
@@ -61,8 +61,6 @@ export default {
         console.log(`Cache hit for: ${request.url}.`);
         return response;
       }
-
-      response;
 
       console.log(
         `Response for request url: ${request.url} not present in cache. Fetching and caching request.`
@@ -85,7 +83,7 @@ export default {
 
         headers.append(
           "Cache-Control",
-          "public, max-age=10, s-maxage=10, inmutable"
+          "public, max-age=84600, s-maxage=84600, inmutable"
         );
         headers.append("Content-Type", "application/octet-stream");
         headers.append(
@@ -110,35 +108,59 @@ export default {
           // Use waitUntil so you can return the response without blocking on
           // writing to cache
           context.waitUntil(cache.put(cacheKey, response.clone()));
-        } else {
-          const packageJson = await fetchPackage(dependency, false);
-          const packageJsonObject = JSON.parse(packageJson);
-          const packageVersion = packageJsonObject.versions[version];
 
-          if (!packageVersion) {
-            return new Response("Missing version", {
+          return response;
+        } else {
+          console.log(`Could not find object in R2: ${objectKey}`);
+
+          // Download file from NPM, send it to the client, and store it in the cache
+          const file = await fetch(
+            `https://registry.npmjs.com/${dependency}/-/${filename}`
+          )
+            .then((res) => res.blob())
+            .then((blob) => {
+              return blob;
+            })
+            .catch((err) => {
+              console.log("Failed to retrieve file from NPM: ", err);
+              return null;
+            });
+
+          if (!file) {
+            return new Response("File not found in NPM", {
               headers: {
                 "Content-Type": "text/plain",
-                "Cache-Control": "public, max-age=10",
+                "Cache-Control": "public, max-age=0",
               },
             });
           }
 
-          const packageVersionPath = packageVersion.dist.tarball;
-          const packageVersionResponse = await fetch(packageVersionPath);
-
-          // Send the response to the client and cache it
-          response = new Response(packageVersionResponse.body, {
-            headers,
-          });
-          context.waitUntil(cache.put(cacheKey, response.clone()));
-
-          // Store the downloaded tarball in R2
-          env.NPM_TAR.put(objectKey, packageVersionResponse.body, {
-            httpMetadata: {
-              ...headers,
+          response = new Response(file, {
+            headers: {
+              "Content-Type": "application/octet-stream",
+              "Cache-Control":
+                "public, max-age=84600, s-maxage=84600, inmutable",
+              "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(
+                filename
+              )}; filename="${filename}"`,
+              "content-length": `${file.size}`,
             },
           });
+
+          // Store the fetched response as cacheKey
+          // Use waitUntil so you can return the response without blocking on
+          // writing to cache
+          context.waitUntil(cache.put(cacheKey, response.clone()));
+
+          console.log(`Stored response in cache: ${cacheKey}`);
+
+          // Save file to R2
+          await env.NPM_TAR.put(filename, file);
+
+          console.log(`Stored object in R2: ${objectKey}`);
+
+          // Return the response
+          return response;
         }
       } catch (err) {
         console.log("Failed to retrieve file from R2: ", err);
@@ -149,8 +171,6 @@ export default {
           },
         });
       }
-
-      return response;
     } else {
       return new Response("Not Found", { status: 404 });
     }
