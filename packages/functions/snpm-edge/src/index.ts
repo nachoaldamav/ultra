@@ -153,7 +153,13 @@ export default {
           console.log(`Stored response in cache: ${cacheKey}`);
 
           // Save file to R2
-          await env.NPM_TAR.put(filename, file);
+          await env.NPM_TAR.put(filename, file)
+            .catch((err) => {
+              console.log("Failed to save file to R2: ", err);
+            })
+            .then(() => {
+              console.log(`Saved file to R2: ${filename}`);
+            });
 
           console.log(`Stored object in R2: ${objectKey}`);
         }
