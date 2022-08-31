@@ -6,7 +6,7 @@ import { downloadPackage } from "../utils/downloadPackage.js";
 import { clearName } from "../utils/clearName.js";
 import { fetchPackage } from "../utils/fetchPackage.js";
 import { compareSemanticVersions } from "../utils/sortVersions.js";
-import { existsSync } from "fs";
+import { existsSync, write } from "fs";
 import Arborist from "@npmcli/arborist";
 
 const options = {
@@ -26,10 +26,33 @@ export let depsArray: {
 
 export async function install(packages: string[]) {
   const spinner = ora("Generating tree...").start();
+
   await arb.buildIdealTree({
     add: packages,
   });
+
+  const childrens = Array.from(arb.idealTree.children);
+
+  const pkgs = childrens.map((data) => {
+    const [name, children] = data as [string, any];
+    return {
+      name: name,
+      version: children.version,
+      location: children.location,
+      path: children.path,
+      resolved: children.resolved,
+      children: Array.from(children.edgesOut),
+      parents: Array.from(children.edgesIn),
+    };
+  });
+
+  await writeFile(
+    path.join(process.cwd(), "tree.json"),
+    JSON.stringify(pkgs, null, 0)
+  );
+
   spinner.succeed();
+
   const spinner2 = ora("Downloading packages...").start();
   await arb
     .reify({
