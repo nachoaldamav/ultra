@@ -66,135 +66,42 @@ export default {
         `Response for request url: ${request.url} not present in cache. Fetching and caching request.`
       );
 
-      // If not in cache, get it from R2
-      const objectKey = filename;
+      // Download file from NPM, send it to the client, and store it in the cache
+      const file = await fetch(
+        `https://registry.npmjs.com/${dependency}/-/${filename}`
+      )
+        .then((res) => res.blob())
+        .then((blob) => {
+          return blob;
+        })
+        .catch((err) => {
+          console.log("Failed to retrieve file from NPM: ", err);
+          return null;
+        });
 
-      try {
-        const object = await env.NPM_TAR.get(objectKey)
-          .then((object) => {
-            return object;
-          })
-          .catch((err) => {
-            console.log("Failed to retrieve file from R2: ", err);
-            return null;
-          });
-
-        const headers = new Headers();
-
-        headers.append(
-          "Cache-Control",
-          "public, max-age=84600, s-maxage=84600, inmutable"
-        );
-        headers.append("Content-Type", "application/octet-stream");
-        headers.append(
-          "content-disposition",
-          `attachment; filename*=UTF-8''${encodeURIComponent(
-            objectKey
-          )}; filename="${objectKey}"`
-        );
-
-        if (object) {
-          console.log(`Found object in R2: ${objectKey}`);
-
-          // Set the appropriate object headers
-          object.writeHttpMetadata(headers);
-          headers.set("etag", object.httpEtag);
-
-          response = new Response(object.body, {
-            headers,
-          });
-
-          // Store the fetched response as cacheKey
-          // Use waitUntil so you can return the response without blocking on
-          // writing to cache
-          context.waitUntil(cache.put(cacheKey, response.clone()));
-        } else {
-          console.log(`Could not find object in R2: ${objectKey}`);
-
-          // Download file from NPM, send it to the client, and store it in the cache
-          const file = await fetch(
-            `https://registry.npmjs.com/${dependency}/-/${filename}`
-          )
-            .then((res) => res.blob())
-            .then((blob) => {
-              return blob;
-            })
-            .catch((err) => {
-              console.log("Failed to retrieve file from NPM: ", err);
-              return null;
-            });
-
-          if (!file) {
-            return new Response("File not found in NPM", {
-              headers: {
-                "Content-Type": "text/plain",
-                "Cache-Control": "public, max-age=0",
-              },
-            });
-          }
-
-          response = new Response(file, {
-            headers: {
-              "Content-Type": "application/octet-stream",
-              "Cache-Control":
-                "public, max-age=84600, s-maxage=84600, inmutable",
-              "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(
-                filename
-              )}; filename="${filename}"`,
-              "content-length": `${file.size}`,
-            },
-          });
-
-          // Store the fetched response as cacheKey
-          // Use waitUntil so you can return the response without blocking on
-          // writing to cache
-          context.waitUntil(cache.put(cacheKey, response.clone()));
-
-          console.log(`Stored response in cache: ${cacheKey}`);
-
-          // Save file to R2
-          await env.NPM_TAR.put(filename, response.clone().body)
-            .then(() => {
-              console.log(`Saved file to R2: ${filename}`);
-            })
-            .catch((err) => {
-              console.error("Failed to save file to R2: ", err);
-            });
-        }
-      } catch (err) {
-        console.log("Failed to retrieve file from R2: ", err);
-        const file = await fetch(
-          `https://registry.npmjs.com/${dependency}/-/${filename}`
-        )
-          .then((res) => res.blob())
-          .then((blob) => {
-            return blob;
-          })
-          .catch((err) => {
-            console.log("Failed to retrieve file from NPM: ", err);
-            return null;
-          });
-
-        if (!file) {
-          return new Response("File not found in NPM", {
-            headers: {
-              "Content-Type": "text/plain",
-              "Cache-Control": "public, max-age=0",
-            },
-          });
-        }
-
-        response = new Response(file, {
+      if (!file) {
+        return new Response("File not found in NPM", {
           headers: {
-            "Content-Type": "application/octet-stream",
-            "Cache-Control": "public, max-age=84600, s-maxage=84600, inmutable",
-            "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(
-              filename
-            )}; filename="${filename}"`,
-            "content-length": `${file.size}`,
+            "Content-Type": "text/plain",
+            "Cache-Control": "public, max-age=0",
           },
         });
       }
+
+      response = new Response(file, {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Cache-Control": "public, max-age=84600, s-maxage=84600, inmutable",
+          "content-length": `${file.size}`,
+        },
+      });
+
+      // Store the fetched response as cacheKey
+      // Use waitUntil so you can return the response without blocking on
+      // writing to cache
+      context.waitUntil(cache.put(cacheKey, response.clone()));
+
+      console.log(`Stored response in cache: ${cacheKey}`);
 
       // Return the response
       return response;
