@@ -9,7 +9,7 @@ In another project inside the same computer, it will use the same downloaded dep
 ## It really works?
 The answer is *NO*
 
-I'm working in making it works in a Vite starting project, but it doesn't work probably because of the symlinks.
+I'm working on making it work in a Vite starting project, but it doesn't work probably because of the symlinks.
 
 ## It's faster?
 Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.a. shared folder) it should be always faster than NPM.
