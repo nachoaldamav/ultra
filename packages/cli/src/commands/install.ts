@@ -1,110 +1,232 @@
+import chalk from "chalk";
+import ora, { Ora } from "ora";
+import rpjf from "read-package-json-fast";
+import { symlink, mkdir, rm, readdir, writeFile } from "fs/promises";
+import { write, writeFileSync } from "fs";
 import path from "path";
 import os from "os";
-import chalk from "chalk";
-import ora from "ora";
-import { mkdir, writeFile } from "fs/promises";
 import { existsSync } from "fs";
-import Arborist from "@npmcli/arborist";
-import { fork } from "child_process";
-import { fileURLToPath } from "url";
-import { _downloadSpinner } from "../utils/downloadSpinner.js";
+import { getDeps } from "../utils/getDeps.js";
+import pacote from "pacote";
 import { installBins } from "../utils/addBinaries.js";
 
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = path.dirname(__filename);
-
-const options = {
-  registry: "https://snpm-edge.snpm.workers.dev/package/",
-};
-
-const arb = new Arborist(options);
-
-export let depsArray: {
+let pkgs: {
   name: string;
-  tarball: string;
   version: string;
-  parent?: string;
-  parentVersion?: string;
-  isPackage?: boolean;
+  tarball: string;
 }[] = [];
+
+const __DOWNLOADING: string[] = [];
+const __DOWNLOADED: string[] = [];
+const __ERRORS: string[] = [];
 
 const userSnpmCache = `${os.homedir()}/.snpm-cache`;
 
-export async function install(packages: string[]) {
-  // Get current time to calculate time taken to install packages
-  const start = new Date().getTime();
+const REGISTRY = "https://registry.npmjs.org/";
 
-  // Check if cache directory exists
-  if (!existsSync(userSnpmCache)) {
-    await mkdir(userSnpmCache, { recursive: true });
+export default async function install() {
+  ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
+  // Create node_modules folder if it doesn't exist
+
+  if (
+    !existsSync(`${process.cwd()}/node_modules`) ||
+    !existsSync(`${process.cwd()}/node_modules/.bin`)
+  ) {
+    await mkdir(`${process.cwd()}/node_modules/.bin`, { recursive: true });
   }
 
-  ora(chalk.blue(`Caching packages to ${userSnpmCache}...`)).info();
-  const spinner = ora("Generating tree...").start();
+  // Read package.json
+  const pkg = await rpjf("./package.json");
 
-  await arb.buildIdealTree({
-    add: packages,
-  });
+  // Get all dependencies with version
+  const deps = getDeps(pkg);
 
-  const childrens = Array.from(arb.idealTree.children);
+  const __fetch = ora(chalk.green("Fetching packages...")).start();
 
-  const pkgs = childrens.map((data) => {
-    const [name, children] = data as [string, any];
-    return {
-      name: name,
-      version: children.version,
-      location: children.location,
-      path: children.path,
-      resolved: children.resolved,
-      children: Array.from(children.edgesOut),
-      parents: Array.from(children.edgesIn),
-    };
-  });
+  await Promise.all(
+    deps.map(async (dep) => {
+      const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
+        registry: REGISTRY,
+      });
 
-  await writeFile(
-    path.join(process.cwd(), "tree.json"),
-    JSON.stringify(pkgs, null, 2)
+      __fetch.text = chalk.green(`Fetched ${dep.name}!`);
+
+      pkgs.push({
+        name: dep.name,
+        version: manifest.version,
+        tarball: manifest.dist.tarball,
+      });
+    })
   );
 
-  spinner.succeed();
+  __fetch.succeed(chalk.green("Fetched all packages!"));
 
-  const t = _downloadSpinner;
-  t.text = chalk.blue("Downloading packages...");
-  t.start();
+  const __install = ora(chalk.green("Installing packages...")).start();
 
-  const promises = pkgs.map(async (pkg) => {
-    const fProccess = fork(path.join(__dirname, "../utils/downloadProcess.js"));
-    fProccess.send(pkg);
+  await Promise.all(
+    pkgs.map(async (pkg) => {
+      await installPkg(pkg, undefined, __install);
+    })
+  );
 
-    return new Promise((resolve) => {
-      fProccess.on("close", (code) => {
-        resolve(code);
-      });
-    });
-  });
+  __install.succeed(chalk.green("Installed all packages!"));
 
-  await Promise.all(promises);
-
-  // Check .bin directory exists
-  const binDir = path.join(process.cwd(), "node_modules", ".bin");
-  if (!existsSync(binDir)) {
-    await mkdir(binDir, { recursive: true });
-  }
-
+  const __binaries = ora(chalk.blue("Installing binaries...")).start();
   await installBins();
 
-  t.succeed();
-  const end = new Date().getTime();
-  const diff = end - start;
-  const minutes = Math.floor(diff / 60000);
-  const seconds = Math.floor((diff % 60000) / 1000);
+  __binaries.succeed(chalk.blue("Installed binaries!"));
 
-  ora(
-    chalk.green(
-      `Installed ${pkgs.length} packages in ${minutes} minutes and ${seconds} seconds! 🚀`
-    )
-  ).succeed();
+  ora(chalk.green("Done!")).succeed();
+}
 
-  process.exit();
+async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
+  const cacheFolder = `${userSnpmCache}/${manifest.name}/${manifest.version}`;
+
+  const pkgProjectDir = !parent
+    ? path.join(process.cwd(), "node_modules", manifest.name)
+    : path.join(parent, "node_modules", manifest.name);
+
+  // Check if cacheFolder has more than 2 files or folders
+  const folderContent = await readdir(cacheFolder)
+    .then((files) => {
+      return files;
+    })
+    .catch(() => {
+      return [];
+    });
+
+  const downloadFile = "snpm-download.json";
+
+  // @ts-ignore-next-line
+  if (!folderContent.includes(downloadFile)) {
+    // Check if parent exists
+    if (parent) {
+      if (!existsSync(`${parent}/node_modules`)) {
+        await mkdir(`${parent}/node_modules`, { recursive: true });
+      }
+    }
+
+    if (spinner) spinner.text = chalk.green(`Installing ${manifest.name}...`);
+
+    await extract(cacheFolder, manifest.tarball);
+
+    if (existsSync(pkgProjectDir)) {
+      await rm(pkgProjectDir, { recursive: true });
+      const dirs = pkgProjectDir.split("/");
+      dirs.pop();
+      await mkdir(dirs.join("/"), { recursive: true });
+      await symlink(cacheFolder, pkgProjectDir, "dir");
+    } else {
+      // Create directory for package without the last folder
+      const dirs = pkgProjectDir.split("/");
+      dirs.pop();
+      await mkdir(dirs.join("/"), { recursive: true });
+      await symlink(cacheFolder, pkgProjectDir, "dir").catch((e) => {
+        ora(
+          chalk.red(`Error installing ${manifest.name}! ${JSON.stringify(e)}`)
+        ).fail();
+      });
+    }
+
+    // Get production deps
+    try {
+      const pkg = await rpjf(`${cacheFolder}/package.json`);
+      const deps = Object.keys(pkg.dependencies || {}).map((dep) => {
+        return {
+          name: dep,
+          version: pkg.dependencies[dep],
+        };
+      });
+
+      const peerDeps = Object.keys(pkg.peerDependencies || {}).map((dep) => {
+        return {
+          name: dep,
+          version: pkg.peerDependencies[dep],
+        };
+      });
+
+      if (deps.length > 0)
+        mkdir(`${cacheFolder}/node_modules`, { recursive: true });
+
+      // Install production deps
+      await Promise.all(
+        [...deps, ...peerDeps].map(async (dep) => {
+          const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
+            registry: REGISTRY,
+          });
+
+          await installPkg(
+            {
+              name: dep.name,
+              version: manifest.version,
+              tarball: manifest.dist.tarball,
+            },
+            pkgProjectDir,
+            spinner
+          );
+        })
+      );
+      __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
+      return;
+    } catch (error: any) {
+      __ERRORS.push(JSON.stringify(error));
+      // Check if error is ENOENT
+      if (error.code === "ENOENT") {
+        await extract(cacheFolder, manifest.tarball);
+      }
+    }
+  } else {
+    // Check if symlink exists and delete it
+    if (existsSync(pkgProjectDir)) {
+      await rm(pkgProjectDir, { recursive: true });
+    }
+
+    const dirs = pkgProjectDir.split("/");
+    dirs.pop();
+    await mkdir(dirs.join("/"), { recursive: true });
+    await symlink(cacheFolder, pkgProjectDir, "dir");
+    return;
+  }
+}
+
+async function extract(cacheFolder: string, tarball: string): Promise<any> {
+  // Check if file ".snpm-download" exists inside cacheFolder using access
+  const folderContent = await readdir(cacheFolder)
+    .then((files) => {
+      return files;
+    })
+    .catch(() => {
+      return [];
+    });
+
+  const downloadFile = "snpm-download.json";
+
+  // @ts-ignore-next-line
+  if (folderContent.length > 0 && folderContent.includes(downloadFile)) {
+    return { res: "exists", error: null };
+  }
+
+  if (__DOWNLOADING.includes(tarball)) {
+    return { res: "downloading", error: null };
+  }
+
+  __DOWNLOADING.push(tarball);
+  const { res, error } = await pacote
+    .extract(tarball, cacheFolder)
+    .then(() => {
+      return { res: "ok", error: null };
+    })
+    .catch(async (err) => {
+      return { res: null, error: err };
+    });
+
+  if (res === null) {
+    ora(chalk.red(`Trying to extract ${tarball} again!`)).fail();
+    return await extract(cacheFolder, tarball);
+  }
+
+  await writeFile(path.join(cacheFolder, downloadFile), JSON.stringify({}));
+  __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
+
+  return { res, error };
 }
