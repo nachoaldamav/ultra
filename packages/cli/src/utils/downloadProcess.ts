@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { downloadPackage } from "./downloadPackage.js";
 import { _downloadSpinner } from "./downloadSpinner.js";
 
@@ -14,7 +13,12 @@ process
     }) => {
       if (!data.resolved) process.exit();
 
-      await downloadPackage(data.resolved, data.name, data.location);
+      await downloadPackage(
+        data.resolved,
+        data.name,
+        data.location,
+        data.version
+      );
       process.exit();
     }
   )

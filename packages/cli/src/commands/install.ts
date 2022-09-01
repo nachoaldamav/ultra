@@ -4,15 +4,12 @@ import glob from "glob";
 import chalk from "chalk";
 import ora from "ora";
 import { chmod, mkdir, symlink, writeFile } from "fs/promises";
-import { clearName } from "../utils/clearName.js";
-import { fetchPackage } from "../utils/fetchPackage.js";
-import { existsSync, write } from "fs";
+import { existsSync } from "fs";
 import Arborist from "@npmcli/arborist";
 import { fork } from "child_process";
 import { fileURLToPath } from "url";
 import { _downloadSpinner } from "../utils/downloadSpinner.js";
 import rpjf from "read-package-json-fast";
-import { cwd } from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -68,7 +65,7 @@ export async function install(packages: string[]) {
 
   await writeFile(
     path.join(process.cwd(), "tree.json"),
-    JSON.stringify(pkgs, null, 0)
+    JSON.stringify(pkgs, null, 2)
   );
 
   spinner.succeed();
@@ -111,71 +108,6 @@ export async function install(packages: string[]) {
   ).succeed();
 
   process.exit();
-}
-
-async function getAllDependencies(
-  name: string,
-  parent?: string,
-  parentVersion?: string
-): Promise<any> {
-  // Check if package is already in depsArray by name and version
-  if (depsArray.find((d) => d.name === name && !parent)) {
-    return null;
-  }
-
-  const body = await fetchPackage(name);
-
-  if (!body) {
-    return;
-  }
-
-  // Convert to array of objects
-  const deps = body?.versions[body?.latest]?.dependencies
-    ? Object.keys(body?.versions[body?.latest]?.dependencies).map((key) => ({
-        name: key,
-        version: body?.versions[body?.latest]?.dependencies[key],
-      }))
-    : [];
-
-  const allDependencies = [...deps];
-  const data = {
-    name: clearName(name),
-    tarball: body?.versions[body?.latest]?.dist?.tarball || "",
-    version: body?.latest || "",
-    parent: parent ? clearName(parent) : "",
-    parentVersion: parentVersion || "",
-  };
-
-  if (body.latest === undefined) {
-    ora(
-      chalk.red(`Error fetching ${name}: ${JSON.stringify(body, null, 0)}`)
-    ).fail();
-  }
-
-  depsArray.push(data);
-
-  // Clear dependencies that are already in depsArray
-  allDependencies.forEach((dependency) => {
-    if (depsArray.some((dep) => dep.name === dependency.name)) {
-      allDependencies.splice(allDependencies.indexOf(dependency), 1);
-    }
-  });
-
-  // If there are dependencies, recursively fetch them
-  if (allDependencies.length > 0) {
-    const promises = allDependencies.map(
-      async (dep) =>
-        await getAllDependencies(
-          `${dep.name}@${dep.version}`,
-          name,
-          body.latest
-        )
-    );
-    await Promise.all(promises);
-    return name;
-  } else {
-    return name;
-  }
 }
 
 async function installBins() {
