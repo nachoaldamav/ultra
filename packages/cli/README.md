@@ -40,4 +40,16 @@ SNPM install (no cache) took 16.74 seconds
 NPM install (no cache / no lockfile) took 21.41 seconds
 ```
 
+### Create React App - Craco
+
+WARNING: Currently CRA doesn't work with symlinked dependencies.
+
+```
+SNPM install (with cache) took 1.35 seconds
+NPM install (with cache / with lockfile) took 15.19 seconds
+NPM install (with cache / no lockfile) took 20.64 seconds
+SNPM install (no cache) took 56.56 seconds
+NPM install (no cache / no lockfile) took 66.27 seconds
+```
+
 The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for SNPM.
