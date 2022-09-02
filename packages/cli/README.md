@@ -13,3 +13,14 @@ Currently I only tested with a Vite starter project and it works.
 
 ## It's faster?
 Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.a. shared folder) it should be always faster than NPM.
+
+### Benchmark
+This is an example benchmark of a Vite project using `npm create vite@latest my-vue-app -- --template react-ts`
+
+```bash
+SNPM install (with cache) took 0.71 seconds
+NPM install (with cache / with lockfile) took 2.46 seconds
+NPM install (with cache / no lockfile) took 3.17 seconds
+SNPM install (no cache) took 7.45 seconds
+NPM install (no cache / no lockfile) took 7.46 seconds
+```
