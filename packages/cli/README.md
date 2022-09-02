@@ -18,9 +18,9 @@ Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.
 This is an example benchmark of a Vite project using `npm create vite@latest my-react-app -- --template react-ts`
 
 ```bash
-SNPM install (with cache) took 0.66 seconds
-NPM install (with cache / with lockfile) took 2.19 seconds
-NPM install (with cache / no lockfile) took 2.90 seconds
-SNPM install (no cache) took 6.60 seconds
-NPM install (no cache / no lockfile) took 7.15 seconds
+SNPM install (with cache) took 0.86 seconds
+NPM install (with cache / with lockfile) took 2.33 seconds
+NPM install (with cache / no lockfile) took 2.82 seconds
+SNPM install (no cache) took 6.82 seconds
+NPM install (no cache / no lockfile) took 7.14 seconds
 ```
