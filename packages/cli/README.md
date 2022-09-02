@@ -56,12 +56,18 @@ WARNING: I'm currently fixing some errors related with the symlinks.
 
 WARNING: Currently CRA doesn't work with symlinked dependencies.
 
-```
-SNPM install (with cache) took 1.35 seconds
-NPM install (with cache / with lockfile) took 15.19 seconds
-NPM install (with cache / no lockfile) took 20.64 seconds
-SNPM install (no cache) took 56.56 seconds
-NPM install (no cache / no lockfile) took 66.27 seconds
+```bash
+┌─────────┬────────────────────────────────────────────┬─────────────────┐
+│ (index) │                    name                    │      time       │
+├─────────┼────────────────────────────────────────────┼─────────────────┤
+│    0    │        'SNPM install (with cache)'         │ '0.79 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '6.70 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '15.48 seconds' │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '21.63 seconds' │
+│    4    │         'PNPM install (no cache)'          │ '23.37 seconds' │
+│    5    │         'SNPM install (no cache)'          │ '1.24 minutes'  │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '1.73 minutes'  │
+└─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 
 The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for SNPM.
