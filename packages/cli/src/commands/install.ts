@@ -2,7 +2,7 @@ import chalk from "chalk";
 import ora, { Ora } from "ora";
 import rpjf from "read-package-json-fast";
 import { symlink, mkdir, rm, readdir, writeFile } from "fs/promises";
-import { write, writeFileSync } from "fs";
+import { exec } from "child_process";
 import path from "path";
 import os from "os";
 import { existsSync } from "fs";
@@ -139,6 +139,7 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
       if (deps.length > 0)
         mkdir(`${cacheFolder}/node_modules`, { recursive: true });
 
+
       // Install production deps
       await Promise.all(
         deps.map(async (dep) => {
@@ -157,7 +158,21 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
           );
         })
       );
+
       // Execute postinstall script if exists
+      const postinstall = pkg.scripts.postinstall;
+      if (postinstall) {
+        const postinstallPath = path.join(cacheFolder, "node_modules", ".");
+        const postinstallScript = path.join(postinstallPath, postinstall);
+
+        if (existsSync(postinstallScript)) {
+          await exec(`${postinstallScript}`, {
+            cwd: postinstallPath,
+          });
+        }
+      }
+
+
       __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
       return;
     } catch (error: any) {
