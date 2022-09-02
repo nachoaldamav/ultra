@@ -131,26 +131,17 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
     // Get production deps
     try {
       const pkg = await rpjf(`${cacheFolder}/package.json`);
-      const deps = Object.keys(pkg.dependencies || {}).map((dep) => {
-        return {
-          name: dep,
-          version: pkg.dependencies[dep],
-        };
-      });
 
-      const peerDeps = Object.keys(pkg.peerDependencies || {}).map((dep) => {
-        return {
-          name: dep,
-          version: pkg.peerDependencies[dep],
-        };
-      });
+      const deps = getDeps(pkg, {
+        dev: true
+      })
 
       if (deps.length > 0)
         mkdir(`${cacheFolder}/node_modules`, { recursive: true });
 
       // Install production deps
       await Promise.all(
-        [...deps, ...peerDeps].map(async (dep) => {
+        deps.map(async (dep) => {
           const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
             registry: REGISTRY,
           });
@@ -166,6 +157,7 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
           );
         })
       );
+      // Execute postinstall script if exists
       __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
       return;
     } catch (error: any) {
