@@ -24,3 +24,5 @@ NPM install (with cache / no lockfile) took 2.82 seconds
 SNPM install (no cache) took 6.82 seconds
 NPM install (no cache / no lockfile) took 7.14 seconds
 ```
+
+The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for SNPM.
