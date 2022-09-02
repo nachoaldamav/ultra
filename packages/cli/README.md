@@ -30,6 +30,8 @@ NPM install (no cache / no lockfile) took 7.14 seconds
 ### Nextjs - TS
 This example is generated using `npx create-next-app --use-npm --ts`
 
+WARNING: I'm currently fixing some errors related with the symlinks.
+
 ```bash
 SNPM install (with cache) took 0.91 seconds
 NPM install (with cache / with lockfile) took 6.44 seconds
