@@ -1,260 +1,239 @@
-import path from "path";
 import chalk from "chalk";
-import ora from "ora";
-import { mkdtemp, readFile, writeFile, rm } from "fs/promises";
-import { downloadPackage } from "../utils/downloadPackage.js";
-import { clearName } from "../utils/clearName.js";
-import { fetchPackage } from "../utils/fetchPackage.js";
-import { compareSemanticVersions } from "../utils/sortVersions.js";
+import ora, { Ora } from "ora";
+import rpjf from "read-package-json-fast";
+import { symlink, mkdir, rm, readdir, writeFile } from "fs/promises";
+import { exec } from "child_process";
+import path from "path";
+import os from "os";
 import { existsSync } from "fs";
-import Arborist from "@npmcli/arborist";
+import { getDeps } from "../utils/getDeps.js";
+import pacote from "pacote";
+import { installBins } from "../utils/addBinaries.js";
 
-const arb = new Arborist();
-
-export let depsArray: {
+let pkgs: {
   name: string;
-  tarball: string;
   version: string;
-  parent?: string;
-  parentVersion?: string;
-  isPackage?: boolean;
+  tarball: string;
 }[] = [];
 
-export async function install(packages: string[]) {
-  const loadingPackages = ora(
-    chalk.green(`Installing packages: ${packages.join(", ")}...`)
-  ).start();
+const __DOWNLOADING: string[] = [];
+const __DOWNLOADED: string[] = [];
+const __ERRORS: string[] = [];
 
-  const isLocalInstall = packages.length === 0;
+const userSnpmCache = `${os.homedir()}/.snpm-cache`;
 
-  // Remove node_modules/.bin folder if it exists
-  const binPath = path.join(process.cwd(), "node_modules", ".bin");
-  if (existsSync(binPath)) {
-    await rm(binPath, { recursive: true });
+const REGISTRY = "https://registry.npmjs.org/";
+
+export default async function install() {
+  ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
+  // Create node_modules folder if it doesn't exist
+
+  if (
+    !existsSync(`${process.cwd()}/node_modules`) ||
+    !existsSync(`${process.cwd()}/node_modules/.bin`)
+  ) {
+    await mkdir(`${process.cwd()}/node_modules/.bin`, { recursive: true });
   }
 
-  // If no packages are passed, install dependencies from package.json
-  if (packages.length === 0) {
-    const packageJSON = await readFile(
-      path.join(process.cwd(), "package.json"),
-      "utf8"
-    );
+  // Read package.json
+  const pkg = await rpjf("./package.json");
 
-    const packageJSONObject = JSON.parse(packageJSON);
-    const dependencies = packageJSONObject.dependencies;
-    const devDependencies = packageJSONObject?.devDependencies || {};
+  // Get all dependencies with version
+  const deps = getDeps(pkg);
 
-    // Create array of dependencies to install with name and version
-    const allDependencies = [
-      ...Object.keys(dependencies).map((key) => `${key}@${dependencies[key]}`),
-      ...Object.keys(devDependencies).map(
-        (key) => `${key}@${devDependencies[key]}`
-      ),
-    ];
+  const __fetch = ora(chalk.green("Fetching packages...")).start();
 
-    // Sort deps by alphabetical order
-    packages = allDependencies.sort();
-  }
+  await Promise.all(
+    deps.map(async (dep) => {
+      const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
+        registry: REGISTRY,
+      });
 
-  ora(
-    chalk.blue(`Fetching dependencies..., ${JSON.stringify(packages, null, 0)}`)
-  ).info();
+      __fetch.text = chalk.green(`Fetched ${dep.name}!`);
 
-  loadingPackages.succeed();
-
-  const fetchingPackages = ora(chalk.green("Fetching packages...")).start();
-
-  // Fetch packages from npm registry
-  const promises = packages.map((packageName) =>
-    getAllDependencies(packageName)
-  );
-
-  await Promise.all(promises);
-
-  fetchingPackages.text = chalk.green("All packages fetched!");
-  fetchingPackages.succeed();
-
-  // Write depsArray to file
-  const writingPackages = ora(chalk.green("Writing packages...")).start();
-  const depsArrayString = JSON.stringify(depsArray, null, 2);
-  await writeFile(
-    path.join(path.join(process.cwd(), "depsArray.json")),
-    depsArrayString
-  );
-  writingPackages.succeed();
-
-  // Remove duplicates from depsArray by name, version, parent and parentVersion
-  const depsArrayNoDuplicates = depsArray.filter(
-    (dep, index) =>
-      depsArray.findIndex(
-        (dep2) =>
-          dep.name === dep2.name &&
-          dep.version === dep2.version &&
-          dep.parent === dep2.parent &&
-          dep.parentVersion === dep2.parentVersion
-      ) === index
-  );
-
-  const downloadingPackages = ora(
-    chalk.green("Downloading packages...")
-  ).start();
-
-  // Download tarballs for each package
-  Promise.all(
-    depsArrayNoDuplicates.map(async (dep) => {
-      // Get all dependencies with the same name
-      const deps = depsArrayNoDuplicates.filter((d) => d.name === dep.name);
-
-      // Get dep that doesn't have a parent
-      const isLocal = deps.find((d) => d.parent === "");
-
-      // If no parent, download package to root
-      if (isLocal && isLocal === dep) {
-        await downloadPackage(dep.tarball, dep.name);
-        return;
-      }
-
-      // Find deps with same parent, but different version
-      const sameParent = deps.filter((d) => d.parent === dep.parent);
-      const sameParentDifferentVersion = sameParent.filter(
-        (d) => d.parentVersion !== dep.parentVersion
-      );
-
-      if (sameParentDifferentVersion.length > 1) {
-        // If there are deps with same parent, but different version, download package to parent
-        ora(
-          chalk.blue(
-            `${dep.name}@${dep.version} has ${
-              sameParentDifferentVersion.length
-            } other versions of ${
-              dep.parent
-            } with versions ${sameParentDifferentVersion
-              .map((d) => d.parentVersion)
-              .join(", ")}`
-          )
-        ).info();
-      }
-
-      // If there is more than one version of a package, send latest version to root, otherwise send version to parent folder
-      const packageArray = [...new Set(deps)];
-
-      if (packageArray.length === 1) {
-        await downloadPackage(dep.tarball, dep.name, null);
-      } else if (packageArray.length > 1) {
-        const sortedVersions = packageArray.sort(compareSemanticVersions);
-        const latestVersion = sortedVersions[sortedVersions.length - 1];
-        const isLatestVersion = dep.version === latestVersion.version;
-
-        await downloadPackage(
-          dep.tarball,
-          dep.name,
-          isLatestVersion && !isLocal ? null : dep.parent
-        ).then(() => {
-          downloadingPackages.text = chalk.green(`${dep.name} installed...`);
-        });
-      } else {
-        await downloadPackage(dep.tarball, dep.name)
-          .then(() => {
-            downloadingPackages.text = chalk.green(`${dep.name} installed...`);
-          })
-          .catch((error) => {});
-      }
+      pkgs.push({
+        name: dep.name,
+        version: manifest.version,
+        tarball: manifest.dist.tarball,
+      });
     })
-  )
-    .then(async () => {
-      // Add dependencies to package.json
-      const packageJSON = await readFile(
-        path.join(process.cwd(), "package.json"),
-        "utf8"
-      );
+  );
 
-      const packageJSONObject = JSON.parse(packageJSON);
-      const dependencies = packageJSONObject.dependencies;
+  __fetch.succeed(chalk.green("Fetched all packages!"));
 
-      // Add packages to dependencies
-      if (!isLocalInstall) {
-        packages.forEach((p) => {
-          const dep = depsArrayNoDuplicates.find((d) => d.name === p);
-          if (dep) {
-            dependencies[dep?.name] = dep?.version;
-          }
-        });
+  const __install = ora(chalk.green("Installing packages...")).start();
 
-        await writeFile(
-          path.join(process.cwd(), "package.json"),
-          JSON.stringify(packageJSONObject, null, 2),
-          "utf8"
-        );
-      }
+  await Promise.all(
+    pkgs.map(async (pkg) => {
+      await installPkg(pkg, undefined, __install);
     })
-    .finally(async () => {
-      downloadingPackages.succeed(
-        chalk.green(`${depsArray.length} packages installed!`)
-      );
-    });
+  );
+
+  __install.succeed(chalk.green("Installed all packages!"));
+
+  const __binaries = ora(chalk.blue("Installing binaries...")).start();
+  await installBins();
+
+  __binaries.succeed(chalk.blue("Installed binaries!"));
+
+  ora(chalk.green("Done!")).succeed();
 }
 
-async function getAllDependencies(
-  name: string,
-  parent?: string,
-  parentVersion?: string
-): Promise<any> {
-  // Check if package is already in depsArray by name and version
-  if (depsArray.find((d) => d.name === name && !parent)) {
-    return null;
-  }
+async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
+  const cacheFolder = `${userSnpmCache}/${manifest.name}/${manifest.version}`;
 
-  const body = await fetchPackage(name);
+  const pkgProjectDir = !parent
+    ? path.join(process.cwd(), "node_modules", manifest.name)
+    : path.join(parent, "node_modules", manifest.name);
 
-  if (!body) {
+  // Check if cacheFolder has more than 2 files or folders
+  const folderContent = await readdir(cacheFolder)
+    .then((files) => {
+      return files;
+    })
+    .catch(() => {
+      return [];
+    });
+
+  const downloadFile = "snpm-download.json";
+
+  // @ts-ignore-next-line
+  if (!folderContent.includes(downloadFile)) {
+    // Check if parent exists
+    if (parent) {
+      if (!existsSync(`${parent}/node_modules`)) {
+        await mkdir(`${parent}/node_modules`, { recursive: true });
+      }
+    }
+
+    if (spinner) spinner.text = chalk.green(`Installing ${manifest.name}...`);
+
+    await extract(cacheFolder, manifest.tarball);
+
+    if (existsSync(pkgProjectDir)) {
+      await rm(pkgProjectDir, { recursive: true });
+      const dirs = pkgProjectDir.split("/");
+      dirs.pop();
+      await mkdir(dirs.join("/"), { recursive: true });
+      await symlink(cacheFolder, pkgProjectDir, "dir");
+    } else {
+      // Create directory for package without the last folder
+      const dirs = pkgProjectDir.split("/");
+      dirs.pop();
+      await mkdir(dirs.join("/"), { recursive: true });
+      await symlink(cacheFolder, pkgProjectDir, "dir").catch((e) => {
+        ora(
+          chalk.red(`Error installing ${manifest.name}! ${JSON.stringify(e)}`)
+        ).fail();
+      });
+    }
+
+    // Get production deps
+    try {
+      const pkg = await rpjf(`${cacheFolder}/package.json`);
+
+      const deps = getDeps(pkg, {
+        dev: true
+      })
+
+      if (deps.length > 0)
+        mkdir(`${cacheFolder}/node_modules`, { recursive: true });
+
+
+      // Install production deps
+      await Promise.all(
+        deps.map(async (dep) => {
+          const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
+            registry: REGISTRY,
+          });
+
+          await installPkg(
+            {
+              name: dep.name,
+              version: manifest.version,
+              tarball: manifest.dist.tarball,
+            },
+            pkgProjectDir,
+            spinner
+          );
+        })
+      );
+
+      // Execute postinstall script if exists
+      const postinstall = pkg.scripts.postinstall;
+      if (postinstall) {
+        const postinstallPath = path.join(cacheFolder, "node_modules", ".");
+        const postinstallScript = path.join(postinstallPath, postinstall);
+
+        if (existsSync(postinstallScript)) {
+          await exec(`${postinstallScript}`, {
+            cwd: postinstallPath,
+          });
+        }
+      }
+
+
+      __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
+      return;
+    } catch (error: any) {
+      __ERRORS.push(JSON.stringify(error));
+      // Check if error is ENOENT
+      if (error.code === "ENOENT") {
+        await extract(cacheFolder, manifest.tarball);
+      }
+    }
+  } else {
+    // Check if symlink exists and delete it
+    if (existsSync(pkgProjectDir)) {
+      await rm(pkgProjectDir, { recursive: true });
+    }
+
+    const dirs = pkgProjectDir.split("/");
+    dirs.pop();
+    await mkdir(dirs.join("/"), { recursive: true });
+    await symlink(cacheFolder, pkgProjectDir, "dir");
     return;
   }
+}
 
-  // Convert to array of objects
-  const deps = body?.versions[body?.latest]?.dependencies
-    ? Object.keys(body?.versions[body?.latest]?.dependencies).map((key) => ({
-        name: key,
-        version: body?.versions[body?.latest]?.dependencies[key],
-      }))
-    : [];
+async function extract(cacheFolder: string, tarball: string): Promise<any> {
+  // Check if file ".snpm-download" exists inside cacheFolder using access
+  const folderContent = await readdir(cacheFolder)
+    .then((files) => {
+      return files;
+    })
+    .catch(() => {
+      return [];
+    });
 
-  const allDependencies = [...deps];
-  const data = {
-    name: clearName(name),
-    tarball: body?.versions[body?.latest]?.dist?.tarball || "",
-    version: body?.latest || "",
-    parent: parent ? clearName(parent) : "",
-    parentVersion: parentVersion || "",
-  };
+  const downloadFile = "snpm-download.json";
 
-  if (body.latest === undefined) {
-    ora(
-      chalk.red(`Error fetching ${name}: ${JSON.stringify(body, null, 0)}`)
-    ).fail();
+  // @ts-ignore-next-line
+  if (folderContent.length > 0 && folderContent.includes(downloadFile)) {
+    return { res: "exists", error: null };
   }
 
-  depsArray.push(data);
-
-  // Clear dependencies that are already in depsArray
-  allDependencies.forEach((dependency) => {
-    if (depsArray.some((dep) => dep.name === dependency.name)) {
-      allDependencies.splice(allDependencies.indexOf(dependency), 1);
-    }
-  });
-
-  // If there are dependencies, recursively fetch them
-  if (allDependencies.length > 0) {
-    const promises = allDependencies.map(
-      async (dep) =>
-        await getAllDependencies(
-          `${dep.name}@${dep.version}`,
-          name,
-          body.latest
-        )
-    );
-    await Promise.all(promises);
-    return name;
-  } else {
-    return name;
+  if (__DOWNLOADING.includes(tarball)) {
+    return { res: "downloading", error: null };
   }
+
+  __DOWNLOADING.push(tarball);
+  const { res, error } = await pacote
+    .extract(tarball, cacheFolder)
+    .then(() => {
+      return { res: "ok", error: null };
+    })
+    .catch(async (err) => {
+      return { res: null, error: err };
+    });
+
+  if (res === null) {
+    ora(chalk.red(`Trying to extract ${tarball} again!`)).fail();
+    return await extract(cacheFolder, tarball);
+  }
+
+  await writeFile(path.join(cacheFolder, downloadFile), JSON.stringify({}));
+  __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
+
+  return { res, error };
 }
