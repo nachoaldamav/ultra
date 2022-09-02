@@ -43,7 +43,7 @@ export default async function install() {
   // Read "workspaces" field
   const workspaces = pkg.workspaces || null;
 
-  const wsDeps = await getDepsWorkspaces(workspaces)
+  const wsDeps = await getDepsWorkspaces(workspaces);
 
   // Get all dependencies with version
   const deps = getDeps(pkg).concat(wsDeps);
@@ -55,7 +55,7 @@ export default async function install() {
       const islocal = dep.version.startsWith("file:");
 
       if (islocal) {
-        await installLocalDep(dep)
+        await installLocalDep(dep);
         return;
       }
 
@@ -129,7 +129,7 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
       const dirs = pkgProjectDir.split("/");
       dirs.pop();
       await mkdir(dirs.join("/"), { recursive: true });
-      await symlink(cacheFolder, pkgProjectDir, "dir").catch(() => { });
+      await symlink(cacheFolder, pkgProjectDir, "dir").catch(() => {});
     } else {
       // Create directory for package without the last folder
       const dirs = pkgProjectDir.split("/");
@@ -147,12 +147,11 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
       const pkg = await rpjf(`${cacheFolder}/package.json`);
 
       const deps = getDeps(pkg, {
-        dev: true
-      })
+        dev: true,
+      });
 
       if (deps.length > 0)
         mkdir(`${cacheFolder}/node_modules`, { recursive: true });
-
 
       // Install production deps
       await Promise.all(
@@ -180,12 +179,11 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
         const postinstallScript = path.join(postinstallPath, postinstall);
 
         if (existsSync(postinstallScript)) {
-          await exec(`${postinstallScript}`, {
+          exec(`${postinstallScript}`, {
             cwd: postinstallPath,
           });
         }
       }
-
 
       __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
       return;
@@ -205,7 +203,7 @@ async function installPkg(manifest: any, parent?: string, spinner?: Ora) {
     const dirs = pkgProjectDir.split("/");
     dirs.pop();
     await mkdir(dirs.join("/"), { recursive: true });
-    await symlink(cacheFolder, pkgProjectDir, "dir").catch(() => { });
+    await symlink(cacheFolder, pkgProjectDir, "dir").catch(() => {});
     return;
   }
 }
