@@ -20,11 +20,17 @@ Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.
 This is an example benchmark of a Vite project using `npm create vite@latest my-react-app -- --template react-ts`
 
 ```bash
-SNPM install (with cache) took 0.86 seconds
-NPM install (with cache / with lockfile) took 2.33 seconds
-NPM install (with cache / no lockfile) took 2.82 seconds
-SNPM install (no cache) took 6.82 seconds
-NPM install (no cache / no lockfile) took 7.14 seconds
+┌─────────┬────────────────────────────────────────────┬─────────────────┐
+│ (index) │                    name                    │      time       │
+├─────────┼────────────────────────────────────────────┼─────────────────┤
+│    0    │        'SNPM install (with cache)'         │ '0.73 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '1.41 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '2.54 seconds'  │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '3.20 seconds'  │
+│    4    │         'PNPM install (no cache)'          │ '8.53 seconds'  │
+│    5    │         'SNPM install (no cache)'          │ '8.54 seconds'  │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '10.14 seconds' │
+└─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 
 ### Nextjs - TS
@@ -33,11 +39,17 @@ This example is generated using `npx create-next-app --use-npm --ts`
 WARNING: I'm currently fixing some errors related with the symlinks.
 
 ```bash
-SNPM install (with cache) took 0.91 seconds
-NPM install (with cache / with lockfile) took 6.44 seconds
-NPM install (with cache / no lockfile) took 7.47 seconds
-SNPM install (no cache) took 16.74 seconds
-NPM install (no cache / no lockfile) took 21.41 seconds
+┌─────────┬────────────────────────────────────────────┬─────────────────┐
+│ (index) │                    name                    │      time       │
+├─────────┼────────────────────────────────────────────┼─────────────────┤
+│    0    │        'SNPM install (with cache)'         │ '1.57 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '4.70 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '8.98 seconds'  │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '11.49 seconds' │
+│    4    │         'PNPM install (no cache)'          │ '27.55 seconds' │
+│    5    │         'SNPM install (no cache)'          │ '31.67 seconds' │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '42.55 seconds' │
+└─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 
 ### Create React App - Craco
