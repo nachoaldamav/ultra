@@ -14,7 +14,9 @@ Currently I only tested with a Vite starter project and it works.
 ## It's faster?
 Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.a. shared folder) it should be always faster than NPM.
 
-### Benchmark
+### Benchmarks
+
+#### Vite React - TS
 This is an example benchmark of a Vite project using `npm create vite@latest my-react-app -- --template react-ts`
 
 ```bash
@@ -23,6 +25,17 @@ NPM install (with cache / with lockfile) took 2.33 seconds
 NPM install (with cache / no lockfile) took 2.82 seconds
 SNPM install (no cache) took 6.82 seconds
 NPM install (no cache / no lockfile) took 7.14 seconds
+```
+
+### Nextjs - TS
+This example is generated using `npx create-next-app --use-npm --ts`
+
+```bash
+SNPM install (with cache) took 0.91 seconds
+NPM install (with cache / with lockfile) took 6.44 seconds
+NPM install (with cache / no lockfile) took 7.47 seconds
+SNPM install (no cache) took 16.74 seconds
+NPM install (no cache / no lockfile) took 21.41 seconds
 ```
 
 The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for SNPM.
