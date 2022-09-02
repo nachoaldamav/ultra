@@ -7,9 +7,9 @@ This CLI installs the dependencies in a single folder inside the disk. After tha
 In another project inside the same computer, it will use the same downloaded deps because all the dependencies are shared.
 
 ## It really works?
-The answer is *NO*
+The answer is *sometimes*
 
-I'm working on making it work in a Vite starting project, but it doesn't work probably because of the symlinks.
+Currently I only tested with a Vite starter project and it works.
 
 ## It's faster?
 Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.a. shared folder) it should be always faster than NPM.
