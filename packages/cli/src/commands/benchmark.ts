@@ -45,7 +45,7 @@ const tests = [
   {
     name: "PNPM install (no cache)",
     command: "pnpm install --force",
-    pre: "npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml",
+    pre: "npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml /home/nachoaldama/.local/share/pnpm/store/v3",
     spinner: ora(chalk.green(`Running "PNPM install (no cache)"...`)).stop(),
   },
   {
