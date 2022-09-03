@@ -1,5 +1,6 @@
 import { clear } from "./clear.js";
 import install from "./install.js";
+import { benchmark } from "./benchmark.js";
 
 export function commands(args: string[]) {
   const [command, ...rest] = args;
@@ -7,6 +8,9 @@ export function commands(args: string[]) {
   switch (command) {
     case "install":
       install();
+      break;
+    case "benchmark":
+      benchmark();
       break;
     case "clear":
       clear;
