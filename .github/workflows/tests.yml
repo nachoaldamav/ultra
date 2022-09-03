@@ -1,4 +1,4 @@
-name: Node.js Package
+name: SNPM CLI Benchmark
 
 on:
   workflow_dispatch:
