@@ -11,7 +11,7 @@ In another project inside the same computer, it will use the same downloaded dep
 ## It really works?
 The answer is *sometimes*
 
-Currently I only tested with a Vite starter project and it works.
+Currently I tested with the frameworks bellow, and only Vite works, the others have some issues with the symlinks.
 
 ## It's faster?
 Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.a. shared folder) it should be always faster than NPM.
