@@ -90,6 +90,7 @@ export async function benchmark(args: string[]) {
     await new Promise((resolve) => {
       exec(test.command, (error, stdout, stderr) => {
         if (stderr.includes("Error: Command failed")) {
+          console.log(stderr);
           err = stderr;
         }
         end = performance.now();
