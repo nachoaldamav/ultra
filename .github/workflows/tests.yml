@@ -1,4 +1,4 @@
-name: Node.js Package
+name: SNPM CLI Benchmark
 
 on:
   workflow_dispatch:
@@ -27,7 +27,7 @@ jobs:
       - name: Create Vite project
         run: npm create vite@latest snpm-vite -- --template react-ts && cd snpm-vite
       - name: Run benchmark
-        run: time snpm install
+        run: snpm benchmark --only-snpm
       
   
   
