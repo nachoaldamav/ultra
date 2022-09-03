@@ -1,77 +1,43 @@
-# Turborepo starter with npm
+# SNPM (WIP)
+SNPM is an "alternative" for NPM, but it's not meant to replace NPM/Yarn/PNPM
 
-This is an official starter turborepo.
+**DISCLAIMER 🚧**
 
-## What's inside?
+This project was made to learn more about Package Managers, for now you should only use it to play with it.
 
-This turborepo uses [npm](https://www.npmjs.com/) as a package manager. It includes the following packages/apps:
+## CLI
+The SNPM CLI is used to install packages from the package.json of a project.
 
-### Apps and Packages
+Its advantages are that it is faster than NPM and saves more space.
 
-- `docs`: a [Next.js](https://nextjs.org) app
-- `web`: another [Next.js](https://nextjs.org) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-## Setup
-
-This repository is used in the `npx create-turbo@latest` command, and selected when choosing which package manager you wish to use with your monorepo (npm).
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-npm run build
+### Instalation
+```bash
+npm i @snpm-io/cli -g
 ```
 
-### Develop
+### Commands
+- snpm install
+- snpm benchmark (Test it against NPM and PNPM)
+- snpm clear
 
-To develop all apps and packages, run the following command:
+### Todo
+- [ ] Make it work in some JS Frameworks
+- [ ] Fix monorepos integration (WIP)
 
-```
-cd my-turborepo
-npm run dev
-```
+### Why is it faster?
+SNPM uses the same installation system as PNPM, fetch dependency, download dependency. Without waiting for the rest of the dependencies.
 
-### Remote Caching
+To resolve the dependencies, a dependency tree is generated as in NPM version 2, each dependency (or subdependency) has its own `node_modules`.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.org/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+Now you are probably wondering how that makes the space more efficient than in NPM.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+Each dependency is a symbolic link to a common store inside `.snpm-cache`, so all your projects use shared dependencies.
 
-```
-cd my-turborepo
-npx turbo login
-```
+### It works?
+Short answer, probably no, but in some cases it works. (For now)
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+I've selected some quickstart templates to test SNPM, and I'm working on make it work in all of them.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your turborepo:
+If you want to test a template, you can use Vite, I've already tested it and it should work.
 
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Pipelines](https://turborepo.org/docs/core-concepts/pipelines)
-- [Caching](https://turborepo.org/docs/core-concepts/caching)
-- [Remote Caching](https://turborepo.org/docs/core-concepts/remote-caching)
-- [Scoped Tasks](https://turborepo.org/docs/core-concepts/scopes)
-- [Configuration Options](https://turborepo.org/docs/reference/configuration)
-- [CLI Usage](https://turborepo.org/docs/reference/command-line-reference)
+[Full list](https://github.com/nachoaldamav/snpm/tree/main/packages/cli#readme)

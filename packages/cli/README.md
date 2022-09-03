@@ -1,4 +1,6 @@
 # SNPM CLI
+[![SNPM CLI Benchmark](https://github.com/nachoaldamav/snpm/actions/workflows/tests.yml/badge.svg)](https://github.com/nachoaldamav/snpm/actions/workflows/tests.yml)
+
 This is the CLI for SNPM, is a work in progress and shouldn't be used in production, just for fun.
 
 ## How it works
