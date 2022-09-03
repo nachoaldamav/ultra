@@ -62,13 +62,13 @@ WARNING: Currently CRA doesn't work with symlinked dependencies.
 ┌─────────┬────────────────────────────────────────────┬─────────────────┐
 │ (index) │                    name                    │      time       │
 ├─────────┼────────────────────────────────────────────┼─────────────────┤
-│    0    │        'SNPM install (with cache)'         │ '0.79 seconds'  │
-│    1    │        'PNPM install (with cache)'         │ '6.70 seconds'  │
-│    2    │ 'NPM install (with cache / with lockfile)' │ '15.48 seconds' │
-│    3    │  'NPM install (with cache / no lockfile)'  │ '21.63 seconds' │
-│    4    │         'PNPM install (no cache)'          │ '23.37 seconds' │
-│    5    │         'SNPM install (no cache)'          │ '1.24 minutes'  │
-│    6    │   'NPM install (no cache / no lockfile)'   │ '1.73 minutes'  │
+│    0    │        'SNPM install (with cache)'         │ '2.02 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '6.77 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '15.53 seconds' │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '22.59 seconds' │
+│    4    │         'PNPM install (no cache)'          │ '30.41 seconds' │
+│    5    │         'SNPM install (no cache)'          │ '1.03 minutes'  │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '1.49 minutes'  │
 └─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 

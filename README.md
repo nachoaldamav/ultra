@@ -16,9 +16,9 @@ npm i @snpm-io/cli -g
 ```
 
 ### Commands
-- snpm install
-- snpm benchmark (Test it against NPM and PNPM)
-- snpm clear
+- `snpm install` Installs packages from package.json
+- `snpm benchmark` Tests SNPM against NPM and PNPM
+- `snpm clear` Remove .snpm-cache folder
 
 ### Todo
 - [ ] Make it work in some JS Frameworks
