@@ -12,11 +12,7 @@ Its advantages are that it is faster than NPM and saves more space.
 
 ### Instalation
 ```bash
-git clone https://github.com/nachoaldamav/snpm.git
-cd snpm
-npm install
-npm run build -w=@snpm/cli
-cd packages/cli && npm install . -g
+npm i @snpm-io/cli -g
 ```
 
 ### Commands
