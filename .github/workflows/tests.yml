@@ -55,7 +55,7 @@ jobs:
       - name: Build
         run: npm run build --if-present
       
-  install-cli
+  install-cli:
     runs-on: ${{ matrix.os }}
     needs: [build]
     steps:
