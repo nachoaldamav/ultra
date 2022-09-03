@@ -27,7 +27,7 @@ jobs:
       - name: Create Vite project
         run: npm create vite@latest snpm-vite -- --template react-ts && cd snpm-vite
       - name: Run benchmark
-        run: snpm benchmark --only-snpm
+        run: time snpm install
       
   
   
