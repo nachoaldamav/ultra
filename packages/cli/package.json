@@ -1,14 +1,22 @@
 {
-  "name": "@snpm/cli",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@snpm-io/cli",
+  "version": "0.0.1",
+  "description": "SNPM CLI Tool.",
+  "private": false,
+  "main": "build/bin/cli.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nachoaldamav/snpm/tree/main/packages/cli"
+  },
   "type": "module",
   "scripts": {
     "dev": "swc ./src -d ./build --watch",
     "build": "swc ./src -d ./build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "build"
+  ],
   "bin": {
     "snpm": "./build/bin/cli.js"
   },
