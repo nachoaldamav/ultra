@@ -19,7 +19,8 @@
   "devDependencies": {
     "eslint-config-custom": "*",
     "prettier": "latest",
-    "turbo": "latest"
+    "turbo": "latest",
+    "ora": "6.1.2"
   },
   "engines": {
     "npm": ">=7.0.0",
