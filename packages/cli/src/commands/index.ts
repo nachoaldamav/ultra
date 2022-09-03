@@ -10,7 +10,7 @@ export function commands(args: string[]) {
       install();
       break;
     case "benchmark":
-      benchmark();
+      benchmark(rest);
       break;
     case "clear":
       clear;

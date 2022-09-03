@@ -56,10 +56,17 @@ const tests = [
   },
 ];
 
-export async function benchmark() {
+export async function benchmark(args: string[]) {
+  // If the user passed flag --only-snpm, we only run the SNPM tests
+  const onlySnpm = args.includes("--only-snpm");
+
+  const testsToRun = onlySnpm
+    ? tests.filter((test) => test.name.includes("SNPM"))
+    : tests;
+
   const results = [];
   // Run the tests not in parallel
-  for await (const test of tests) {
+  for await (const test of testsToRun) {
     test.spinner.start();
 
     let start = 0;
