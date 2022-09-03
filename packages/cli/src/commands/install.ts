@@ -91,6 +91,7 @@ export default async function install() {
   __binaries.succeed(chalk.blue("Installed binaries!"));
 
   ora(chalk.green("Done!")).succeed();
+  process.exit();
 }
 
 async function installPkg(manifest: any, parent?: string, spinner?: Ora) {

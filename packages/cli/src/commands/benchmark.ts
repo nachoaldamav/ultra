@@ -89,6 +89,11 @@ export async function benchmark(args: string[]) {
 
     await new Promise((resolve) => {
       exec(test.command, (error, stdout, stderr) => {
+        console.log({
+          error,
+          stdout,
+          stderr,
+        });
         if (error) {
           err = error;
         }
