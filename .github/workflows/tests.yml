@@ -19,11 +19,11 @@ jobs:
           cache: 'npm'
           node-version: '18'
       - name: Install dependencies
-        run: npm install
+        run: cd packages/cli && npm install
       - name: Build CLI
-        run: npm run build -w=@snpm/cli
+        run: npm run build
       - name: Install CLI
-        run: cd packages/cli && npm install . -g && cd ../../
+        run: npm install . -g && cd ../../
       - name: Create Vite project
         run: npm create vite@latest snpm-vite -- --template react-ts && cd snpm-vite
       - name: Run benchmark

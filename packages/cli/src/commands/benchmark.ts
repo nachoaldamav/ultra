@@ -94,7 +94,7 @@ export async function benchmark(args: string[]) {
           stdout,
           stderr,
         });
-        if (error) {
+        if (stderr.includes("Error: Command failed")) {
           err = error;
         }
         end = performance.now();
