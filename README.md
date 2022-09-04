@@ -22,7 +22,7 @@ npm i @snpm-io/cli -g
 
 ### Todo
 - [ ] Make it work in some JS Frameworks
-- [ ] Fix monorepos integration (WIP)
+- [x] Fix monorepos integration (Tested with this Monorepo)
 
 ### Why is it faster?
 SNPM uses the same installation system as PNPM, fetch dependency, download dependency. Without waiting for the rest of the dependencies.
