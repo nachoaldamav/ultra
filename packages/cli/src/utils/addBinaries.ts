@@ -9,7 +9,7 @@ import rpjf from "read-package-json-fast";
 export async function installBins() {
   try {
     // Get all packages.json inside {cwd}/node_modules
-    const packages = glob.sync(`${process.cwd()}/node_modules/**/package.json`);
+    const packages = glob.sync(`${process.cwd()}/**/package.json`);
 
     ora(chalk.blue(`Installing ${packages.length} binaries...`)).info();
 

@@ -8,7 +8,6 @@ const tests = [
     name: "NPM install (no cache / no lockfile)",
     command: "npm install --force",
     pre: "npm cache clean -f && rm -rf node_modules package-lock.json",
-    // @ts-ignore-next-line
     spinner: ora(
       chalk.green(`Running "NPM install (no cache / no lockfile)"...`)
     ).stop(),
@@ -17,7 +16,6 @@ const tests = [
     name: "NPM install (with cache / no lockfile)",
     command: "npm install --force",
     pre: "rm -rf node_modules package-lock.json",
-    // @ts-ignore-next-line
     spinner: ora(
       chalk.green(`Running "NPM install (with cache / no lockfile)"...`)
     ).stop(),
@@ -33,7 +31,7 @@ const tests = [
   {
     name: "SNPM install (no cache)",
     command: "snpm install",
-    pre: "npm cache clean -f && rm -rf node_modules /home/nachoaldama/.snpm-cache",
+    pre: "npm cache clean -f && snpm clear",
     spinner: ora(chalk.green(`Running "SNPM install (no cache)"...`)).stop(),
   },
   {

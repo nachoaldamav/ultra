@@ -1,106 +1,75 @@
-import chalk from "chalk";
+import os from "os";
+import path from "path";
+import pacote from "pacote";
 import ora, { Ora } from "ora";
 import rpjf from "read-package-json-fast";
-import { symlink, mkdir, rm, readdir, writeFile } from "fs/promises";
-import { exec } from "child_process";
-import path from "path";
-import os from "os";
+import chalk from "chalk";
+import { mkdir, readdir, rm, symlink, writeFile } from "fs/promises";
+import { createModules } from "../utils/createModules.js";
 import { existsSync } from "fs";
 import { getDeps } from "../utils/getDeps.js";
-import pacote from "pacote";
-import { installBins } from "../utils/addBinaries.js";
-import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
-import { installLocalDep } from "../utils/installLocalDep.js";
-import { createModules } from "../utils/createModules.js";
+import { promisify } from "util";
+import { exec as execCallback } from "child_process";
+const exec = promisify(execCallback);
 
-let pkgs: {
-  name: string;
-  version: string;
-  tarball: string;
-  parent?: string;
-}[] = [];
-
-const __DOWNLOADING: string[] = [];
-const __DOWNLOADED: string[] = [];
-const __ERRORS: string[] = [];
-
-const userSnpmCache = `${os.homedir()}/.snpm-cache`;
-
+const userSnpmCache = path.join(os.homedir(), ".snpm-cache");
 const REGISTRY = "https://registry.npmjs.org/";
 
-export default async function install() {
-  ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
+const __DOWNLOADING: string[] = [];
 
+export default async function add(deps: string[]) {
   await createModules();
-
-  // Read package.json
-  const pkg = await rpjf("./package.json");
-
-  // Read "workspaces" field
-  const workspaces = pkg.workspaces || null;
-
-  const wsDeps = await getDepsWorkspaces(workspaces);
-
-  // Get all dependencies with version
-  const deps = getDeps(pkg).concat(wsDeps);
-
-  const __fetch = ora(chalk.green("Fetching packages...")).start();
-
-  await Promise.all(
+  const pkgs = await Promise.all(
     deps.map(async (dep) => {
-      const islocal = dep.version.startsWith("file:");
+      const manifest = await pacote.manifest(dep, {
+        registry: "https://registry.npmjs.org/",
+      });
 
-      if (islocal) {
-        await installLocalDep(dep);
-        return;
+      if (!manifest) {
+        ora(chalk.red(`Package ${dep} not found!`)).fail();
       }
 
-      const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
-        registry: REGISTRY,
-      });
-
-      __fetch.text = chalk.green(`Fetched ${dep.name}!`);
-
-      pkgs.push({
-        name: dep.name,
+      return {
+        name: manifest.name,
         version: manifest.version,
         tarball: manifest.dist.tarball,
-        parent: dep.parent || undefined,
-      });
+      };
     })
   );
-
-  __fetch.succeed(chalk.green("Fetched all packages!"));
 
   const __install = ora(chalk.green("Installing packages...")).start();
 
   await Promise.all(
     pkgs.map(async (pkg) => {
-      await installPkg(pkg, pkg.parent, __install);
+      await install(pkg, __install);
     })
   );
 
   __install.succeed(chalk.green("Installed all packages!"));
 
-  const __binaries = ora(chalk.blue("Installing binaries...")).start();
-  await installBins();
+  // Add packages to package.json
+  const pkg = await rpjf(path.join(process.cwd(), "package.json"));
 
-  __binaries.succeed(chalk.blue("Installed binaries!"));
+  pkg.dependencies = pkg.dependencies || {};
 
-  ora(chalk.green("Done!")).succeed();
-  process.exit();
+  pkgs.forEach((dep) => {
+    pkg.dependencies[dep.name] = dep.version;
+  });
+
+  await writeFile(
+    path.join(process.cwd(), "package.json"),
+    JSON.stringify(pkg, null, 2)
+  );
+
+  ora(chalk.green("Added all packages!")).succeed();
 }
 
-export async function installPkg(
-  manifest: any,
-  parent?: string,
-  spinner?: Ora
-) {
-  const cacheFolder = `${userSnpmCache}/${manifest.name}/${manifest.version}`;
+async function install(pkg: Install["pkg"], spinner: Ora, parent?: string) {
+  const cacheFolder = `${userSnpmCache}/${pkg.name}/${pkg.version}`;
 
   const pkgProjectDir = !parent
-    ? path.join(process.cwd(), "node_modules", manifest.name)
-    : path.join(parent, "node_modules", manifest.name);
+    ? path.join(process.cwd(), "node_modules", pkg.name)
+    : path.join(parent, "node_modules", pkg.name);
 
   const folderContent = await readdir(cacheFolder)
     .then((files) => {
@@ -120,9 +89,9 @@ export async function installPkg(
       }
     }
 
-    if (spinner) spinner.text = chalk.green(`Installing ${manifest.name}...`);
+    if (spinner) spinner.text = chalk.green(`Installing ${pkg.name}...`);
 
-    await extract(cacheFolder, manifest.tarball);
+    await extract(cacheFolder, pkg.tarball);
 
     if (existsSync(pkgProjectDir)) {
       await rm(pkgProjectDir, { recursive: true });
@@ -137,7 +106,7 @@ export async function installPkg(
       await mkdir(dirs.join("/"), { recursive: true });
       await symlink(cacheFolder, pkgProjectDir, "junction").catch((e) => {
         ora(
-          chalk.red(`Error installing ${manifest.name}! ${JSON.stringify(e)}`)
+          chalk.red(`Error installing ${pkg.name}! ${JSON.stringify(e)}`)
         ).fail();
       });
     }
@@ -160,38 +129,37 @@ export async function installPkg(
             registry: REGISTRY,
           });
 
-          await installPkg(
+          await install(
             {
               name: dep.name,
               version: manifest.version,
               tarball: manifest.dist.tarball,
             },
-            pkgProjectDir,
-            spinner
+            spinner,
+            pkgProjectDir
           );
         })
       );
 
       // Execute postinstall script if exists
       const postinstall = pkg.scripts.postinstall;
+
       if (postinstall) {
         const postinstallPath = path.join(cacheFolder, "node_modules", ".");
         const postinstallScript = path.join(postinstallPath, postinstall);
 
         if (existsSync(postinstallScript)) {
-          exec(`${postinstallScript}`, {
+          await exec(`${postinstallScript}`, {
             cwd: postinstallPath,
           });
         }
       }
 
-      __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
       return;
     } catch (error: any) {
-      __ERRORS.push(JSON.stringify(error));
       // Check if error is ENOENT
       if (error.code === "ENOENT") {
-        await extract(cacheFolder, manifest.tarball);
+        await extract(cacheFolder, pkg.tarball);
       }
     }
   } else {
@@ -203,7 +171,7 @@ export async function installPkg(
     const dirs = pkgProjectDir.split("/");
     dirs.pop();
     await mkdir(dirs.join("/"), { recursive: true });
-    await symlink(cacheFolder, pkgProjectDir, "junction").catch(() => {});
+    await symlink(cacheFolder, pkgProjectDir, "dir").catch(() => {});
     return;
   }
 }
@@ -249,3 +217,13 @@ async function extract(cacheFolder: string, tarball: string): Promise<any> {
 
   return { res, error };
 }
+
+type Install = {
+  pkg: {
+    name: string;
+    version: string;
+    tarball: string;
+  };
+  spinner: Ora;
+  parent?: string;
+};
