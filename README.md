@@ -21,7 +21,7 @@ npm i @snpm-io/cli -g
 - `snpm clear` Remove .snpm-cache folder
 
 ### Todo
-- [ ] Make it work in some JS Frameworks
+- [ ] Make it work in some JS Frameworks ([Follow progress here](https://github.com/nachoaldamav/snpm/issues?q=is%3Aissue+is%3Aopen+label%3Aframeworks))
 - [x] Fix monorepos integration (Tested with this Monorepo)
 
 ### Why is it faster?
