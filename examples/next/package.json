@@ -19,8 +19,7 @@
     "@types/react-dom": "18.0.6",
     "eslint": "8.23.0",
     "eslint-config-next": "12.2.5",
-    "typescript": "4.8.2",
-    "@superui/styles": "0.0.10"
+    "typescript": "4.8.2"
   },
   "_id": "snpm-next@0.1.0"
 }
