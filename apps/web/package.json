@@ -1,5 +1,5 @@
 {
-  "name": "snpm-web",
+  "name": "@snpm-io/web",
   "version": "0.0.0",
   "private": true,
   "scripts": {
