@@ -86,12 +86,22 @@ export async function benchmark(args: string[]) {
     let end = 0;
 
     await new Promise((resolve) => {
+      // Every second, we update the spinner text
+      const interval = setInterval(() => {
+        test.spinner.text = chalk.green(
+          `${test.name}` +
+            chalk.gray(
+              ` - ${Math.round((performance.now() - start) / 1000)}s elapsed`
+            )
+        );
+      }, 1000);
       exec(test.command, (error, stdout, stderr) => {
         if (stderr.includes("Error: Command failed")) {
           console.log(stderr);
           err = stderr;
         }
         end = performance.now();
+        clearInterval(interval);
         resolve(true);
       });
     });
@@ -101,7 +111,14 @@ export async function benchmark(args: string[]) {
       time: end - start,
       error: err,
     });
-    test.spinner.succeed(chalk.green(`Finished "${test.name}"!`));
+
+    test.spinner.text = chalk.green(
+      `${test.name}` +
+        chalk.gray(
+          ` - ${Math.round((performance.now() - start) / 1000)}s elapsed`
+        )
+    );
+    test.spinner.succeed();
   }
 
   // Sort the results by time
