@@ -2,6 +2,10 @@ import chalk from "chalk";
 import { exec } from "child_process";
 import ora from "ora";
 import { performance } from "perf_hooks";
+import os from "os";
+import deleteBunManifests from "../utils/deleteBunManifests.js";
+
+const homeDir = os.homedir();
 
 const tests = [
   {
@@ -11,6 +15,7 @@ const tests = [
     spinner: ora(
       chalk.green(`Running "NPM install (no cache / no lockfile)"...`)
     ).stop(),
+    group: 1,
   },
   {
     name: "NPM install (with cache / no lockfile)",
@@ -19,6 +24,7 @@ const tests = [
     spinner: ora(
       chalk.green(`Running "NPM install (with cache / no lockfile)"...`)
     ).stop(),
+    group: 2,
   },
   {
     name: "NPM install (with cache / with lockfile)",
@@ -27,30 +33,83 @@ const tests = [
     spinner: ora(
       chalk.green(`Running "NPM install (with cache / with lockfile)"...`)
     ).stop(),
+    group: 3,
+  },
+  {
+    name: "YARN install (no cache, no lockfile)",
+    command: "yarn install --force",
+    pre: "yarn cache clean && rm -rf node_modules yarn.lock",
+    spinner: ora(
+      chalk.green(`Running "YARN install (no cache, no lockfile)"...`)
+    ).stop(),
+    group: 1,
+  },
+  {
+    name: "YARN install (with cache, no lock)",
+    command: "yarn install --force",
+    pre: "rm -rf node_modules yarn.lock",
+    spinner: ora(
+      chalk.green(`Running "YARN install (with cache, no lock)"...`)
+    ).stop(),
+    group: 2,
+  },
+  {
+    name: "YARN install (with cache)",
+    command: "yarn install --force",
+    pre: "rm -rf node_modules",
+    spinner: ora(chalk.green(`Running "YARN install (with cache)"...`)).stop(),
+    group: 3,
   },
   {
     name: "SNPM install (no cache)",
     command: "snpm install",
     pre: "npm cache clean -f && snpm clear",
     spinner: ora(chalk.green(`Running "SNPM install (no cache)"...`)).stop(),
+    group: 1,
   },
   {
     name: "SNPM install (with cache)",
     command: "snpm install",
     pre: "rm -rf node_modules",
     spinner: ora(chalk.green(`Running "SNPM install (with cache)"...`)).stop(),
+    group: 3,
   },
   {
     name: "PNPM install (no cache)",
     command: "pnpm install --force",
-    pre: "npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml /home/nachoaldama/.local/share/pnpm/store/v3",
+    pre: `npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml ${homeDir}.local/share/pnpm/store/v3`,
     spinner: ora(chalk.green(`Running "PNPM install (no cache)"...`)).stop(),
+    group: 1,
   },
   {
     name: "PNPM install (with cache)",
     command: "pnpm install",
     pre: "rm -rf node_modules",
-    spinner: ora(chalk.green(`Running "PNPM install"...`)).stop(),
+    spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
+    group: 3,
+  },
+  {
+    name: "Bun install (no cache / no lockfile)",
+    command: "bun install",
+    pre: `npm cache clean -f && rm -rf ${homeDir}.bun bun.lockb node_modules package-lock.json yarn.lock`,
+    spinner: ora(
+      chalk.green(`Running "Bun install (no cache / no lockfile)"...`)
+    ).stop(),
+    group: 1,
+  },
+  {
+    name: "Bun install (with cache / no lockfile)",
+    command: "bun install",
+    pre: "rm -rf node_modules bun.lockb package-lock.json yarn.lock",
+    spinner: ora(chalk.green(`Running "Bun install (with cache)"...`)).stop(),
+    group: 2,
+  },
+  {
+    name: "Bun install (with cache / with lockfile)",
+    command: "bun install",
+    pre: "rm -rf node_modules",
+    spinner: ora(chalk.green(`Running "Bun install (with cache)"...`)).stop(),
+    group: 3,
   },
 ];
 
@@ -62,7 +121,7 @@ export async function benchmark(args: string[]) {
     ? tests.filter((test) => test.name.includes("SNPM"))
     : tests;
 
-  const results = [];
+  const results: { name: string; time: number; group: number }[] = [];
   // Run the tests not in parallel
   for await (const test of testsToRun) {
     test.spinner.start();
@@ -81,6 +140,13 @@ export async function benchmark(args: string[]) {
         }
       });
     });
+
+    if (
+      test.name === "Bun install (no cache / no lockfile)" ||
+      test.name === "Bun install (with cache / no lockfile)"
+    ) {
+      await deleteBunManifests();
+    }
 
     let err;
     let end = 0;
@@ -109,7 +175,7 @@ export async function benchmark(args: string[]) {
     results.push({
       name: test.name,
       time: end - start,
-      error: err,
+      group: test.group,
     });
 
     test.spinner.text = chalk.green(
@@ -132,9 +198,10 @@ export async function benchmark(args: string[]) {
         result.time > 60000
           ? `${(result.time / 60000).toFixed(2)} minutes`
           : `${(result.time / 1000).toFixed(2)} seconds`,
+      group: result.group,
     };
   });
 
-  // Print the results in a table
+  // Print the results
   console.table(fmt);
 }
