@@ -10,6 +10,8 @@ import { existsSync } from "fs";
 import { getDeps } from "../utils/getDeps.js";
 import { promisify } from "util";
 import { exec as execCallback } from "child_process";
+import betterOptions from "../utils/checkBetterOptions.js";
+import prompts from "prompts";
 const exec = promisify(execCallback);
 
 const userSnpmCache = path.join(os.homedir(), ".snpm-cache");
@@ -18,6 +20,29 @@ const REGISTRY = "https://registry.npmjs.org/";
 const __DOWNLOADING: string[] = [];
 
 export default async function add(deps: string[]) {
+  // Check if there is a flag "--dev" or "-D" in the deps array
+  const dev = deps.includes("--dev") || deps.includes("-D");
+
+  // Check for suitable alternatives for this package.
+  const options: string[] = await betterOptions(deps[0]);
+
+  const changePackage = await prompts([
+    {
+      type: "select",
+      name: "value",
+      message:
+        "We found some alternatives for this package. You can choose one of them or install the original package. (Ctrl + C to cancel)",
+      choices: options.map((option) => {
+        return {
+          title: option,
+          value: option,
+        };
+      }),
+    },
+  ]);
+
+  ora(`Searching for ${changePackage.value || deps[0]}...`).info();
+
   await createModules();
   const pkgs = await Promise.all(
     deps.map(async (dep) => {
@@ -50,10 +75,12 @@ export default async function add(deps: string[]) {
   // Add packages to package.json
   const pkg = await rpjf(path.join(process.cwd(), "package.json"));
 
-  pkg.dependencies = pkg.dependencies || {};
-
   pkgs.forEach((dep) => {
-    pkg.dependencies[dep.name] = dep.version;
+    if (dev) {
+      pkg.devDependencies[dep.name] = dep.version;
+    } else {
+      pkg.dependencies[dep.name] = dep.version;
+    }
   });
 
   await writeFile(

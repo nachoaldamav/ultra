@@ -12,6 +12,7 @@ import { installBins } from "../utils/addBinaries.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
+import { hardLink } from "../utils/hardLink.js";
 
 let pkgs: {
   name: string;
@@ -22,9 +23,13 @@ let pkgs: {
 
 const __DOWNLOADING: string[] = [];
 const __DOWNLOADED: string[] = [];
-const __ERRORS: string[] = [];
+const __INSTALLED: {
+  name: string;
+  version: string;
+}[] = [];
 
 const userSnpmCache = `${os.homedir()}/.snpm-cache`;
+const downloadFile = ".snpm";
 
 const REGISTRY = "https://registry.npmjs.org/";
 
@@ -98,9 +103,35 @@ export async function installPkg(
 ) {
   const cacheFolder = `${userSnpmCache}/${manifest.name}/${manifest.version}`;
 
-  const pkgProjectDir = !parent
+  // Check if package is already installed
+  if (
+    __INSTALLED.find(
+      (pkg) => pkg.name === manifest.name && pkg.version === manifest.version
+    )
+  ) {
+    return;
+  }
+
+  // Check if package is already in root node_modules
+  const isSuitable = __INSTALLED.find((pkg) => pkg.name === manifest.name);
+
+  // If package is already installed, but not in root node_modules then install it in root node_modules else install it in parent node_modules
+  const pkgProjectDir = !isSuitable
     ? path.join(process.cwd(), "node_modules", manifest.name)
-    : path.join(parent, "node_modules", manifest.name);
+    : path.join(
+        process.cwd(),
+        "node_modules",
+        parent
+          ? path.join(parent, "node_modules", manifest.name)
+          : manifest.name
+      );
+
+  if (!isSuitable) {
+    __INSTALLED.push({
+      name: manifest.name,
+      version: manifest.version,
+    });
+  }
 
   const folderContent = await readdir(cacheFolder)
     .then((files) => {
@@ -109,8 +140,6 @@ export async function installPkg(
     .catch(() => {
       return [];
     });
-
-  const downloadFile = "snpm-download.json";
 
   if (!folderContent.includes(downloadFile as never)) {
     // Check if parent exists
@@ -129,17 +158,14 @@ export async function installPkg(
       const dirs = pkgProjectDir.split("/");
       dirs.pop();
       await mkdir(dirs.join("/"), { recursive: true });
-      await symlink(cacheFolder, pkgProjectDir, "junction").catch(() => {});
+      /* await symlink(cacheFolder, pkgProjectDir, "junction").catch(() => {}); */
+      await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
     } else {
       // Create directory for package without the last folder
       const dirs = pkgProjectDir.split("/");
       dirs.pop();
       await mkdir(dirs.join("/"), { recursive: true });
-      await symlink(cacheFolder, pkgProjectDir, "junction").catch((e) => {
-        ora(
-          chalk.red(`Error installing ${manifest.name}! ${JSON.stringify(e)}`)
-        ).fail();
-      });
+      await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
     }
 
     // Get production deps
@@ -188,10 +214,9 @@ export async function installPkg(
       __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
       return;
     } catch (error: any) {
-      __ERRORS.push(JSON.stringify(error));
       // Check if error is ENOENT
       if (error.code === "ENOENT") {
-        await extract(cacheFolder, manifest.tarball);
+        return await extract(cacheFolder, manifest.tarball);
       }
     }
   } else {
@@ -203,13 +228,13 @@ export async function installPkg(
     const dirs = pkgProjectDir.split("/");
     dirs.pop();
     await mkdir(dirs.join("/"), { recursive: true });
-    await symlink(cacheFolder, pkgProjectDir, "junction").catch(() => {});
+    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
     return;
   }
 }
 
 async function extract(cacheFolder: string, tarball: string): Promise<any> {
-  // Check if file ".snpm-download" exists inside cacheFolder using access
+  // Check if file ".snpm" exists inside cacheFolder using access
   const folderContent = await readdir(cacheFolder)
     .then((files) => {
       return files;
@@ -217,8 +242,6 @@ async function extract(cacheFolder: string, tarball: string): Promise<any> {
     .catch(() => {
       return [];
     });
-
-  const downloadFile = "snpm-download.json";
 
   // @ts-ignore-next-line
   if (folderContent.length > 0 && folderContent.includes(downloadFile)) {
