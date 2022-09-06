@@ -18,6 +18,28 @@ Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.
 
 ### Benchmarks
 
+### PNPM Official benchmark (alotta-files)
+
+```bash
+┌─────────┬────────────────────────────────────────────┬─────────────────┐
+│ (index) │                    name                    │      time       │
+├─────────┼────────────────────────────────────────────┼─────────────────┤
+│    0    │ 'Bun install (with cache / with lockfile)' │ '0.70 seconds'  │
+│    1    │  'Bun install (with cache / no lockfile)'  │ '1.17 seconds'  │
+│    2    │        'SNPM install (with cache)'         │ '4.94 seconds'  │
+│    3    │   'Bun install (no cache / no lockfile)'   │ '9.90 seconds'  │
+│    4    │        'PNPM install (with cache)'         │ '10.16 seconds' │
+│    5    │ 'NPM install (with cache / with lockfile)' │ '27.29 seconds' │
+│    6    │  'NPM install (with cache / no lockfile)'  │ '35.34 seconds' │
+│    7    │        'YARN install (with cache)'         │ '43.62 seconds' │
+│    8    │         'SNPM install (no cache)'          │ '1.02 minutes'  │
+│    9    │         'PNPM install (no cache)'          │ '1.24 minutes'  │
+│   10    │   'YARN install (no cache, no lockfile)'   │ '1.68 minutes'  │
+│   11    │    'YARN install (with cache, no lock)'    │ '2.13 minutes'  │
+│   12    │   'NPM install (no cache / no lockfile)'   │ '2.36 minutes'  │
+└─────────┴────────────────────────────────────────────┴─────────────────┘
+```
+
 #### Vite React - TS
 This is an example benchmark of a Vite project using `npm create vite@latest my-react-app -- --template react-ts`
 
@@ -25,32 +47,32 @@ This is an example benchmark of a Vite project using `npm create vite@latest my-
 ┌─────────┬────────────────────────────────────────────┬─────────────────┐
 │ (index) │                    name                    │      time       │
 ├─────────┼────────────────────────────────────────────┼─────────────────┤
-│    0    │        'SNPM install (with cache)'         │ '0.73 seconds'  │
-│    1    │        'PNPM install (with cache)'         │ '1.41 seconds'  │
-│    2    │ 'NPM install (with cache / with lockfile)' │ '2.54 seconds'  │
-│    3    │  'NPM install (with cache / no lockfile)'  │ '3.20 seconds'  │
-│    4    │         'PNPM install (no cache)'          │ '8.53 seconds'  │
-│    5    │         'SNPM install (no cache)'          │ '8.54 seconds'  │
-│    6    │   'NPM install (no cache / no lockfile)'   │ '10.14 seconds' │
+│    0    │        'SNPM install (with cache)'         │ '0.85 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '2.68 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '4.96 seconds'  │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '7.26 seconds'  │
+│    4    │         'PNPM install (no cache)'          │ '15.09 seconds' │
+│    5    │         'SNPM install (no cache)'          │ '26.10 seconds' │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '33.00 seconds' │
 └─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 
 ### Nextjs - TS
 This example is generated using `npx create-next-app --use-npm --ts`
 
-WARNING: I'm currently fixing some errors related with the symlinks.
+WARNING: It works now, but some errors may appear.
 
 ```bash
 ┌─────────┬────────────────────────────────────────────┬─────────────────┐
 │ (index) │                    name                    │      time       │
 ├─────────┼────────────────────────────────────────────┼─────────────────┤
-│    0    │        'SNPM install (with cache)'         │ '1.57 seconds'  │
-│    1    │        'PNPM install (with cache)'         │ '4.70 seconds'  │
-│    2    │ 'NPM install (with cache / with lockfile)' │ '8.98 seconds'  │
-│    3    │  'NPM install (with cache / no lockfile)'  │ '11.49 seconds' │
-│    4    │         'PNPM install (no cache)'          │ '27.55 seconds' │
-│    5    │         'SNPM install (no cache)'          │ '31.67 seconds' │
-│    6    │   'NPM install (no cache / no lockfile)'   │ '42.55 seconds' │
+│    0    │        'SNPM install (with cache)'         │ '1.92 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '6.42 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '7.40 seconds'  │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '10.02 seconds' │
+│    4    │         'PNPM install (no cache)'          │ '20.61 seconds' │
+│    5    │         'SNPM install (no cache)'          │ '20.98 seconds' │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '24.61 seconds' │
 └─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 
