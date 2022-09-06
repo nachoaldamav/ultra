@@ -20,10 +20,6 @@ export async function installBins() {
         );
         const { bin } = packageJSON;
 
-        if (bin) {
-          ora(`Installing binaries for ${chalk.cyan(packageJSON.name)}`).info();
-        }
-
         const packagePath = path.join(
           process.cwd(),
           "node_modules",
@@ -33,10 +29,6 @@ export async function installBins() {
         if (bin) {
           const isObject = typeof bin === "object";
           const isString = typeof bin === "string";
-
-          ora(
-            chalk.blue(`Installing ${isObject ? Object.keys(bin)[0] : bin}`)
-          ).info();
 
           if (isObject) {
             const keys = Object.keys(bin);
