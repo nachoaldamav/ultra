@@ -38,19 +38,19 @@ This is an example benchmark of a Vite project using `npm create vite@latest my-
 ### Nextjs - TS
 This example is generated using `npx create-next-app --use-npm --ts`
 
-WARNING: I'm currently fixing some errors related with the symlinks.
+WARNING: It works now, but some errors may appear.
 
 ```bash
 ┌─────────┬────────────────────────────────────────────┬─────────────────┐
 │ (index) │                    name                    │      time       │
 ├─────────┼────────────────────────────────────────────┼─────────────────┤
-│    0    │        'SNPM install (with cache)'         │ '1.57 seconds'  │
-│    1    │        'PNPM install (with cache)'         │ '4.70 seconds'  │
-│    2    │ 'NPM install (with cache / with lockfile)' │ '8.98 seconds'  │
-│    3    │  'NPM install (with cache / no lockfile)'  │ '11.49 seconds' │
-│    4    │         'PNPM install (no cache)'          │ '27.55 seconds' │
-│    5    │         'SNPM install (no cache)'          │ '31.67 seconds' │
-│    6    │   'NPM install (no cache / no lockfile)'   │ '42.55 seconds' │
+│    0    │        'SNPM install (with cache)'         │ '1.92 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '6.42 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '7.40 seconds'  │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '10.02 seconds' │
+│    4    │         'PNPM install (no cache)'          │ '20.61 seconds' │
+│    5    │         'SNPM install (no cache)'          │ '20.98 seconds' │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '24.61 seconds' │
 └─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 
