@@ -18,6 +18,28 @@ Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.
 
 ### Benchmarks
 
+### PNPM Official benchmark (alotta-files)
+
+```bash
+┌─────────┬────────────────────────────────────────────┬─────────────────┐
+│ (index) │                    name                    │      time       │
+├─────────┼────────────────────────────────────────────┼─────────────────┤
+│    0    │ 'Bun install (with cache / with lockfile)' │ '0.70 seconds'  │
+│    1    │  'Bun install (with cache / no lockfile)'  │ '1.17 seconds'  │
+│    2    │        'SNPM install (with cache)'         │ '4.94 seconds'  │
+│    3    │   'Bun install (no cache / no lockfile)'   │ '9.90 seconds'  │
+│    4    │        'PNPM install (with cache)'         │ '10.16 seconds' │
+│    5    │ 'NPM install (with cache / with lockfile)' │ '27.29 seconds' │
+│    6    │  'NPM install (with cache / no lockfile)'  │ '35.34 seconds' │
+│    7    │        'YARN install (with cache)'         │ '43.62 seconds' │
+│    8    │         'SNPM install (no cache)'          │ '1.02 minutes'  │
+│    9    │         'PNPM install (no cache)'          │ '1.24 minutes'  │
+│   10    │   'YARN install (no cache, no lockfile)'   │ '1.68 minutes'  │
+│   11    │    'YARN install (with cache, no lock)'    │ '2.13 minutes'  │
+│   12    │   'NPM install (no cache / no lockfile)'   │ '2.36 minutes'  │
+└─────────┴────────────────────────────────────────────┴─────────────────┘
+```
+
 #### Vite React - TS
 This is an example benchmark of a Vite project using `npm create vite@latest my-react-app -- --template react-ts`
 
