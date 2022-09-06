@@ -25,13 +25,13 @@ This is an example benchmark of a Vite project using `npm create vite@latest my-
 ┌─────────┬────────────────────────────────────────────┬─────────────────┐
 │ (index) │                    name                    │      time       │
 ├─────────┼────────────────────────────────────────────┼─────────────────┤
-│    0    │        'SNPM install (with cache)'         │ '0.73 seconds'  │
-│    1    │        'PNPM install (with cache)'         │ '1.41 seconds'  │
-│    2    │ 'NPM install (with cache / with lockfile)' │ '2.54 seconds'  │
-│    3    │  'NPM install (with cache / no lockfile)'  │ '3.20 seconds'  │
-│    4    │         'PNPM install (no cache)'          │ '8.53 seconds'  │
-│    5    │         'SNPM install (no cache)'          │ '8.54 seconds'  │
-│    6    │   'NPM install (no cache / no lockfile)'   │ '10.14 seconds' │
+│    0    │        'SNPM install (with cache)'         │ '0.85 seconds'  │
+│    1    │        'PNPM install (with cache)'         │ '2.68 seconds'  │
+│    2    │ 'NPM install (with cache / with lockfile)' │ '4.96 seconds'  │
+│    3    │  'NPM install (with cache / no lockfile)'  │ '7.26 seconds'  │
+│    4    │         'PNPM install (no cache)'          │ '15.09 seconds' │
+│    5    │         'SNPM install (no cache)'          │ '26.10 seconds' │
+│    6    │   'NPM install (no cache / no lockfile)'   │ '33.00 seconds' │
 └─────────┴────────────────────────────────────────────┴─────────────────┘
 ```
 
