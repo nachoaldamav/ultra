@@ -44,17 +44,23 @@ Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.
 This is an example benchmark of a Vite project using `npm create vite@latest my-react-app -- --template react-ts`
 
 ```bash
-┌─────────┬────────────────────────────────────────────┬─────────────────┐
-│ (index) │                    name                    │      time       │
-├─────────┼────────────────────────────────────────────┼─────────────────┤
-│    0    │        'SNPM install (with cache)'         │ '0.85 seconds'  │
-│    1    │        'PNPM install (with cache)'         │ '2.68 seconds'  │
-│    2    │ 'NPM install (with cache / with lockfile)' │ '4.96 seconds'  │
-│    3    │  'NPM install (with cache / no lockfile)'  │ '7.26 seconds'  │
-│    4    │         'PNPM install (no cache)'          │ '15.09 seconds' │
-│    5    │         'SNPM install (no cache)'          │ '26.10 seconds' │
-│    6    │   'NPM install (no cache / no lockfile)'   │ '33.00 seconds' │
-└─────────┴────────────────────────────────────────────┴─────────────────┘
+┌─────────┬────────────────────────────────────────────┬─────────────────┬───────┐
+│ (index) │                    name                    │      time       │ group │
+├─────────┼────────────────────────────────────────────┼─────────────────┼───────┤
+│    0    │ 'Bun install (with cache / with lockfile)' │ '0.15 seconds'  │   3   │
+│    1    │        'SNPM install (with cache)'         │ '0.93 seconds'  │   3   │
+│    2    │        'PNPM install (with cache)'         │ '2.87 seconds'  │   3   │
+│    3    │        'YARN install (with cache)'         │ '3.91 seconds'  │   3   │
+│    4    │  'Bun install (with cache / no lockfile)'  │ '4.73 seconds'  │   2   │
+│    5    │ 'NPM install (with cache / with lockfile)' │ '4.82 seconds'  │   3   │
+│    6    │   'Bun install (no cache / no lockfile)'   │ '4.84 seconds'  │   1   │
+│    7    │  'NPM install (with cache / no lockfile)'  │ '6.38 seconds'  │   2   │
+│    8    │         'PNPM install (no cache)'          │ '13.93 seconds' │   1   │
+│    9    │    'YARN install (with cache, no lock)'    │ '21.48 seconds' │   2   │
+│   10    │         'SNPM install (no cache)'          │ '27.03 seconds' │   1   │
+│   11    │   'YARN install (no cache, no lockfile)'   │ '43.30 seconds' │   1   │
+│   12    │   'NPM install (no cache / no lockfile)'   │ '44.94 seconds' │   1   │
+└─────────┴────────────────────────────────────────────┴─────────────────┴───────┘
 ```
 
 ### Nextjs - TS
