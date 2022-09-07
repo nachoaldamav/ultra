@@ -20,7 +20,12 @@ export async function hardLink(dir: string, targetDir: string) {
         } else {
           // Create previous folders if they don't exist
           await mkdir(path.dirname(targetPath), { recursive: true });
-          await link(filePath, targetPath);
+          await link(filePath, targetPath).catch((e) => {
+            if (e.code === "EEXIST") {
+              return;
+            }
+            ora(chalk.red(e.message)).fail();
+          });
         }
       })
     );

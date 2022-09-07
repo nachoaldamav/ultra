@@ -11,9 +11,8 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "axios": "0.27.2",
-    "@superui/styles": "0.0.10",
-    "postcss": "8.4.16"
+    "postcss": "8.4.16",
+    "@react-symbols/icons": "1.0.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",
@@ -23,5 +22,7 @@
     "vite": "^3.0.7",
     "esbuild": "0.15.6"
   },
+  "peerDependencies": {},
+  "optionalDependencies": {},
   "_id": "vite-benchmark@0.0.0"
 }

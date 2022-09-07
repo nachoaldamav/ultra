@@ -88,7 +88,7 @@ const tests = [
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
   },
-  {
+  /*   {
     name: "Bun install (no cache / no lockfile)",
     command: "bun install",
     pre: `npm cache clean -f && rm -rf ${homeDir}.bun bun.lockb node_modules package-lock.json yarn.lock`,
@@ -110,16 +110,22 @@ const tests = [
     pre: "rm -rf node_modules",
     spinner: ora(chalk.green(`Running "Bun install (with cache)"...`)).stop(),
     group: 3,
-  },
+  }, */
 ];
 
 export async function benchmark(args: string[]) {
   // If the user passed flag --only-snpm, we only run the SNPM tests
   const onlySnpm = args.includes("--only-snpm");
 
-  const testsToRun = onlySnpm
-    ? tests.filter((test) => test.name.includes("SNPM"))
-    : tests;
+  const selectedGroup = args
+    .find((arg) => arg.startsWith("--group="))
+    ?.replace("--group=", "");
+
+  const testsToRun = !selectedGroup
+    ? onlySnpm
+      ? tests.filter((test) => test.name.includes("SNPM"))
+      : tests
+    : tests.filter((test) => test.group === parseInt(selectedGroup));
 
   const results: { name: string; time: number; group: number }[] = [];
   // Run the tests not in parallel

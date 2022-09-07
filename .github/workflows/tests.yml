@@ -24,10 +24,8 @@ jobs:
         run: cd packages/cli && npm run build
       - name: Install CLI
         run: cd packages/cli && npm install . -g && cd ../../
-      - name: Create Vite project
-        run: npm create vite@latest snpm-vite -- --template react-ts
       - name: Run benchmark
-        run: cd snpm-vite && snpm benchmark --only-snpm
+        run: cd examples/alotta && snpm benchmark
       
   
   

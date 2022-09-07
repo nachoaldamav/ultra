@@ -1,11 +1,11 @@
 import chalk from "chalk";
 import ora, { Ora } from "ora";
 import rpjf from "read-package-json-fast";
-import { symlink, mkdir, rm, readdir, writeFile } from "fs/promises";
+import { mkdir, rm, readdir, writeFile } from "fs/promises";
 import { exec } from "child_process";
 import path from "path";
 import os from "os";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { getDeps } from "../utils/getDeps.js";
 import pacote from "pacote";
 import { installBins } from "../utils/addBinaries.js";
@@ -13,8 +13,8 @@ import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
 import { hardLink } from "../utils/hardLink.js";
-import { clearName } from "../utils/clearName.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
+import { performance } from "perf_hooks";
 
 let pkgs: {
   name: string;
@@ -37,8 +37,6 @@ const REGISTRY = "https://registry.npmjs.org/";
 
 export default async function install(opts: string[]) {
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
-
-  const instalableDeps = opts.filter((opt) => !opt.startsWith("-"));
 
   const addDeps = await getParamsDeps(opts);
 
@@ -187,70 +185,115 @@ export async function installPkg(
     });
   }
 
-  const folderContent = await readdir(cacheFolder)
-    .then((files) => {
-      return files;
-    })
-    .catch(() => {
-      return [];
-    });
-
-  if (!folderContent.includes(downloadFile as never)) {
-    // Check if parent exists
-    if (parent) {
-      if (!existsSync(`${parent}/node_modules`)) {
-        await mkdir(`${parent}/node_modules`, { recursive: true });
-      }
+  // Check if parent exists
+  if (parent) {
+    if (!existsSync(`${parent}/node_modules`)) {
+      await mkdir(`${parent}/node_modules`, { recursive: true });
     }
+  }
 
-    if (spinner) spinner.text = chalk.green(`Installing ${manifest.name}...`);
+  let savedDeps: any[] | null = null;
 
+  // Check if package is already in cache, searching for file .snpm
+  if (existsSync(`${cacheFolder}/${downloadFile}`)) {
+    if (spinner)
+      spinner.text = chalk.green(
+        `Installing ${manifest.name}... ${chalk.grey("(cached)")}`
+      );
+    // Create directory for package without the last folder
+    const dirs = pkgProjectDir.split("/");
+    dirs.pop();
+    await mkdir(dirs.join("/"), { recursive: true });
+    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
+    // Get deps from file
+    const cachedDeps = JSON.parse(
+      readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
+    );
+
+    await Promise.all(
+      cachedDeps.map(async (dep: any) => {
+        // Check if dep is already installed in node_modules, if not install it there, else install it in parent node_modules
+        const installPath = !__INSTALLED.find(
+          (pkg) => pkg.name === dep.name && pkg.version === dep.version
+        )
+          ? path.join(process.cwd(), "node_modules", dep.name)
+          : path.join(
+              process.cwd(),
+              "node_modules",
+              parent ? path.join(parent, "node_modules", dep.name) : dep.name
+            );
+
+        await hardLink(dep.path, installPath);
+      })
+    );
+    __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
+    return;
+  } else {
+    if (spinner)
+      spinner.text = chalk.green(
+        `Installing ${manifest.name}... ${chalk.grey("(cache miss)")}`
+      );
     await extract(cacheFolder, manifest.tarball);
-
     if (existsSync(pkgProjectDir)) {
       await rm(pkgProjectDir, { recursive: true });
-      const dirs = pkgProjectDir.split("/");
-      dirs.pop();
-      await mkdir(dirs.join("/"), { recursive: true });
-      /* await symlink(cacheFolder, pkgProjectDir, "junction").catch(() => {}); */
-      await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
-    } else {
-      // Create directory for package without the last folder
-      const dirs = pkgProjectDir.split("/");
-      dirs.pop();
-      await mkdir(dirs.join("/"), { recursive: true });
-      await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
     }
+    // Create directory for package without the last folder
+    const dirs = pkgProjectDir.split("/");
+    dirs.pop();
+    await mkdir(dirs.join("/"), { recursive: true });
+    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
 
     // Get production deps
     try {
       const pkg = await rpjf(`${cacheFolder}/package.json`);
+      if (!savedDeps) {
+        const deps = getDeps(pkg, {
+          dev: true,
+        });
 
-      const deps = getDeps(pkg, {
-        dev: true,
-      });
+        if (deps.length > 0)
+          mkdir(`${cacheFolder}/node_modules`, { recursive: true });
 
-      if (deps.length > 0)
-        mkdir(`${cacheFolder}/node_modules`, { recursive: true });
+        // Install production deps
+        const installed = await Promise.all(
+          deps.map(async (dep) => {
+            const manifest = await pacote.manifest(
+              `${dep.name}@${dep.version}`,
+              {
+                registry: REGISTRY,
+              }
+            );
 
-      // Install production deps
-      await Promise.all(
-        deps.map(async (dep) => {
-          const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
-            registry: REGISTRY,
-          });
-
-          await installPkg(
-            {
+            await installPkg(
+              {
+                name: dep.name,
+                version: manifest.version,
+                tarball: manifest.dist.tarball,
+              },
+              pkgProjectDir,
+              spinner
+            );
+            return {
               name: dep.name,
-              version: manifest.version,
-              tarball: manifest.dist.tarball,
-            },
-            pkgProjectDir,
-            spinner
-          );
-        })
-      );
+              path: path.join(userSnpmCache, dep.name, manifest.version),
+            };
+          })
+        );
+
+        // Save installed deps with its path in .snpm file
+        await writeFile(
+          `${cacheFolder}/${downloadFile}`,
+          JSON.stringify(
+            installed.map((dep) => ({
+              name: dep.name,
+              path: dep.path,
+            })),
+            null,
+            2
+          ),
+          "utf-8"
+        );
+      }
 
       // Execute postinstall script if exists
       const postinstall = pkg.scripts.postinstall;
@@ -273,17 +316,6 @@ export async function installPkg(
         return await extract(cacheFolder, manifest.tarball);
       }
     }
-  } else {
-    // Check if symlink exists and delete it
-    if (existsSync(pkgProjectDir)) {
-      await rm(pkgProjectDir, { recursive: true });
-    }
-
-    const dirs = pkgProjectDir.split("/");
-    dirs.pop();
-    await mkdir(dirs.join("/"), { recursive: true });
-    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
-    return;
   }
 }
 
