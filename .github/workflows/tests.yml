@@ -2,7 +2,7 @@ name: SNPM CLI Benchmark
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -26,6 +26,14 @@ jobs:
         run: cd packages/cli && npm install . -g && cd ../../
       - name: Run benchmark
         run: cd examples/alotta && snpm benchmark
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            This is a multi-line test comment
+            - With GitHub **Markdown** :sparkles:
+            - Workflow run: ${{ github.run_id }}
       
   
   
