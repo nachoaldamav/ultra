@@ -4,6 +4,10 @@ import ora from "ora";
 import { performance } from "perf_hooks";
 import os from "os";
 import deleteBunManifests from "../utils/deleteBunManifests.js";
+import { writeFile } from "fs/promises";
+import { markdownTable } from "markdown-table";
+import path from "path";
+import { execa } from "execa";
 
 const homeDir = os.homedir();
 
@@ -114,6 +118,16 @@ const tests = [
 ];
 
 export async function benchmark(args: string[]) {
+  const __init = ora(chalk.green("Starting benchmark...")).start();
+  await execa("npm", [
+    "install",
+    "-g",
+    "yarn@latest",
+    "pnpm@latest",
+    "npm@latest",
+  ]);
+  __init.succeed("Benchmark started");
+
   // If the user passed flag --only-snpm, we only run the SNPM tests
   const onlySnpm = args.includes("--only-snpm");
 
@@ -210,4 +224,18 @@ export async function benchmark(args: string[]) {
 
   // Print the results
   console.table(fmt);
+
+  // Write the results to a markdown file
+  const md = markdownTable(
+    [
+      ["Name", "Time", "Group"],
+      // @ts-ignore-next-line
+      ...fmt.map((result) => [result.name, result.time, result.group]),
+    ],
+    {
+      align: ["c", "c", "c"],
+    }
+  );
+
+  await writeFile(path.join(process.cwd(), "results.md"), md);
 }

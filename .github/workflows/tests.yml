@@ -25,15 +25,27 @@ jobs:
       - name: Install CLI
         run: cd packages/cli && npm install . -g && cd ../../
       - name: Run benchmark
-        run: cd examples/alotta && snpm benchmark
+        run: cd examples/vite && snpm benchmark
+      - name: Get markdown results
+        # Save the results to a environment variable to be used in the next step 
+        run: cd examples/vite && cat results.md | sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$/"/' > results.md.tmp && echo "RESULTS=$(cat results.md.tmp)" >> $GITHUB_ENV
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.number }}
           body: |
-            This is a multi-line test comment
-            - With GitHub **Markdown** :sparkles:
+            Benchmark results:
             - Workflow run: ${{ github.run_id }}
+            - OS: ${{ matrix.os }}
+            - Node.js: ${{ matrix.node-version }}
+            - Commit: ${{ github.sha }}
+            - Branch: ${{ github.ref }}
+            - Pull request: ${{ github.event.number }}
+            - Pull request title: ${{ github.event.pull_request.title }}
+
+            ${{ env.RESULTS }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
   
   
