@@ -13,6 +13,8 @@ import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
 import { hardLink } from "../utils/hardLink.js";
+import { clearName } from "../utils/clearName.js";
+import getParamsDeps from "../utils/parseDepsParams.js";
 
 let pkgs: {
   name: string;
@@ -33,8 +35,14 @@ const downloadFile = ".snpm";
 
 const REGISTRY = "https://registry.npmjs.org/";
 
-export default async function install() {
+export default async function install(opts: string[]) {
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
+
+  const instalableDeps = opts.filter((opt) => !opt.startsWith("-"));
+
+  const addDeps = await getParamsDeps(opts);
+
+  const flag = opts.filter((opt) => opt.startsWith("-"))[0];
 
   await createModules();
 
@@ -47,7 +55,7 @@ export default async function install() {
   const wsDeps = await getDepsWorkspaces(workspaces);
 
   // Get all dependencies with version
-  const deps = getDeps(pkg).concat(wsDeps);
+  const deps = getDeps(pkg).concat(wsDeps).concat(addDeps);
 
   const __fetch = ora(chalk.green("Fetching packages...")).start();
 
@@ -91,6 +99,52 @@ export default async function install() {
   await installBins();
 
   __binaries.succeed(chalk.blue("Installed binaries!"));
+
+  // If addDeps is not empty, add them to package.json using flag
+  if (addDeps.length > 0) {
+    pkg.dependencies = pkg.dependencies || {};
+    pkg.devDependencies = pkg.devDependencies || {};
+    pkg.peerDependencies = pkg.peerDependencies || {};
+    pkg.optionalDependencies = pkg.optionalDependencies || {};
+
+    if (flag === "-D" || flag === "--dev") {
+      addDeps.forEach((dep) => {
+        pkg.devDependencies[dep.name] = dep.version;
+      });
+    } else if (flag === "-P" || flag === "--peer") {
+      addDeps.forEach((dep) => {
+        pkg.peerDependencies[dep.name] = dep.version;
+      });
+    } else if (flag === "-O" || flag === "--optional") {
+      addDeps.forEach((dep) => {
+        pkg.optionalDependencies[dep.name] = dep.version;
+      });
+    } else {
+      addDeps.forEach((dep) => {
+        pkg.dependencies[dep.name] = dep.version;
+      });
+    }
+
+    // Remove duplicates from other dep types
+    addDeps.forEach((dep) => {
+      if (flag !== "-D" && flag !== "--dev")
+        delete pkg.devDependencies[dep.name];
+
+      if (flag !== "-P" && flag !== "--peer")
+        delete pkg.peerDependencies[dep.name];
+
+      if (flag !== "-O" && flag !== "--optional")
+        delete pkg.optionalDependencies[dep.name];
+
+      if (flag) delete pkg.dependencies[dep.name];
+    });
+
+    await writeFile(
+      path.join(process.cwd(), "package.json"),
+      JSON.stringify(pkg, null, 2),
+      "utf-8"
+    );
+  }
 
   ora(chalk.green("Done!")).succeed();
   process.exit();

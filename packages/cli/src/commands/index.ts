@@ -1,7 +1,6 @@
 import { clear } from "./clear.js";
 import install from "./install.js";
 import { benchmark } from "./benchmark.js";
-import add from "./add.js";
 import upgrade from "./upgrade.js";
 
 export function commands(args: string[]) {
@@ -9,13 +8,10 @@ export function commands(args: string[]) {
 
   switch (command) {
     case "install":
-      install();
+      install(rest);
       break;
     case "benchmark":
       benchmark(rest);
-      break;
-    case "add":
-      add(rest);
       break;
     case "clear":
       clear();
