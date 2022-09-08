@@ -128,9 +128,6 @@ export async function benchmark(args: string[]) {
     "npm@latest",
   ]);
 
-  // Create cache folders to avoid errors
-  await execa("mkdir", ["-p", `${homeDir}.local/share/pnpm/store/v3`]);
-
   __init.succeed("Benchmark started");
 
   // If the user passed flag --only-snpm, we only run the SNPM tests
