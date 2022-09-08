@@ -36,15 +36,12 @@ jobs:
           issue-number: ${{ github.event.number }}
           body: |
             Benchmark results:
-            - Workflow run: ${{ github.run_id }}
             - OS: ${{ matrix.os }}
-            - Node.js: ${{ matrix.node-version }}
+            - Node.js: 18
             - Commit: ${{ github.sha }}
-            - Branch: ${{ github.ref }}
-            - Pull request: ${{ github.event.number }}
             - Pull request title: ${{ github.event.pull_request.title }}
 
-            ${ steps.read_file.outputs.contents }
+            ${{ steps.read_file.outputs.contents }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
