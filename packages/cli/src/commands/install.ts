@@ -223,6 +223,7 @@ export async function installPkg(
             );
 
         await hardLink(dep.path, installPath);
+        return await installCachedDeps(dep.path);
       })
     );
     __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
@@ -356,4 +357,69 @@ async function extract(cacheFolder: string, tarball: string): Promise<any> {
   __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
 
   return { res, error };
+}
+
+async function installCachedDeps(pathName: string) {
+  // Read package.json from path
+  const pkg = await rpjf(path.join(pathName, "package.json"));
+  // Get production deps
+  const deps = getDeps(pkg, {
+    dev: true,
+  });
+
+  // Read .snpm file from path
+  const cachedDeps = JSON.parse(
+    readFileSync(path.join(pathName, downloadFile), "utf-8")
+  );
+
+  if (!cachedDeps) {
+    // Install production deps
+    return await Promise.all(
+      deps.map(async (dep) => {
+        const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
+          registry: REGISTRY,
+        });
+
+        await installPkg(
+          {
+            name: dep.name,
+            version: manifest.version,
+            tarball: manifest.dist.tarball,
+          },
+          pathName
+        );
+      })
+    );
+  }
+
+  // Install cached deps
+  await Promise.all(
+    cachedDeps.map(async (dep: any) => {
+      const installPath = path.join(pathName, "node_modules", dep.name);
+      await hardLink(dep.path, installPath);
+    })
+  );
+
+  // Remove cached deps from deps
+  const filteredDeps = deps.filter(
+    (dep) => !cachedDeps.find((d: any) => d.name === dep.name)
+  );
+
+  // Install production deps
+  return await Promise.all(
+    filteredDeps.map(async (dep) => {
+      const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
+        registry: REGISTRY,
+      });
+
+      await installPkg(
+        {
+          name: dep.name,
+          version: manifest.version,
+          tarball: manifest.dist.tarball,
+        },
+        pathName
+      );
+    })
+  );
 }
