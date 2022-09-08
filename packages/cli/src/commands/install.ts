@@ -209,25 +209,11 @@ export async function installPkg(
       readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
     );
 
-    await Promise.all(
+    return await Promise.all(
       cachedDeps.map(async (dep: any) => {
-        // Check if dep is already installed in node_modules, if not install it there, else install it in parent node_modules
-        const installPath = !__INSTALLED.find(
-          (pkg) => pkg.name === dep.name && pkg.version === dep.version
-        )
-          ? path.join(process.cwd(), "node_modules", dep.name)
-          : path.join(
-              process.cwd(),
-              "node_modules",
-              parent ? path.join(parent, "node_modules", dep.name) : dep.name
-            );
-
-        await hardLink(dep.path, installPath);
-        return await installCachedDeps(dep.path);
+        await installPkg(dep, manifest.name, spinner);
       })
     );
-    __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
-    return;
   } else {
     if (spinner)
       spinner.text = chalk.green(
@@ -275,6 +261,8 @@ export async function installPkg(
             );
             return {
               name: dep.name,
+              version: manifest.version,
+              tarball: manifest.dist.tarball,
               path: path.join(userSnpmCache, dep.name, manifest.version),
             };
           })
@@ -286,6 +274,8 @@ export async function installPkg(
           JSON.stringify(
             installed.map((dep) => ({
               name: dep.name,
+              version: dep.version,
+              tarball: dep.tarball,
               path: dep.path,
             })),
             null,
@@ -353,72 +343,34 @@ async function extract(cacheFolder: string, tarball: string): Promise<any> {
     return await extract(cacheFolder, tarball);
   }
 
-  await writeFile(path.join(cacheFolder, downloadFile), JSON.stringify({}));
+  await writeFile(path.join(cacheFolder, downloadFile), JSON.stringify([]));
   __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
 
   return { res, error };
 }
 
-async function installCachedDeps(pathName: string) {
-  // Read package.json from path
-  const pkg = await rpjf(path.join(pathName, "package.json"));
-  // Get production deps
-  const deps = getDeps(pkg, {
-    dev: true,
-  });
-
+async function installCachedDeps(
+  pathName: string,
+  spinner?: Ora
+): Promise<any> {
   // Read .snpm file from path
   const cachedDeps = JSON.parse(
     readFileSync(path.join(pathName, downloadFile), "utf-8")
   );
 
-  if (!cachedDeps) {
-    // Install production deps
-    return await Promise.all(
-      deps.map(async (dep) => {
-        const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
-          registry: REGISTRY,
-        });
-
-        await installPkg(
-          {
-            name: dep.name,
-            version: manifest.version,
-            tarball: manifest.dist.tarball,
-          },
-          pathName
-        );
-      })
-    );
-  }
-
-  // Install cached deps
-  await Promise.all(
-    cachedDeps.map(async (dep: any) => {
-      const installPath = path.join(pathName, "node_modules", dep.name);
-      await hardLink(dep.path, installPath);
-    })
-  );
-
-  // Remove cached deps from deps
-  const filteredDeps = deps.filter(
-    (dep) => !cachedDeps.find((d: any) => d.name === dep.name)
-  );
-
-  // Install production deps
   return await Promise.all(
-    filteredDeps.map(async (dep) => {
-      const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
-        registry: REGISTRY,
-      });
+    cachedDeps.map(async (dep: any) => {
+      // Get version of dep by slicing the path and getting the last folder
+      const version = dep.path.split("/").pop();
 
-      await installPkg(
+      return await installPkg(
         {
           name: dep.name,
-          version: manifest.version,
-          tarball: manifest.dist.tarball,
+          version,
+          tarball: `${REGISTRY}/${dep.name}/-/${dep.name}-${version}.tgz`,
         },
-        pathName
+        undefined,
+        spinner
       );
     })
   );

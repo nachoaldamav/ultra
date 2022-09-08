@@ -8,8 +8,6 @@ import checkVersion from "../utils/checkVersion.js";
 export async function commands(args: string[]) {
   const [command, ...rest] = args;
 
-  await checkVersion();
-
   switch (command) {
     case "install":
       await install(rest);
@@ -32,4 +30,7 @@ export async function commands(args: string[]) {
     default:
       console.log(`Unknown command: ${command}`);
   }
+
+  // Disabled until I can show this only once
+  /* await checkVersion(); */
 }
