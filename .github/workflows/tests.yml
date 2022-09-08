@@ -25,9 +25,11 @@ jobs:
         run: cd packages/cli && npm install . -g && cd ../../
       - name: Run benchmark
         run: cd examples/vite && snpm benchmark
-      - name: Get markdown results
-        # Save the results to a environment variable to be used in the next step 
-        run: cd examples/vite && cat results.md | sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$/"/' > results.md.tmp && echo "RESULTS=$(cat results.md.tmp)" >> $GITHUB_ENV
+      - name: Read results
+        id: read_file
+        uses: andstor/file-reader-action@v1
+        with:
+          path: "./examples/vite/results.md"
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
@@ -42,7 +44,7 @@ jobs:
             - Pull request: ${{ github.event.number }}
             - Pull request title: ${{ github.event.pull_request.title }}
 
-            ${{ env.RESULTS }}
+            ${ steps.read_file.outputs.contents }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
