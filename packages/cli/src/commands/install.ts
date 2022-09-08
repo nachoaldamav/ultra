@@ -14,7 +14,6 @@ import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
 import { hardLink } from "../utils/hardLink.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
-import { performance } from "perf_hooks";
 
 let pkgs: {
   name: string;

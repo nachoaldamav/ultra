@@ -3,9 +3,12 @@ import install from "./install.js";
 import { benchmark } from "./benchmark.js";
 import upgrade from "./upgrade.js";
 import list from "./list.js";
+import checkVersion from "../utils/checkVersion.js";
 
-export function commands(args: string[]) {
+export async function commands(args: string[]) {
   const [command, ...rest] = args;
+
+  await checkVersion();
 
   switch (command) {
     case "install":
