@@ -12,22 +12,22 @@ export async function commands(args: string[]) {
 
   switch (command) {
     case "install":
-      install(rest);
+      await install(rest);
       break;
     case "i":
-      install(rest);
+      await install(rest);
       break;
     case "benchmark":
-      benchmark(rest);
+      await benchmark(rest);
       break;
     case "clear":
-      clear();
+      await clear();
       break;
     case "upgrade":
-      upgrade();
+      await upgrade();
       break;
     case "ls":
-      list(rest[0]);
+      await list(rest[0]);
       break;
     default:
       console.log(`Unknown command: ${command}`);

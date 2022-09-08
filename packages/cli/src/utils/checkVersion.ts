@@ -1,23 +1,26 @@
 import chalk from "chalk";
-import ora from "ora";
+import { readFile } from "fs/promises";
 import pacote from "pacote";
 
 export default async function checkVersion() {
   // Get installed version of @snpm-io/cli
-  const installedVersion = require("../../package.json").version;
+  const installedVersion = await readFile(
+    new URL("../../package.json", import.meta.url),
+    "utf8"
+  ).then((data) => JSON.parse(data).version);
 
   // Get latest version of @snpm-io/cli
   const { version } = await pacote.manifest("@snpm-io/cli");
 
   // If installed version is not the same as latest version, print a warning
   if (installedVersion !== version) {
-    ora(
+    console.log(
       chalk.yellow(
-        `You are using an outdated version of @snpm-io/cli. Please update to the latest version by running ${chalk.cyan(
-          "npm i -g @snpm-io/cli"
-        )}`
+        `You are using an outdated version of @snpm-io/cli. \n Please update to the latest version by running ${chalk.cyan(
+          "snpm upgrade"
+        )}\n${chalk.red(installedVersion)} -> ${chalk.green(version)}\n`
       )
-    ).warn();
+    );
   }
 
   return;

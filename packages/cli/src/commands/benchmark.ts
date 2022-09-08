@@ -119,6 +119,7 @@ const tests = [
 
 export async function benchmark(args: string[]) {
   const __init = ora(chalk.green("Starting benchmark...")).start();
+
   await execa("npm", [
     "install",
     "-g",
@@ -126,6 +127,7 @@ export async function benchmark(args: string[]) {
     "pnpm@latest",
     "npm@latest",
   ]);
+
   __init.succeed("Benchmark started");
 
   // If the user passed flag --only-snpm, we only run the SNPM tests
@@ -152,7 +154,8 @@ export async function benchmark(args: string[]) {
     await new Promise((resolve, reject) => {
       exec(test.pre, (error, stdout, stderr) => {
         if (error) {
-          reject(error);
+          start = performance.now();
+          resolve(error);
           ora(chalk.red(`[Error] ${error}`)).fail();
         } else {
           start = performance.now();
