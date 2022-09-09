@@ -92,7 +92,7 @@ const tests = [
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
   },
-  /*   {
+  {
     name: "Bun install (no cache / no lockfile)",
     command: "bun install",
     pre: `npm cache clean -f && rm -rf ${homeDir}.bun bun.lockb node_modules package-lock.json yarn.lock`,
@@ -114,7 +114,7 @@ const tests = [
     pre: "rm -rf node_modules",
     spinner: ora(chalk.green(`Running "Bun install (with cache)"...`)).stop(),
     group: 3,
-  }, */
+  },
 ];
 
 export async function benchmark(args: string[]) {
