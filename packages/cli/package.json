@@ -37,7 +37,8 @@
     "ora": "6.1.2",
     "pacote": "13.6.2",
     "prompts": "^2.4.2",
-    "read-package-json-fast": "2.0.3"
+    "read-package-json-fast": "2.0.3",
+    "wasm_links": "*"
   },
   "devDependencies": {
     "@swc/cli": "0.1.57",
