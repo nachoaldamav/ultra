@@ -1,25 +1,25 @@
-const data = [
-  {
-    name: "Yarn",
-    value: 2.17,
-  },
-  {
-    name: "NPM",
-    value: 1.87,
-  },
-  {
-    name: "PNPM",
-    value: 1.53,
-  },
-  {
-    name: "SNPM",
-    value: 1.46,
-  },
-];
-
-const max = Math.max(...data.map((d) => d.value));
-
 export default function Graph() {
+  const data = [
+    {
+      name: "Yarn",
+      value: 2.17,
+    },
+    {
+      name: "NPM",
+      value: 1.87,
+    },
+    {
+      name: "PNPM",
+      value: 1.53,
+    },
+    {
+      name: "SNPM",
+      value: 1.46,
+    },
+  ];
+
+  const max = Math.max(...data.map((d) => d.value));
+
   return (
     <div className="mt-10 flex w-full max-w-2xl flex-col gap-2">
       {data.reverse().map((item, index) => (
