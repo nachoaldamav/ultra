@@ -209,9 +209,15 @@ export async function installPkg(
       readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
     );
 
+    const thisPath = path.join(
+      process.cwd(),
+      "node_modules",
+      parent ? path.join(parent, "node_modules", manifest.name) : manifest.name
+    );
+
     return await Promise.all(
       cachedDeps.map(async (dep: any) => {
-        await installPkg(dep, manifest.name, spinner);
+        await installPkg(dep, thisPath, spinner);
       })
     );
   } else {
