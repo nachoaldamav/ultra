@@ -1,13 +1,8 @@
-import { useState } from "react";
 import Feature from "~/components/featureCard";
 import Graph from "~/components/graph";
-import CheckCopyIcon from "~/components/icons/checkCopy";
-import CopyIcon from "~/components/icons/copy";
-import confetti from "canvas-confetti";
+import Snippet from "~/components/snippet";
 
 export default function Index() {
-  const [isCopied, setIsCopied] = useState(false);
-
   return (
     <div className="flex h-fit w-full flex-col bg-primary">
       <section
@@ -19,33 +14,7 @@ export default function Index() {
           SNPM
         </h1>
         <p className="text-xl text-white">A really fast package manager.</p>
-        <div className="mt-4 inline-flex items-center gap-3 rounded-lg border border-gray-500 bg-secondary p-2 text-white">
-          <span className="font-mono font-semibold">
-            npm install @snpm-io/cli -g
-          </span>
-          <button
-            className={isCopied ? "ml-2 text-green-400" : "ml-2 text-gray-400"}
-            onClick={() => {
-              navigator.clipboard.writeText("npm install @snpm-io/cli -g");
-              setIsCopied(true);
-              confetti({
-                particleCount: 100,
-                gravity: 0.2,
-                disableForReducedMotion: true,
-                origin: {
-                  x: 0.2,
-                  y: 1,
-                },
-              });
-            }}
-          >
-            {isCopied ? (
-              <CheckCopyIcon className="text-green-700" />
-            ) : (
-              <CopyIcon />
-            )}
-          </button>
-        </div>
+        <Snippet />
       </section>
       <section
         id="features"
@@ -77,8 +46,8 @@ export default function Index() {
       >
         <h1 className="text-4xl font-bold text-white">Comparison</h1>
         <p className="text-xl text-white">
-          Here's a comparison between SNPM and other package managers in a full
-          cached install.
+          Here&apos;s a comparison between SNPM and other package managers in a
+          full cached install.
         </p>
         <Graph />
       </section>

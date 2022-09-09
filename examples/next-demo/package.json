@@ -1,5 +1,5 @@
 {
-  "name": "snpm-next",
+  "name": "next-demo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,17 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "12.2.6-canary.8",
+    "next": "12.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@types/node": "18.7.14",
+    "@types/node": "18.7.16",
     "@types/react": "18.0.18",
     "@types/react-dom": "18.0.6",
     "eslint": "8.23.0",
-    "eslint-config-next": "12.2.5",
-    "typescript": "4.8.2"
-  },
-  "_id": "snpm-next@0.1.0"
+    "eslint-config-next": "12.3.0",
+    "typescript": "4.8.3"
+  }
 }
