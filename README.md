@@ -41,6 +41,8 @@ Short answer, probably no, but in some cases it works. (For now)
 
 I've selected some quickstart templates to test SNPM, and I'm working on make it work in all of them.
 
-If you want to test a template, you can use Vite, I've already tested it and it should work.
+If you want to test a template, you can use Next or Vite, I've already tested them and it should work.
+
+(If you want to test a template and it doesn't work, please open an issue)
 
 [Full list](https://github.com/nachoaldamav/snpm/tree/main/packages/cli#readme)
