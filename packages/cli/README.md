@@ -1,20 +1,49 @@
-# SNPM CLI
-[![SNPM CLI Benchmark](https://github.com/nachoaldamav/snpm/actions/workflows/tests.yml/badge.svg)](https://github.com/nachoaldamav/snpm/actions/workflows/tests.yml)
+# SNPM (WIP)
+SNPM is an "alternative" for NPM, but it's not meant to replace NPM/Yarn/PNPM
 
-This is the CLI for SNPM, is a work in progress and shouldn't be used in production, just for fun.
+**DISCLAIMER 🚧**
 
-## How it works
+This project was made to learn more about Package Managers, for now you should only use it to play with it.
 
-This CLI installs the dependencies in a single folder inside the disk. After that, it creates the symlinks for every dependency and sub-dependency.
-In another project inside the same computer, it will use the same downloaded deps because all the dependencies are shared.
+## CLI
+The SNPM CLI is used to install packages from the package.json of a project.
 
-## It really works?
-The answer is *sometimes*
+Its advantages are that it is faster than NPM and saves more space.
 
-Currently I tested with the frameworks bellow, and only Vite works, the others have some issues with the symlinks.
+### Instalation
+```bash
+npm i @snpm-io/cli -g
+```
 
-## It's faster?
-Yes, with no-cache it's faster than NPM (no cache and no lock), with cache (a.k.a. shared folder) it should be always faster than NPM.
+### Commands
+- `snpm install [pkg (optional), flags]` Installs packages
+- `snpm run <script> <params>` Run script from package.json
+- `snpm benchmark` Tests SNPM against NPM and PNPM
+- `snpm clear` Remove .snpm-cache folder
+. `snpm ls <pkg>` Show versions installed by SNPM
+
+
+### Todo
+- [ ] Make it work in some JS Frameworks ([Follow progress here](https://github.com/nachoaldamav/snpm/issues?q=is%3Aissue+is%3Aopen+label%3Aframeworks))
+- [ ] Fix monorepos integration (WIP, degradated performance in some repos)
+
+### Why is it faster?
+SNPM uses the same installation system as PNPM, fetch dependency, download dependency. Without waiting for the rest of the dependencies.
+
+To resolve the dependencies, a dependency tree is generated as in NPM version 2, each dependency (or subdependency) has its own `node_modules`.
+
+Now you are probably wondering how that makes the space more efficient than in NPM.
+
+Each dependency is a hard link to a common store inside `.snpm-cache`, so all your projects use shared dependencies.
+
+### It works?
+Short answer, probably no, but in some cases it works. (For now)
+
+I've selected some quickstart templates to test SNPM, and I'm working on make it work in all of them.
+
+If you want to test a template, you can use Next or Vite, I've already tested them and it should work.
+
+(If you want to test a template and it doesn't work, please open an issue)
 
 ### Benchmarks
 
@@ -101,3 +130,4 @@ WARNING: Currently CRA doesn't work with symlinked dependencies.
 ```
 
 The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for SNPM.
+
