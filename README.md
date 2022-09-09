@@ -16,9 +16,12 @@ npm i @snpm-io/cli -g
 ```
 
 ### Commands
-- `snpm install` Installs packages from package.json
+- `snpm install [pkg (optional), flags]` Installs packages
+- `snpm run <script> <params>` Run script from package.json
 - `snpm benchmark` Tests SNPM against NPM and PNPM
 - `snpm clear` Remove .snpm-cache folder
+. `snpm ls <pkg>` Show versions installed by SNPM
+
 
 ### Todo
 - [ ] Make it work in some JS Frameworks ([Follow progress here](https://github.com/nachoaldamav/snpm/issues?q=is%3Aissue+is%3Aopen+label%3Aframeworks))
@@ -31,7 +34,7 @@ To resolve the dependencies, a dependency tree is generated as in NPM version 2,
 
 Now you are probably wondering how that makes the space more efficient than in NPM.
 
-Each dependency is a symbolic link to a common store inside `.snpm-cache`, so all your projects use shared dependencies.
+Each dependency is a hard link to a common store inside `.snpm-cache`, so all your projects use shared dependencies.
 
 ### It works?
 Short answer, probably no, but in some cases it works. (For now)
