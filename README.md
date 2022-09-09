@@ -30,8 +30,6 @@ npm i @snpm-io/cli -g
 ### Why is it faster?
 SNPM uses the same installation system as PNPM, fetch dependency, download dependency. Without waiting for the rest of the dependencies.
 
-To resolve the dependencies, a dependency tree is generated as in NPM version 2, each dependency (or subdependency) has its own `node_modules`.
-
 Now you are probably wondering how that makes the space more efficient than in NPM.
 
 Each dependency is a hard link to a common store inside `.snpm-cache`, so all your projects use shared dependencies.
@@ -119,21 +117,8 @@ WARNING: It works now, but some errors may appear.
 
 ### Create React App - Craco
 
-WARNING: Currently CRA doesn't work with symlinked dependencies.
+> Currently CRA is not compatible.
 
-```bash
-┌─────────┬────────────────────────────────────────────┬─────────────────┐
-│ (index) │                    name                    │      time       │
-├─────────┼────────────────────────────────────────────┼─────────────────┤
-│    0    │        'SNPM install (with cache)'         │ '2.02 seconds'  │
-│    1    │        'PNPM install (with cache)'         │ '6.77 seconds'  │
-│    2    │ 'NPM install (with cache / with lockfile)' │ '15.53 seconds' │
-│    3    │  'NPM install (with cache / no lockfile)'  │ '22.59 seconds' │
-│    4    │         'PNPM install (no cache)'          │ '30.41 seconds' │
-│    5    │         'SNPM install (no cache)'          │ '1.03 minutes'  │
-│    6    │   'NPM install (no cache / no lockfile)'   │ '1.49 minutes'  │
-└─────────┴────────────────────────────────────────────┴─────────────────┘
-```
 
 The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for SNPM.
 
