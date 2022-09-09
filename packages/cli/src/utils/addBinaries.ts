@@ -13,6 +13,9 @@ export async function installBins() {
       cwd: path.join(process.cwd(), "node_modules"),
     });
 
+    // Short packages to show first the nearest to root
+    packages.sort((a, b) => a.split("/").length - b.split("/").length);
+
     return await Promise.allSettled(
       packages.map(async (data) => {
         const packageJSON = await rpjf(
