@@ -1,6 +1,6 @@
 {
   "name": "@snpm-io/cli",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "SNPM CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
