@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/fonts/mono/JetBrainsMono-Regular.ttf") format("ttf"),
+    url("/fonts/mono/JetBrainsMono-Regular.ttf") format("ttf");
+}
+
+.glow {
+  @apply text-center text-6xl font-bold text-white;
+  text-shadow: 0 0 5px #fff, 0 0 5px #fff, 0 0 10px #00ff00, 0 0 15px #00ff00,
+    0 0 20px #00ff00, 0 0 25px #00ff00, 0 0 30px #00ff00;
+}
