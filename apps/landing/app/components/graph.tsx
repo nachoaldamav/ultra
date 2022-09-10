@@ -5,53 +5,53 @@ import { useInView } from "react-intersection-observer";
 const data = [
   {
     name: "NPM (Cache / no lock)",
-    value: 2.85,
+    value: 18.81,
     className: "h-8 rounded rounded-l-none bg-blue-600",
   },
   {
     name: "Yarn (Cache / no lock)",
-    value: 3.82,
+    value: 110.4,
     className: "h-8 rounded rounded-l-none bg-blue-600",
   },
-  {
+  /*   {
     name: "PNPM (No cache)",
-    value: 6.7,
+    value: 33.39,
     className: "h-8 rounded rounded-l-none bg-blue-600",
-  },
+  }, */
   {
     name: "SNPM (No cache)",
-    value: 6.22,
+    value: 55.46,
     className:
       "bg-gradient-to-r from-purple-400 to-pink-600 h-8 rounded rounded-l-none",
   },
   {
     name: "NPM (No cache)",
-    value: 5.66,
+    value: 151.8,
     className: "h-8 rounded rounded-l-none bg-blue-600",
   },
   {
     name: "Yarn (No cache)",
-    value: 8.02,
+    value: 123.6,
     className: "h-8 rounded rounded-l-none bg-blue-600",
   },
   {
     name: "Yarn (cache / lock)",
-    value: 2.17,
+    value: 16.85,
     className: "h-8 rounded rounded-l-none bg-blue-600",
   },
   {
     name: "NPM (cache / lock)",
-    value: 1.87,
+    value: 18.81,
     className: "h-8 rounded rounded-l-none bg-blue-600",
   },
-  {
+  /*   {
     name: "PNPM (cache / lock)",
-    value: 1.53,
+    value: 7.75,
     className: "h-8 rounded rounded-l-none bg-blue-600",
-  },
+  }, */
   {
     name: "SNPM (cache)",
-    value: 1.46,
+    value: 15.69,
     className:
       "bg-gradient-to-r from-purple-400 to-pink-600 h-8 rounded rounded-l-none",
   },
