@@ -1,5 +1,5 @@
 import os from "os";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 
 const BASIC_CONFIG = {
@@ -16,10 +16,13 @@ export default function readConfig() {
   }
 
   if (!existsSync(configPath)) {
+    // Create directory recursively
+    mkdirSync(`${os.homedir()}/.snpm`, { recursive: true });
     writeFileSync(configPath, JSON.stringify(BASIC_CONFIG, null, 2));
+    return JSON.parse(readFileSync(configPath, "utf-8"));
+  } else {
+    return JSON.parse(readFileSync(configPath, "utf-8"));
   }
-
-  return JSON.parse(readFileSync(configPath, "utf-8"));
 }
 
 export function update(params: string[]) {
