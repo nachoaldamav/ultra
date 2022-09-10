@@ -104,7 +104,7 @@ function Progress({
 
   return (
     <div className="h-8 w-full rounded-xl rounded-l-none bg-transparent">
-      <span className="absolute ml-4 text-xl font-semibold text-white">
+      <span className="absolute ml-4 text-xl font-semibold text-white inline-flex">
         {name} {secs}s
       </span>
       <motion.div

@@ -31,8 +31,8 @@ export default function Index() {
             description="SNPM uses hardlinks to install packages, saving a lot of your disk space."
           />
           <Feature
-            title="For the future"
-            description="It's built with new technologies to make it future proof."
+            title="Edge caching"
+            description="SNPM uses edge caching to make your packages even faster."
           />
           <Feature
             title="Open Source"
