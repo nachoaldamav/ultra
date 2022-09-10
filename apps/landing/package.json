@@ -15,7 +15,9 @@
     "@vercel/node": "^2.4.4",
     "canvas-confetti": "^1.5.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "framer-motion": "7.3.2",
+    "react-intersection-observer": "9.4.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.7.0",
@@ -33,5 +35,7 @@
   },
   "engines": {
     "node": ">=14"
-  }
+  },
+  "peerDependencies": {},
+  "optionalDependencies": {}
 }
