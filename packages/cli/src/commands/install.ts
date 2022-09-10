@@ -4,7 +4,6 @@ import rpjf from "read-package-json-fast";
 import { mkdir, rm, readdir, writeFile } from "fs/promises";
 import { exec } from "child_process";
 import path from "path";
-import os from "os";
 import { existsSync, readFileSync } from "fs";
 import { getDeps } from "../utils/getDeps.js";
 import pacote from "pacote";
@@ -14,6 +13,7 @@ import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
 import { hardLink } from "../utils/hardLink.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
+import readConfig from "../utils/readConfig.js";
 
 let pkgs: {
   name: string;
@@ -29,10 +29,10 @@ const __INSTALLED: {
   version: string;
 }[] = [];
 
-const userSnpmCache = `${os.homedir()}/.snpm-cache`;
+const userSnpmCache = readConfig().cache;
 const downloadFile = ".snpm";
 
-const REGISTRY = "https://registry.npmjs.org/";
+const REGISTRY = readConfig().registry;
 
 export default async function install(opts: string[]) {
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
@@ -353,31 +353,4 @@ async function extract(cacheFolder: string, tarball: string): Promise<any> {
   __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
 
   return { res, error };
-}
-
-async function installCachedDeps(
-  pathName: string,
-  spinner?: Ora
-): Promise<any> {
-  // Read .snpm file from path
-  const cachedDeps = JSON.parse(
-    readFileSync(path.join(pathName, downloadFile), "utf-8")
-  );
-
-  return await Promise.all(
-    cachedDeps.map(async (dep: any) => {
-      // Get version of dep by slicing the path and getting the last folder
-      const version = dep.path.split("/").pop();
-
-      return await installPkg(
-        {
-          name: dep.name,
-          version,
-          tarball: `${REGISTRY}/${dep.name}/-/${dep.name}-${version}.tgz`,
-        },
-        undefined,
-        spinner
-      );
-    })
-  );
 }

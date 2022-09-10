@@ -5,6 +5,7 @@ import upgrade from "./upgrade.js";
 import list from "./list.js";
 import checkVersion from "../utils/checkVersion.js";
 import run from "./run.js";
+import { update } from "../utils/readConfig.js";
 
 export async function commands(args: string[]) {
   const [command, ...rest] = args;
@@ -30,6 +31,9 @@ export async function commands(args: string[]) {
       break;
     case "run":
       await run(rest);
+      break;
+    case "set":
+      update(rest);
       break;
     default:
       console.log(`Unknown command: ${command}`);
