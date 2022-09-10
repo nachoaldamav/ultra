@@ -21,18 +21,18 @@ export default function Index() {
         className="mb-10 flex h-full w-full flex-1 flex-col items-center justify-start"
       >
         <h1 className="text-4xl font-bold text-white">Features</h1>
-        <div className="mt-6 flex w-full flex-row flex-wrap justify-center gap-4">
+        <div className="mt-6 flex w-full flex-col md:flex-row flex-wrap justify-center gap-4 px-4">
           <Feature
             title="Fast"
             description="SNPM is built with speed in mind. It's blazing fast."
           />
           <Feature
             title="Lightweight"
-            description="SNPM uses symlinks to install packages, saving a lot of your disk space."
+            description="SNPM uses hardlinks to install packages, saving a lot of your disk space."
           />
           <Feature
-            title="For the future"
-            description="It's built with new technologies to make it future proof."
+            title="Edge caching"
+            description="SNPM uses edge caching to make your packages even faster."
           />
           <Feature
             title="Open Source"
@@ -47,7 +47,7 @@ export default function Index() {
         <h1 className="text-4xl font-bold text-white">Comparison</h1>
         <p className="text-xl text-white">
           Here&apos;s a comparison between SNPM and other package managers in a
-          full cached install.
+          Vite project.
         </p>
         <Graph />
       </section>
