@@ -210,6 +210,7 @@ export async function benchmark(args: string[]) {
           end = performance.now();
           resolve(error);
           ora(chalk.red(`[Error] ${error}`)).fail();
+          err = true;
           clearInterval(interval);
         } else {
           end = performance.now();
