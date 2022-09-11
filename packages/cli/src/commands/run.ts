@@ -4,6 +4,7 @@ import ora from "ora";
 import chalk from "chalk";
 import { spawn } from "child_process";
 import { readdirSync } from "fs";
+import { execa } from "execa";
 
 export default async function run(args: Array<string>) {
   const pkg = await rpjf(path.join(process.cwd(), "package.json"));
@@ -34,14 +35,28 @@ export default async function run(args: Array<string>) {
     const binary = script.split(" ")[0];
 
     // Get the args
-    const binaryArgs = script.split(" ").slice(1);
+    const binaryArgs = script.replace(binary, "");
 
     // Check if the binary is in the node_modules/.bin
     if (binaries.includes(binary)) {
+      const regxp = /(".*?"|[^"\s]+)(?=\s*|\s*$)/g;
+
+      const args = binaryArgs.match(regxp);
+
+      // Parse args and add the binary path to the first arg if its a binary
+      const parsedArgs = args?.map((arg, index) => {
+        // Remove quotes
+        const i = arg.replace(/"/g, "");
+        const command = i.split(" ")[0];
+        if (binaries.includes(command)) {
+          arg = path.join(binPath, command) + i.replace(command, "");
+        }
+        return arg;
+      }) || [...binaryArgs];
+
       // Run the binary
-      spawn(path.join(binPath, binary), binaryArgs, {
+      execa(path.join(binPath, binary), [...parsedArgs], {
         stdio: "inherit",
-        shell: true,
       });
     } else {
       // Run the script
