@@ -5,9 +5,6 @@ body:
   - type: markdown
     attributes:
       value: Thanks for taking the time to file a bug report! Please fill out this form as completely as possible.
-  - type: markdown
-    attributes:
-      value: If you leave out sections there is a high likelihood it will be moved to the GitHub Discussions ["Help" section](https://github.com/vercel/next.js/discussions/categories/help).
   - type: input
     attributes:
       label: Provide installed version
