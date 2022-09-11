@@ -18,10 +18,10 @@ npm i @snpm-io/cli -g
 ### Commands
 - `snpm install [pkg (optional), flags]` Installs packages
 - `snpm run <script> <params>` Run script from package.json
-. `snpm create <template> <arguments>` Create a project from a template (Similar to npm init)
+- `snpm create <template> <arguments>` Create a project from a template (Similar to npm init)
 - `snpm benchmark` Tests SNPM against NPM and PNPM
 - `snpm clear` Remove .snpm-cache folder
-. `snpm ls <pkg>` Show versions installed by SNPM
+- `snpm ls <pkg>` Show versions installed by SNPM
 
 
 ### Todo
