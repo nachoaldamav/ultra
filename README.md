@@ -1,9 +1,13 @@
 # SNPM (WIP)
-SNPM is an "alternative" for NPM, but it's not meant to replace NPM/Yarn/PNPM
+SNPM is an "alternative" for NPM, it is faster and saves more space.
 
 **DISCLAIMER 🚧**
 
 This project was made to learn more about Package Managers, for now you should only use it to play with it.
+
+## Requirements
+- Node v16 or higher
+- Linux or Mac OS (Working on Windows support [issue](https://github.com/nachoaldamav/snpm/issues/40))
 
 ## CLI
 The SNPM CLI is used to install packages from the package.json of a project.
