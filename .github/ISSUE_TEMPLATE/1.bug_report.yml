@@ -1,5 +1,5 @@
 name: Bug Report
-description: Create a bug report for the Next.js core
+description: Create a bug report for SNPM CLI
 labels: 'template: bug'
 body:
   - type: markdown
@@ -8,9 +8,9 @@ body:
   - type: markdown
     attributes:
       value: If you leave out sections there is a high likelihood it will be moved to the GitHub Discussions ["Help" section](https://github.com/vercel/next.js/discussions/categories/help).
-  - type: textarea
+  - type: input
     attributes:
-      label: Provide environment information
+      label: Provide installed version
       description: Please provide the current version installed of SNPM by running `npm ls @snpm-io/cli`.
     validations:
       required: true
@@ -33,7 +33,7 @@ body:
   - type: input
     attributes:
       label: Template command (if applicable)
-      description: Provide the command to init the template (snpm create create-next-app)
+      description: Provide the command to init the template (`snpm create create-next-app`)
     validations:
       required: false
   - type: textarea
