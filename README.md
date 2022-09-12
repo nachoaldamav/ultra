@@ -1,5 +1,5 @@
-# SNPM (WIP)
-SNPM is an "alternative" for NPM, it is faster and saves more space.
+# FNPM (WIP)
+FNPM is an "alternative" for NPM, it is faster and saves more space.
 
 **DISCLAIMER 🚧**
 
@@ -10,22 +10,22 @@ This project was made to learn more about Package Managers, for now you should o
 - Linux or Mac OS (Working on Windows support [issue](https://github.com/nachoaldamav/snpm/issues/40))
 
 ## CLI
-The SNPM CLI is used to install packages from the package.json of a project.
+The FNPM CLI is used to install packages from the package.json of a project.
 
 Its advantages are that it is faster than NPM and saves more space.
 
 ### Instalation
 ```bash
-npm i @snpm-io/cli -g
+npm i fnpm -g
 ```
 
 ### Commands
-- `snpm install [pkg (optional), flags]` Installs packages
-- `snpm run <script> <params>` Run script from package.json
-- `snpm create <template> <arguments>` Create a project from a template (Similar to npm init)
-- `snpm benchmark` Tests SNPM against NPM and PNPM
-- `snpm clear` Remove .snpm-cache folder
-- `snpm ls <pkg>` Show versions installed by SNPM
+- `fnpm install [pkg (optional), flags]` Installs packages
+- `fnpm run <script> <params>` Run script from package.json
+- `fnpm create <template> <arguments>` Create a project from a template (Similar to npm init)
+- `fnpm benchmark` Tests SNPM against NPM and PNPM
+- `fnpm clear` Remove .snpm-cache folder
+- `fnpm ls <pkg>` Show versions installed by SNPM
 
 
 ### Todo
@@ -58,13 +58,13 @@ If you want to test a template, you can use Next or Vite, I've already tested th
 ├─────────┼────────────────────────────────────────────┼─────────────────┤
 │    0    │ 'Bun install (with cache / with lockfile)' │ '0.70 seconds'  │
 │    1    │  'Bun install (with cache / no lockfile)'  │ '1.17 seconds'  │
-│    2    │        'SNPM install (with cache)'         │ '4.94 seconds'  │
+│    2    │        'fnpm install (with cache)'         │ '4.94 seconds'  │
 │    3    │   'Bun install (no cache / no lockfile)'   │ '9.90 seconds'  │
 │    4    │        'PNPM install (with cache)'         │ '10.16 seconds' │
 │    5    │ 'NPM install (with cache / with lockfile)' │ '27.29 seconds' │
 │    6    │  'NPM install (with cache / no lockfile)'  │ '35.34 seconds' │
 │    7    │        'YARN install (with cache)'         │ '43.62 seconds' │
-│    8    │         'SNPM install (no cache)'          │ '1.02 minutes'  │
+│    8    │         'fnpm install (no cache)'          │ '1.02 minutes'  │
 │    9    │         'PNPM install (no cache)'          │ '1.24 minutes'  │
 │   10    │   'YARN install (no cache, no lockfile)'   │ '1.68 minutes'  │
 │   11    │    'YARN install (with cache, no lock)'    │ '2.13 minutes'  │
@@ -80,7 +80,7 @@ This is an example benchmark of a Vite project using `npm create vite@latest my-
 │ (index) │                    name                    │      time       │ group │
 ├─────────┼────────────────────────────────────────────┼─────────────────┼───────┤
 │    0    │ 'Bun install (with cache / with lockfile)' │ '0.15 seconds'  │   3   │
-│    1    │        'SNPM install (with cache)'         │ '0.93 seconds'  │   3   │
+│    1    │        'FNPM install (with cache)'         │ '0.93 seconds'  │   3   │
 │    2    │        'PNPM install (with cache)'         │ '2.87 seconds'  │   3   │
 │    3    │        'YARN install (with cache)'         │ '3.91 seconds'  │   3   │
 │    4    │  'Bun install (with cache / no lockfile)'  │ '4.73 seconds'  │   2   │
@@ -89,7 +89,7 @@ This is an example benchmark of a Vite project using `npm create vite@latest my-
 │    7    │  'NPM install (with cache / no lockfile)'  │ '6.38 seconds'  │   2   │
 │    8    │         'PNPM install (no cache)'          │ '13.93 seconds' │   1   │
 │    9    │    'YARN install (with cache, no lock)'    │ '21.48 seconds' │   2   │
-│   10    │         'SNPM install (no cache)'          │ '27.03 seconds' │   1   │
+│   10    │         'FNPM install (no cache)'          │ '27.03 seconds' │   1   │
 │   11    │   'YARN install (no cache, no lockfile)'   │ '43.30 seconds' │   1   │
 │   12    │   'NPM install (no cache / no lockfile)'   │ '44.94 seconds' │   1   │
 └─────────┴────────────────────────────────────────────┴─────────────────┴───────┘
@@ -108,13 +108,13 @@ WARNING: It works now, but some errors may appear.
 │    1    │   'Bun install (no cache / no lockfile)'   │ '3.37 seconds'  │   1   │
 │    2    │        'PNPM install (with cache)'         │ '3.47 seconds'  │   3   │
 │    3    │  'Bun install (with cache / no lockfile)'  │ '3.79 seconds'  │   2   │
-│    4    │        'SNPM install (with cache)'         │ '5.04 seconds'  │   3   │
+│    4    │        'FNPM install (with cache)'         │ '5.04 seconds'  │   3   │
 │    5    │        'YARN install (with cache)'         │ '5.93 seconds'  │   3   │
 │    6    │ 'NPM install (with cache / with lockfile)' │ '6.61 seconds'  │   3   │
 │    7    │  'NPM install (with cache / no lockfile)'  │ '8.51 seconds'  │   2   │
 │    8    │         'PNPM install (no cache)'          │ '15.87 seconds' │   1   │
 │    9    │    'YARN install (with cache, no lock)'    │ '16.07 seconds' │   2   │
-│   10    │         'SNPM install (no cache)'          │ '19.05 seconds' │   1   │
+│   10    │         'FNPM install (no cache)'          │ '19.05 seconds' │   1   │
 │   11    │   'NPM install (no cache / no lockfile)'   │ '22.20 seconds' │   1   │
 │   12    │   'YARN install (no cache, no lockfile)'   │ '32.87 seconds' │   1   │
 └─────────┴────────────────────────────────────────────┴─────────────────┴───────┘
@@ -125,5 +125,5 @@ WARNING: It works now, but some errors may appear.
 > Currently CRA is not compatible.
 
 
-The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for SNPM.
+The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for FNPM.
 
