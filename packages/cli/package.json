@@ -24,9 +24,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/glob": "7.2.0",
-    "@types/pacote": "11.1.5",
-    "@types/prompts": "^2.0.14",
     "axios": "0.27.2",
     "chalk": "5.0.1",
     "execa": "^6.1.0",
@@ -38,6 +35,9 @@
     "read-package-json-fast": "2.0.3"
   },
   "devDependencies": {
+    "@types/glob": "7.2.0",
+    "@types/pacote": "11.1.5",
+    "@types/prompts": "^2.0.14",
     "@swc/cli": "0.1.57",
     "@swc/core": "1.2.242",
     "@types/mv": "2.1.2"
