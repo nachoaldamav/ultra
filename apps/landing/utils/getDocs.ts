@@ -9,7 +9,12 @@ type PostMarkdownAttributes = {
 export async function getDocs(): Promise<any> {
   // `${__dirname}/../../app/docs`
   const pathToPosts = path.join(process.cwd(), "/docs");
-  const allPostFiles = await fs.readdir(pathToPosts);
+  const allPostFiles = await fs.readdir(pathToPosts).catch(async (err) => {
+    console.error(err);
+    // Read cwd contents
+    console.log("CWD Content: ", await fs.readdir(process.cwd()));
+    return [];
+  });
   const posts = await Promise.all(
     allPostFiles.map(async (filename) => {
       const file = await fs.readFile(path.join(pathToPosts, filename));
