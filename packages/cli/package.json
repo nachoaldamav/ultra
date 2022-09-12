@@ -6,7 +6,8 @@
   "main": "build/bin/cli.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nachoaldamav/fnpm/tree/main/packages/cli"
+    "url": "https://github.com/nachoaldamav/fnpm",
+    "directory": "packages/cli"
   },
   "type": "module",
   "scripts": {

@@ -1,7 +1,12 @@
 {
   "private": true,
   "sideEffects": false,
-  "name": "@snpm-io/landing",
+  "name": "@fnpm-io/landing",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nachoaldamav/fnpm",
+    "directory": "apps/landing"
+  },
   "scripts": {
     "build": "npm run build:css && remix build",
     "build:css": "tailwindcss -m -i ./styles/app.css -o app/styles/app.css",

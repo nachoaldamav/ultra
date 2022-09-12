@@ -1,10 +1,10 @@
 {
-  "name": "fast-npm",
+  "name": "fnpm",
   "version": "0.3.9",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/nachoaldamav/snpm"
+    "url": "https://github.com/nachoaldamav/fnpm"
   },
   "workspaces": [
     "apps/*",
