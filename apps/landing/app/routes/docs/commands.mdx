@@ -15,7 +15,8 @@ This is a list of all the commands available in FNPM.
 With this command you can install a package from the registry.
 
 ```bash
-fnpm install <package>
+# fnpm install <package> [flags]
+fnpm install react react-dom -P
 ```
 
 #### Parameters
@@ -31,13 +32,23 @@ fnpm install <package>
 With this command you can run a script from the `package.json` file.
 
 ```bash
-fnpm run <script>
+# fnpm run <script> [options]
+fnpm run dev
 ```
+
+#### Options
+
+Options are passed to the script.
 
 ## Create
 
 With this command you can create a project from a template.
 
 ```bash
-fnpm create <template> [options]
+# fnpm create <template> [options]
+fnpm create create-next-app
 ```
+
+#### Options
+
+Options are passed to the template script.

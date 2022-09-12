@@ -105,7 +105,7 @@ export default function Docs() {
                   key={index}
                   className="w-full bg-secondary py-2 px-4 rounded-lg"
                 >
-                  <a href={doc.slug} className="w-full">
+                  <a href={`/docs/${doc.slug}`} className="w-full">
                     {doc.title}
                   </a>
                 </li>
