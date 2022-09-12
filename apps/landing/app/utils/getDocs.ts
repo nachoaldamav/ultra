@@ -15,12 +15,13 @@ export async function getDocs(): Promise<any> {
     .catch(async (err) => {
       console.error(err);
       // Read cwd contents
-      console.log(
-        "CWD Content: ",
+      console.log("CWD Content: ", [
+        await fs.readdir(path.join(__dirname)),
+        await fs.readdir(path.join(__dirname, "..")),
         await fs.readdir(path.join(__dirname, "..", "..")),
         await fs.readdir(path.join(__dirname, "..", "..", "..")),
-        await fs.readdir(path.join(__dirname, "..", "..", "..", ".."))
-      );
+        await fs.readdir(path.join(__dirname, "..", "..", "..", "..")),
+      ]);
       return [];
     });
 
