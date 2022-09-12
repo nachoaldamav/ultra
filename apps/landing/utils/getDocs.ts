@@ -3,11 +3,9 @@ import fs from "fs/promises";
 import parseFrontMatter from "front-matter";
 
 // Path to the docs directory
-const docsPath = path.join(process.cwd(), "app", "routes", "docs");
+const docsPath = path.join(__dirname, "..", "app", "routes", "docs");
 
 export async function getDocs() {
-  console.log("getDocs");
-  console.log(docsPath);
   const postsPath = await fs.readdir(docsPath, {
     withFileTypes: true,
   });
