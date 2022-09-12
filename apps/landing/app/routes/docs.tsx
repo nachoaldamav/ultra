@@ -1,7 +1,7 @@
 import type { LinksFunction } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import styles from "highlight.js/styles/github-dark-dimmed.css";
-import { getDocs } from "utils/getDocs";
+import { getDocs } from "~/utils/getDocs";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: styles }];

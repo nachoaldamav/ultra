@@ -1,6 +1,6 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getDoc } from "utils/getDoc";
+import { getDoc } from "~/utils/getDoc";
 
 export let loader = async ({ params }: any) => {
   try {
