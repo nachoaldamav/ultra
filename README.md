@@ -37,7 +37,7 @@ SNPM uses the same installation system as PNPM, fetch dependency, download depen
 
 Now you are probably wondering how that makes the space more efficient than in NPM.
 
-Each dependency is a hard link to a common store inside `.snpm-cache`, so all your projects use shared dependencies.
+Each dependency is a hard link to a common store inside `.fnpm-cache`, so all your projects use shared dependencies.
 
 ### It works?
 Short answer, probably no, but in some cases it works. (For now)
