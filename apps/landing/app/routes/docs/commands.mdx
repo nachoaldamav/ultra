@@ -1,0 +1,43 @@
+---
+meta:
+  title: Commands
+  description: Commands available in FNPM
+  date: 2019-01-01
+  order: 2
+---
+
+# Commands
+
+This is a list of all the commands available in FNPM.
+
+## Install
+
+With this command you can install a package from the registry.
+
+```bash
+fnpm install <package>
+```
+
+#### Parameters
+
+- `package` - The package you want to install
+- `-D` - Install as a development dependency
+- `-P` - Install as a peer dependency
+- `-O` - Install as an optional dependency
+- `empy` - Install depenencies from the `package.json` file
+
+## Run
+
+With this command you can run a script from the `package.json` file.
+
+```bash
+fnpm run <script>
+```
+
+## Create
+
+With this command you can create a project from a template.
+
+```bash
+fnpm create <template> [options]
+```
