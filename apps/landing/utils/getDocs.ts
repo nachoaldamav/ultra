@@ -8,7 +8,7 @@ type PostMarkdownAttributes = {
 
 export async function getDocs(): Promise<any> {
   // `${__dirname}/../../app/docs`
-  const pathToPosts = path.join(process.cwd(), "apps", "landing", "/docs");
+  const pathToPosts = path.join(__dirname, "..", "..", "app", "docs");
   const allPostFiles = await fs
     .readdir(pathToPosts)
     .then((files) => files.filter((file) => file.endsWith(".mdx")))
@@ -17,7 +17,7 @@ export async function getDocs(): Promise<any> {
       // Read cwd contents
       console.log(
         "CWD Content: ",
-        await fs.readdir(path.join(process.cwd(), "apps", "landing"))
+        await fs.readdir(path.join(__dirname, "..", "..", "app"))
       );
       return [];
     });
