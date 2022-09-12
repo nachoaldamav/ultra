@@ -12,7 +12,7 @@ export default async function create(args: string[]) {
   if (args.length === 0) {
     console.log(
       chalk.red(
-        "Please provide the script name, e.g. snpm create create-next-app"
+        "Please provide the script name, e.g. fnpm create create-next-app"
       )
     );
     return;

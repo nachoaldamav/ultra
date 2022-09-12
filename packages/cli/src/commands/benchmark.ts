@@ -65,17 +65,17 @@ const tests = [
     group: 3,
   },
   {
-    name: "SNPM install (no cache)",
-    command: "snpm install",
-    pre: "npm cache clean -f && snpm clear",
-    spinner: ora(chalk.green(`Running "SNPM install (no cache)"...`)).stop(),
+    name: "fnpm install (no cache)",
+    command: "fnpm install",
+    pre: "npm cache clean -f && fnpm clear",
+    spinner: ora(chalk.green(`Running "fnpm install (no cache)"...`)).stop(),
     group: 1,
   },
   {
-    name: "SNPM install (with cache)",
-    command: "snpm install",
+    name: "fnpm install (with cache)",
+    command: "fnpm install",
     pre: "rm -rf node_modules",
-    spinner: ora(chalk.green(`Running "SNPM install (with cache)"...`)).stop(),
+    spinner: ora(chalk.green(`Running "fnpm install (with cache)"...`)).stop(),
     group: 3,
   },
   {
@@ -118,19 +118,19 @@ const tests = [
 ];
 
 export async function benchmark(args: string[]) {
-  // If the user passed flag --only-snpm, we only run the SNPM tests
-  const onlySnpm = args.includes("--only-snpm");
+  // If the user passed flag --only-fnpm, we only run the fnpm tests
+  const onlyfnpm = args.includes("--only-fnpm");
   const ignoreBun = args.includes("--ignore-bun");
 
-  if (onlySnpm) ora(chalk.yellow("Only running SNPM tests")).warn();
+  if (onlyfnpm) ora(chalk.yellow("Only running fnpm tests")).warn();
 
   const selectedGroup = args
     .find((arg) => arg.startsWith("--group="))
     ?.replace("--group=", "");
 
   const testsToRun = !selectedGroup
-    ? onlySnpm
-      ? tests.filter((test) => test.name.includes("SNPM"))
+    ? onlyfnpm
+      ? tests.filter((test) => test.name.includes("fnpm"))
       : tests
     : tests.filter((test) => test.group === parseInt(selectedGroup));
 

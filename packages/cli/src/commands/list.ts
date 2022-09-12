@@ -8,19 +8,19 @@ import path from "path";
 export default async function list(pkg: string) {
   if (!pkg) {
     ora(chalk.red("Missing package name")).fail();
-    const packages = await readdir(path.join(os.homedir(), ".snpm-cache"));
+    const packages = await readdir(path.join(os.homedir(), ".fnpm-cache"));
     console.log(
       chalk.green(
-        `${chalk.blue(packages.length)} packages installed with SNPM.`
+        `${chalk.blue(packages.length)} packages installed with FNPM.`
       )
     );
     return;
   }
 
-  const pathName = path.join(os.homedir(), ".snpm-cache", pkg);
+  const pathName = path.join(os.homedir(), ".fnpm-cache", pkg);
 
   if (!existsSync(pathName)) {
-    ora(chalk(`${pkg} is not installed with SNPM!`)).fail();
+    ora(chalk(`${pkg} is not installed with FNPM!`)).fail();
     return;
   }
 

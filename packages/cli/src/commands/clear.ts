@@ -6,7 +6,7 @@ import rpjf from "read-package-json-fast";
 import glob from "glob";
 
 export async function clear() {
-  const cacheFolder = `${os.homedir()}/.snpm-cache`;
+  const cacheFolder = `${os.homedir()}/.fnpm-cache`;
   const packageJson = `${process.cwd()}/package.json`;
   const pkg = await rpjf(packageJson);
   const workspaces = pkg.workspaces || null;

@@ -11,7 +11,7 @@ export default function Index() {
       >
         <h1 className="text-4xl font-bold text-white">Welcome to </h1>
         <h1 className="mb-4 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-7xl font-extrabold text-transparent">
-          SNPM
+          FNPM
         </h1>
         <p className="text-xl text-white">A really fast package manager.</p>
         <Snippet />
@@ -24,19 +24,19 @@ export default function Index() {
         <div className="mt-6 flex w-full flex-col md:flex-row flex-wrap justify-center gap-4 px-4">
           <Feature
             title="Fast"
-            description="SNPM is built with speed in mind. It's blazing fast."
+            description="FNPM is built with speed in mind. It's blazing fast."
           />
           <Feature
             title="Lightweight"
-            description="SNPM uses hardlinks to install packages, saving a lot of your disk space."
+            description="FNPM uses hardlinks to install packages, saving a lot of your disk space."
           />
           <Feature
             title="Edge caching"
-            description="SNPM uses edge caching to make your packages even faster."
+            description="FNPM uses edge caching to make your packages even faster."
           />
           <Feature
             title="Open Source"
-            description="SNPM is open source, so you can contribute to it."
+            description="FNPM is open source, so you can contribute to it."
           />
         </div>
       </section>
@@ -46,7 +46,7 @@ export default function Index() {
       >
         <h1 className="text-4xl font-bold text-white">Comparison</h1>
         <p className="text-xl text-white">
-          Here&apos;s a comparison between SNPM and other package managers in a
+          Here&apos;s a comparison between FNPM and other package managers in a
           Vite project.
         </p>
         <Graph />

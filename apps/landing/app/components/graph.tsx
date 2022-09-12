@@ -19,7 +19,7 @@ const data = [
     className: "h-8 rounded rounded-l-none bg-blue-600",
   }, */
   {
-    name: "SNPM (No cache)",
+    name: "FNPM (No cache)",
     value: 55.46,
     className:
       "bg-gradient-to-r from-purple-400 to-pink-600 h-8 rounded rounded-l-none",
@@ -50,7 +50,7 @@ const data = [
     className: "h-8 rounded rounded-l-none bg-blue-600",
   }, */
   {
-    name: "SNPM (cache)",
+    name: "FNPM (cache)",
     value: 15.69,
     className:
       "bg-gradient-to-r from-purple-400 to-pink-600 h-8 rounded rounded-l-none",

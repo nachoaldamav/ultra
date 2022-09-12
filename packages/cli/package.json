@@ -1,12 +1,12 @@
 {
-  "name": "@snpm-io/cli",
+  "name": "fnpm",
   "version": "0.3.8",
-  "description": "SNPM CLI Tool.",
+  "description": "FNPM CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nachoaldamav/snpm/tree/main/packages/cli"
+    "url": "https://github.com/nachoaldamav/fnpm/tree/main/packages/cli"
   },
   "type": "module",
   "scripts": {
@@ -18,7 +18,7 @@
     "build"
   ],
   "bin": {
-    "snpm": "./build/bin/cli.js"
+    "fnpm": "./build/bin/cli.js"
   },
   "keywords": [],
   "author": "",

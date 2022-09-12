@@ -4,12 +4,12 @@ import path from "path";
 
 const BASIC_CONFIG = {
   registry: "https://registry.npmjs.org/",
-  cache: path.join(os.homedir(), ".snpm-cache"),
+  cache: path.join(os.homedir(), ".fnpm-cache"),
 };
 
 export default function readConfig() {
-  const configPath = `${os.homedir()}/.snpm/.snpmrc`;
-  const workspaceConfigPath = `${process.cwd()}/.snpmrc`;
+  const configPath = `${os.homedir()}/.fnpm/.fnpmrc`;
+  const workspaceConfigPath = `${process.cwd()}/.fnpmrc`;
 
   if (existsSync(workspaceConfigPath)) {
     return JSON.parse(readFileSync(workspaceConfigPath, "utf8"));
@@ -17,7 +17,7 @@ export default function readConfig() {
 
   if (!existsSync(configPath)) {
     // Create directory recursively
-    mkdirSync(`${os.homedir()}/.snpm`, { recursive: true });
+    mkdirSync(`${os.homedir()}/.fnpm`, { recursive: true });
     writeFileSync(configPath, JSON.stringify(BASIC_CONFIG, null, 2));
     return JSON.parse(readFileSync(configPath, "utf-8"));
   } else {
@@ -26,7 +26,7 @@ export default function readConfig() {
 }
 
 export function update(params: string[]) {
-  const configPath = `${os.homedir()}/.snpm/.snpmrc`;
+  const configPath = `${os.homedir()}/.fnpm/.fnpmrc`;
   const config = readConfig();
 
   const [key, value] = params;

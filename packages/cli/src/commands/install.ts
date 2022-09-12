@@ -29,8 +29,8 @@ const __INSTALLED: {
   version: string;
 }[] = [];
 
-const userSnpmCache = readConfig().cache;
-const downloadFile = ".snpm";
+const userFnpmCache = readConfig().cache;
+const downloadFile = ".fnpm";
 
 const REGISTRY = readConfig().registry;
 
@@ -152,7 +152,7 @@ export async function installPkg(
   parent?: string,
   spinner?: Ora
 ) {
-  const cacheFolder = `${userSnpmCache}/${manifest.name}/${manifest.version}`;
+  const cacheFolder = `${userFnpmCache}/${manifest.name}/${manifest.version}`;
 
   // Check if package is already installed
   if (
@@ -193,7 +193,7 @@ export async function installPkg(
 
   let savedDeps: any[] | null = null;
 
-  // Check if package is already in cache, searching for file .snpm
+  // Check if package is already in cache, searching for file .fnpm
   if (existsSync(`${cacheFolder}/${downloadFile}`)) {
     if (spinner)
       spinner.text = chalk.green(
@@ -269,12 +269,12 @@ export async function installPkg(
               name: dep.name,
               version: manifest.version,
               tarball: manifest.dist.tarball,
-              path: path.join(userSnpmCache, dep.name, manifest.version),
+              path: path.join(userFnpmCache, dep.name, manifest.version),
             };
           })
         );
 
-        // Save installed deps with its path in .snpm file
+        // Save installed deps with its path in .fnpm file
         await writeFile(
           `${cacheFolder}/${downloadFile}`,
           JSON.stringify(
@@ -316,7 +316,7 @@ export async function installPkg(
 }
 
 async function extract(cacheFolder: string, tarball: string): Promise<any> {
-  // Check if file ".snpm" exists inside cacheFolder using access
+  // Check if file ".fnpm" exists inside cacheFolder using access
   const folderContent = await readdir(cacheFolder)
     .then((files) => {
       return files;
