@@ -26,7 +26,7 @@ export async function getDoc(slug: string): Promise<any> {
     },
   });
 
-  const pathToPosts = path.join(__dirname, "..", "..", "app", "docs");
+  const pathToPosts = path.join(__dirname, "..", "..", "docs");
   const filepath = path.join(pathToPosts, slug + ".mdx");
   const file = await fs.readFile(filepath);
   const { attributes, body } = parseFrontMatter<PostMarkdownAttributes>(

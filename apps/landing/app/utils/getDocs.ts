@@ -8,7 +8,7 @@ type PostMarkdownAttributes = {
 
 export async function getDocs(): Promise<any> {
   // `${__dirname}/../../app/docs`
-  const pathToPosts = path.join(__dirname, "..", "..", "app", "docs");
+  const pathToPosts = path.join(__dirname, "..", "..", "docs");
   const allPostFiles = await fs
     .readdir(pathToPosts)
     .then((files) => files.filter((file) => file.endsWith(".mdx")))
