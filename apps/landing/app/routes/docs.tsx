@@ -112,9 +112,7 @@ export default function Docs() {
               ))}
           </ul>
         </section>
-        <article className="prose prose-invert dark:prose-invert lg:prose-lg prose-pre:bg-transparent prose-pre:m-0 w-4/5 h-fit min-h-screen">
-          <Outlet />
-        </article>
+        <Outlet />
       </main>
     </div>
   );

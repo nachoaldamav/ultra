@@ -1,46 +1,33 @@
-import path from "path";
-import fs from "fs/promises";
 import parseFrontMatter from "front-matter";
+import fs from "fs/promises";
+import path from "path";
 
-// Path to the docs directory
-const docsPath =
-  process.env.NODE_ENV === "production"
-    ? path.join(__dirname, "..", "..", "app", "routes", "docs")
-    : path.join(__dirname, "..", "app", "routes", "docs");
+type PostMarkdownAttributes = {
+  meta: { title: string; date: string; description: string; order: number };
+};
 
-export async function getDocs() {
-  const postsPath = await fs.readdir(docsPath, {
-    withFileTypes: true,
-  });
-
+export async function getDocs(): Promise<any> {
+  // `${__dirname}/../../app/docs`
+  const pathToPosts = path.join(process.cwd(), "/docs");
+  const allPostFiles = await fs.readdir(pathToPosts);
   const posts = await Promise.all(
-    postsPath
-      .filter((post) => post.name.endsWith(".mdx"))
-      .map(async (dirent) => {
-        const file = await fs.readFile(path.join(docsPath, dirent.name));
+    allPostFiles.map(async (filename) => {
+      const file = await fs.readFile(path.join(pathToPosts, filename));
+      const { attributes, body } = parseFrontMatter<PostMarkdownAttributes>(
+        file.toString()
+      );
 
-        const { attributes }: { attributes: DocsInfo } = parseFrontMatter(
-          file.toString()
-        );
-
-        return {
-          slug: dirent.name.replace(/\.mdx$/, ""),
-          title: attributes.meta.title,
-          date: attributes.meta.date,
-          description: attributes.meta.description,
-          order: attributes.meta.order,
-        };
-      })
+      return {
+        slug: filename.replace(/\.mdx$/, ""),
+        title: attributes.meta.title,
+        date: attributes.meta.date,
+        description: attributes.meta.description,
+        order: attributes.meta.order,
+      };
+    })
   );
 
-  return posts;
+  return posts.sort((a, b) => {
+    return a.order - b.order;
+  });
 }
-
-export type DocsInfo = {
-  meta: {
-    title: string;
-    date: string;
-    description: string;
-    order: number;
-  };
-};
