@@ -17,7 +17,7 @@ export async function getDocs(): Promise<any> {
       // Read cwd contents
       console.log(
         "CWD Content: ",
-        await fs.readdir(path.join(process.cwd(), "apps"))
+        await fs.readdir(path.join(process.cwd(), "apps", "landing"))
       );
       return [];
     });
