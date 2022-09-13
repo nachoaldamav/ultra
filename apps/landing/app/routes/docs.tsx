@@ -1,5 +1,5 @@
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
-import { useLoaderData, Outlet, Link } from "@remix-run/react";
+import { useLoaderData, Outlet, Link, useLocation } from "@remix-run/react";
 import styles from "highlight.js/styles/github-dark-dimmed.css";
 import * as gettingStarted from "./docs/get-started.mdx";
 import * as commands from "./docs/commands.mdx";
@@ -26,6 +26,12 @@ export const loader: LoaderFunction = () => {
 
 export default function Docs() {
   const docs: DocInfo[] = useLoaderData();
+  const location = useLocation();
+
+  // Check if the current path is a doc
+  const currentDoc = docs.find(
+    (doc) => doc.slug === location.pathname.replace("/docs/", "")
+  );
 
   return (
     <div className="flex h-fit min-h-screen pt-24 text-white w-full flex-col bg-primary relative">
@@ -116,9 +122,15 @@ export default function Docs() {
               .map((doc, index) => (
                 <li
                   key={index}
-                  className="w-full bg-secondary py-2 px-4 rounded-lg"
+                  className={
+                    currentDoc?.slug !== doc.slug
+                      ? "w-full bg-secondary py-2 px-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:bg-gray-700"
+                      : "w-full py-2 px-4 rounded-lg bg-primary border border-white transition duration-300 ease-in-out hover:bg-secondary"
+                  }
                 >
-                  <Link to={doc.slug}>{doc.title}</Link>
+                  <Link to={doc.slug} className="w-full block">
+                    {doc.title}
+                  </Link>
                 </li>
               ))}
           </ul>
