@@ -37,7 +37,7 @@ export default function Docs() {
     <div className="flex h-fit min-h-screen pt-24 text-white w-full flex-col bg-primary relative">
       <nav className=" px-2 sm:px-4 py-2.5 bg-secondary fixed w-full z-20 top-0 left-0 border-b border-gray-600">
         <div className="container flex flex-wrap justify-between items-center mx-auto">
-          <a href="https://flowbite.com/" className="flex items-center">
+          <a href="/" className="flex items-center">
             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
               FNPM
             </span>
