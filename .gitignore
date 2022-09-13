@@ -37,7 +37,6 @@ deps.json
 
 # Lock files
 yarn.lock
-pnpm-lock.yaml
 bun.lockb
 results.md
 apps/landing/app/styles/app.css
