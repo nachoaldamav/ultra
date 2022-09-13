@@ -12,3 +12,7 @@ node_modules
 /api/_assets
 /app/routes/styles
 /api
+
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
