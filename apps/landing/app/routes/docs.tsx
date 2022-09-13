@@ -1,5 +1,5 @@
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
-import { useLoaderData, Outlet } from "@remix-run/react";
+import { useLoaderData, Outlet, Link } from "@remix-run/react";
 import styles from "highlight.js/styles/github-dark-dimmed.css";
 import * as gettingStarted from "./docs/get-started.mdx";
 import * as commands from "./docs/commands.mdx";
@@ -113,9 +113,7 @@ export default function Docs() {
                   key={index}
                   className="w-full bg-secondary py-2 px-4 rounded-lg"
                 >
-                  <a href={`/docs/${doc.slug}`} className="w-full">
-                    {doc.title}
-                  </a>
+                  <Link to={doc.slug}>{doc.title}</Link>
                 </li>
               ))}
           </ul>
