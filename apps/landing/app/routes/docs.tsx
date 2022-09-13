@@ -1,18 +1,37 @@
-import type { LinksFunction } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
+import { useLoaderData, Outlet, Link, useLocation } from "@remix-run/react";
 import styles from "highlight.js/styles/github-dark-dimmed.css";
-import { getDocs } from "~/utils/getDocs";
+import * as gettingStarted from "./docs/get-started.mdx";
+import * as commands from "./docs/commands.mdx";
+import * as comparison from "./docs/comparison.mdx";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: styles }];
 };
 
-export async function loader() {
-  return await getDocs();
+function docsFromModule(mod: any) {
+  return {
+    slug: mod.filename.replace(/\.mdx?$/, ""),
+    ...mod.attributes.meta,
+  };
 }
+
+export const loader: LoaderFunction = () => {
+  return [
+    docsFromModule(gettingStarted),
+    docsFromModule(commands),
+    docsFromModule(comparison),
+  ];
+};
 
 export default function Docs() {
   const docs: DocInfo[] = useLoaderData();
+  const location = useLocation();
+
+  // Check if the current path is a doc
+  const currentDoc = docs.find(
+    (doc) => doc.slug === location.pathname.replace("/docs/", "")
+  );
 
   return (
     <div className="flex h-fit min-h-screen pt-24 text-white w-full flex-col bg-primary relative">
@@ -97,22 +116,28 @@ export default function Docs() {
       </nav>
       <main className="flex flex-row justify-start gap-4 px-10">
         <section className="w-1/5 h-fit min-h-screen">
-          <ul className="flex flex-col w-full gap-2">
+          <ul className="flex flex-col gap-2 fixed w-1/6">
             {docs
               .sort((a, b) => a.order - b.order)
               .map((doc, index) => (
                 <li
                   key={index}
-                  className="w-full bg-secondary py-2 px-4 rounded-lg"
+                  className={
+                    currentDoc?.slug !== doc.slug
+                      ? "w-full bg-secondary py-2 px-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:bg-gray-700"
+                      : "w-full py-2 px-4 rounded-lg bg-primary border border-white transition duration-300 ease-in-out hover:bg-secondary"
+                  }
                 >
-                  <a href={`/docs/${doc.slug}`} className="w-full">
+                  <Link to={doc.slug} className="w-full block">
                     {doc.title}
-                  </a>
+                  </Link>
                 </li>
               ))}
           </ul>
         </section>
-        <Outlet />
+        <article className="mb-24 prose prose-lg prose-invert dark:prose-invert prose-pre:bg-transparent prose-h2:mt-8 prose-pre:m-0 prose-code:after:content-[''] prose-code:before:content-[''] prose-pre:p-0 w-4/5 h-fit min-h-screen">
+          <Outlet />
+        </article>
       </main>
     </div>
   );
