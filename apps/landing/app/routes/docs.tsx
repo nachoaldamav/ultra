@@ -1,15 +1,23 @@
-import type { LinksFunction } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
+import { useLoaderData, Outlet } from "@remix-run/react";
 import styles from "highlight.js/styles/github-dark-dimmed.css";
-import { getDocs } from "~/utils/getDocs";
+import * as gettingStarted from "./docs/get-started.mdx";
+import * as commands from "./docs/commands.mdx";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: styles }];
 };
 
-export async function loader() {
-  return await getDocs();
+function docsFromModule(mod: any) {
+  return {
+    slug: mod.filename.replace(/\.mdx?$/, ""),
+    ...mod.attributes.meta,
+  };
 }
+
+export const loader: LoaderFunction = () => {
+  return [docsFromModule(gettingStarted), docsFromModule(commands)];
+};
 
 export default function Docs() {
   const docs: DocInfo[] = useLoaderData();
@@ -112,7 +120,9 @@ export default function Docs() {
               ))}
           </ul>
         </section>
-        <Outlet />
+        <article className="prose prose-invert dark:prose-invert lg:prose-lg prose-pre:bg-transparent prose-pre:m-0 w-4/5 h-fit min-h-screen">
+          <Outlet />
+        </article>
       </main>
     </div>
   );
