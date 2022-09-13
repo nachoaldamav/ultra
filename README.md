@@ -120,6 +120,25 @@ WARNING: It works now, but some errors may appear.
 └─────────┴────────────────────────────────────────────┴─────────────────┴───────┘
 ```
 
+### Remix - TS
+Created using `npx create-remix`
+
+|                   Name                   |  Time  | Group |
+| :--------------------------------------: | :----: | :---: |
+| Bun install (with cache / with lockfile) |  0.43s |   3   |
+|         PNPM install (with cache)        |  2.09s |   3   |
+|  Bun install (with cache / no lockfile)  |  6.30s |   2   |
+|         FNPM install (with cache)        |  6.54s |   3   |
+|         YARN install (with cache)        | 10.47s |   3   |
+| NPM install (with cache / with lockfile) | 10.86s |   3   |
+|   Bun install (no cache / no lockfile)   | 13.28s |   1   |
+|  NPM install (with cache / no lockfile)  | 16.07s |   2   |
+|          FNPM install (no cache)         | 25.12s |   1   |
+|    YARN install (with cache, no lock)    | 29.42s |   2   |
+|   YARN install (no cache, no lockfile)   | 48.50s |   1   |
+|   NPM install (no cache / no lockfile)   | 52.56s |   1   |
+|          PNPM install (no cache)         | 59.61s |   1   |
+
 ### Create React App - Craco
 
 > Currently CRA is not compatible.
