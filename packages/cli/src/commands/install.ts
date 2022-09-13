@@ -153,7 +153,6 @@ export async function installPkg(
   spinner?: Ora
 ) {
   const cacheFolder = `${userFnpmCache}/${manifest.name}/${manifest.version}`;
-
   // Check if package is already installed
   if (
     __INSTALLED.find(
@@ -169,19 +168,27 @@ export async function installPkg(
   // If package is already installed, but not in root node_modules then install it in root node_modules else install it in parent node_modules
   const pkgProjectDir = !isSuitable
     ? path.join(process.cwd(), "node_modules", manifest.name)
-    : path.join(
-        process.cwd(),
-        "node_modules",
-        parent
-          ? path.join(parent, "node_modules", manifest.name)
-          : manifest.name
-      );
+    : parent
+    ? path.join(parent, "node_modules", manifest.name)
+    : path.join(process.cwd(), "node_modules", manifest.name);
 
   if (!isSuitable) {
     __INSTALLED.push({
       name: manifest.name,
       version: manifest.version,
     });
+  } else {
+    ora(
+      chalk.yellow(
+        `Package ${
+          manifest.name
+        } is already installed in root node_modules! (${chalk.gray(
+          isSuitable.version
+        )} -> ${chalk.gray(manifest.version)}) Installing in ${chalk.grey(
+          pkgProjectDir.replace(process.cwd(), "")
+        )}...`
+      )
+    ).warn();
   }
 
   // Check if parent exists
@@ -204,7 +211,7 @@ export async function installPkg(
     dirs.pop();
     await mkdir(dirs.join("/"), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
-    // Get deps from file
+    // Get deps from file (is an object of objects)
     const cachedDeps = JSON.parse(
       readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
     );
@@ -212,14 +219,29 @@ export async function installPkg(
     const thisPath = path.join(
       process.cwd(),
       "node_modules",
-      parent ? path.join(parent, "node_modules", manifest.name) : manifest.name
+      parent ? parent : ""
     );
 
-    return await Promise.all(
-      cachedDeps.map(async (dep: any) => {
-        await installPkg(dep, thisPath, spinner);
-      })
-    );
+    for (const dep of Object.keys(cachedDeps)) {
+      const name = dep;
+      const version = Object.keys(cachedDeps[dep])[0];
+      const { tarball, pathname = path } = cachedDeps[dep][version];
+
+      const depPath = path.join(thisPath, "node_modules", name);
+
+      const installed = existsSync(depPath);
+
+      await installPkg(
+        {
+          name,
+          version,
+          tarball,
+          pathname,
+        },
+        path.join(process.cwd(), "node_modules", manifest.name),
+        spinner
+      );
+    }
   } else {
     if (spinner)
       spinner.text = chalk.green(
@@ -274,19 +296,21 @@ export async function installPkg(
           })
         );
 
-        // Save installed deps with its path in .fnpm file
+        // Save installed deps with its path in .fnpm file as objects
+        let object: { [key: string]: any } = {};
+
+        installed.forEach((dep) => {
+          object[dep.name] = {
+            [dep.version]: {
+              path: dep.path,
+              tarball: dep.tarball,
+            },
+          };
+        });
+
         await writeFile(
           `${cacheFolder}/${downloadFile}`,
-          JSON.stringify(
-            installed.map((dep) => ({
-              name: dep.name,
-              version: dep.version,
-              tarball: dep.tarball,
-              path: dep.path,
-            })),
-            null,
-            2
-          ),
+          JSON.stringify(object, null, 2),
           "utf-8"
         );
       }
@@ -354,3 +378,12 @@ async function extract(cacheFolder: string, tarball: string): Promise<any> {
 
   return { res, error };
 }
+
+type cachedDep = {
+  [key: string]: {
+    [key: string]: {
+      path: string;
+      tarball: string;
+    };
+  };
+};

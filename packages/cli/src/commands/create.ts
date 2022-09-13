@@ -7,6 +7,7 @@ import rpjf from "read-package-json-fast";
 import { execa } from "execa";
 import { existsSync, rm, rmSync, symlinkSync } from "fs";
 import { spawn } from "child_process";
+import { getDeps } from "../utils/getDeps.js";
 
 export default async function create(args: string[]) {
   if (args.length === 0) {
@@ -47,6 +48,20 @@ export default async function create(args: string[]) {
     await pacote.extract(command, globalPath);
     __downloading.succeed();
 
+    const __installing = ora(`Installing ${manifest.name}...`).start();
+
+    const deps = getDeps(manifest, {
+      dev: true,
+    });
+
+    await Promise.all(
+      deps.map(async (dep: any) => {
+        return await installPkg(dep.name, dep.version, globalPath);
+      })
+    );
+
+    __installing.succeed();
+
     // Get bin path
     const bin = await rpjf(globalPath + "/package.json").then(
       (res: any) => res.bin
@@ -77,4 +92,31 @@ export default async function create(args: string[]) {
     });
   }
   return;
+}
+
+async function installPkg(
+  dep: string,
+  version: string,
+  pathname: string
+): Promise<any> {
+  const installPath = path.join(pathname, "node_modules", dep);
+
+  await pacote.extract(`${dep}@${version}`, installPath);
+
+  // Read package.json
+  const pkg = await rpjf(path.join(installPath, "package.json"));
+
+  const deps = getDeps(pkg, {
+    dev: true,
+  });
+
+  return await Promise.all(
+    deps.map(async (dep: any) => {
+      // Check if the dependency is already installed
+      if (existsSync(path.join(pathname, "node_modules", dep.name))) {
+        return await installPkg(dep.name, dep.version, installPath);
+      }
+      return await installPkg(dep.name, dep.version, pathname);
+    })
+  );
 }

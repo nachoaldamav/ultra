@@ -1,0 +1,20 @@
+[
+  {
+    "name": "eslint-config-next",
+    "version": "12.3.0",
+    "tarball": "https://registry.npmjs.org/eslint-config-next/-/eslint-config-next-12.3.0.tgz",
+    "path": "/home/nachoaldama/.fnpm-cache/eslint-config-next/12.3.0"
+  },
+  {
+    "name": "eslint-config-prettier",
+    "version": "8.5.0",
+    "tarball": "https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-8.5.0.tgz",
+    "path": "/home/nachoaldama/.fnpm-cache/eslint-config-prettier/8.5.0"
+  },
+  {
+    "name": "eslint-plugin-react",
+    "version": "7.28.0",
+    "tarball": "https://registry.npmjs.org/eslint-plugin-react/-/eslint-plugin-react-7.28.0.tgz",
+    "path": "/home/nachoaldama/.fnpm-cache/eslint-plugin-react/7.28.0"
+  }
+]
