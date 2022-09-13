@@ -16,7 +16,7 @@ Its advantages are that it is faster than NPM and saves more space.
 
 ### Instalation
 ```bash
-npm i fnpm -g
+npm i @fnpm-io/cli -g
 ```
 
 ### Commands
