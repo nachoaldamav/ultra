@@ -1,0 +1,37 @@
+---
+meta:
+  title: FNPM vs NPM / Yarn
+  description: Comparision between FNPM and NPM
+  date: 2019-01-01
+  order: 3
+---
+
+# FNPM vs NPM / Yarn
+
+## What's the difference between FNPM and NPM / Yarn?
+
+The main difference between FNPM and NPM / Yarn is the dependency resolution algorithm. NPM / Yarn gets all the dependencies first and then installs them. FNPM gets one dependency at a time and installs it. This means that FNPM can install dependencies faster than NPM / Yarn.
+
+Also FNPM installs all the packages inside a global store (as PNPM does) and creates a hardlink to the package inside the project's node_modules folder. This means that FNPM doesn't need to install the same package twice if it's used in multiple projects.
+
+## It works?
+
+It depends. FNPM is still in development and it's not ready for production yet. It's not recommended to use it in production yet.
+
+You can test for example, with a Next or a Vite project and it should work.
+
+## FNPM doesn't verify the integrity of the packages?
+
+Yes, it doesn't. That's because how FNPM works, I didn't think it was necessary to verify the integrity of the packages. It's because FNPM doesnt use any type of lockfile. It just gets the dependencies from the NPM registry and installs them. Although, I've created a "Discussion" in the Github repository to talk about this [here](https://github.com/nachoaldamav/fnpm/discussions/44)
+
+## How much faster is FNPM than NPM?
+
+Varies depending on the number of project dependencies.
+
+If you have a project with many dependencies FNPM will be faster than NPM / Yarn. If you have a project with few dependencies, NPM / Yarn will probably be faster than FNPM.
+
+With a clean installation, FNPM should be faster than NPM / Yarn, 2x faster in some cases.
+
+## Does it work in Monorepos?
+
+Currently, it doesn't. I'm working on it. [#45](https://github.com/nachoaldamav/fnpm/issues/45)

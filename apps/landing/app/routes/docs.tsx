@@ -3,6 +3,7 @@ import { useLoaderData, Outlet, Link } from "@remix-run/react";
 import styles from "highlight.js/styles/github-dark-dimmed.css";
 import * as gettingStarted from "./docs/get-started.mdx";
 import * as commands from "./docs/commands.mdx";
+import * as comparison from "./docs/comparison.mdx";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: styles }];
@@ -16,7 +17,11 @@ function docsFromModule(mod: any) {
 }
 
 export const loader: LoaderFunction = () => {
-  return [docsFromModule(gettingStarted), docsFromModule(commands)];
+  return [
+    docsFromModule(gettingStarted),
+    docsFromModule(commands),
+    docsFromModule(comparison),
+  ];
 };
 
 export default function Docs() {
@@ -105,7 +110,7 @@ export default function Docs() {
       </nav>
       <main className="flex flex-row justify-start gap-4 px-10">
         <section className="w-1/5 h-fit min-h-screen">
-          <ul className="flex flex-col w-full gap-2">
+          <ul className="flex flex-col gap-2 fixed w-1/6">
             {docs
               .sort((a, b) => a.order - b.order)
               .map((doc, index) => (
@@ -118,7 +123,7 @@ export default function Docs() {
               ))}
           </ul>
         </section>
-        <article className="prose prose-invert dark:prose-invert lg:prose-lg prose-pre:bg-transparent prose-pre:m-0 w-4/5 h-fit min-h-screen">
+        <article className="mb-24 prose prose-lg prose-invert dark:prose-invert prose-pre:bg-transparent prose-h2:mt-8 prose-pre:m-0 prose-code:after:content-[''] prose-code:before:content-[''] prose-pre:p-0 w-4/5 h-fit min-h-screen">
           <Outlet />
         </article>
       </main>
