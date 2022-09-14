@@ -19,13 +19,26 @@ export default async function create(args: string[]) {
     return;
   }
 
-  const command = args[0];
+  // Get global config path
+  const npmPath = await execa("npm", ["config", "get", "prefix"]).then(
+    (res) => res.stdout
+  );
+
+  let command = args[0];
+
+  // If command doesn't start with create- then add it
+  if (!command.startsWith("create-")) {
+    command = `create-${command}`;
+  }
+
   args.shift();
 
   const spinner = ora(`Searching ${command} in NPM Registry...`).start();
   const manifest = await pacote.manifest(command);
   spinner.succeed();
   spinner.text = `Found ${command} in NPM Registry`;
+
+  // Check if the package is already installed
 
   const { install } = await prompts({
     type: "confirm",
@@ -37,11 +50,6 @@ export default async function create(args: string[]) {
   });
 
   if (install) {
-    // Get global config path
-    const npmPath = await execa("npm", ["config", "get", "prefix"]).then(
-      (res) => res.stdout
-    );
-
     const globalPath = path.join(npmPath, "lib", "node_modules", manifest.name);
 
     const __downloading = ora(`Downloading ${manifest.name}...`).start();
