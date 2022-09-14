@@ -5,8 +5,10 @@ import { mkdir, rm, readdir, writeFile } from "fs/promises";
 import { exec } from "child_process";
 import path from "path";
 import { existsSync, readFileSync } from "fs";
-import { getDeps } from "../utils/getDeps.js";
 import pacote from "pacote";
+import { performance } from "perf_hooks";
+import { satisfies } from "compare-versions";
+import { getDeps } from "../utils/getDeps.js";
 import { installBins } from "../utils/addBinaries.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
@@ -14,20 +16,26 @@ import { createModules } from "../utils/createModules.js";
 import { hardLink } from "../utils/hardLink.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import readConfig from "../utils/readConfig.js";
+import parseTime from "../utils/parseTime.js";
 
-let pkgs: {
+type pkg = {
   name: string;
   version: string;
+  spec: string;
   tarball: string;
   parent?: string;
-}[] = [];
+};
 
-const __DOWNLOADING: string[] = [];
-const __DOWNLOADED: string[] = [];
+let pkgs: pkg[] = [];
+
 const __INSTALLED: {
   name: string;
   version: string;
 }[] = [];
+
+const __DOWNLOADING: string[] = [];
+const __DOWNLOADED: string[] = [];
+const __SKIPPED: string[] = [];
 
 const userFnpmCache = readConfig().cache;
 const downloadFile = ".fnpm";
@@ -55,6 +63,7 @@ export default async function install(opts: string[]) {
   const deps = getDeps(pkg).concat(wsDeps).concat(addDeps);
 
   const __fetch = ora(chalk.green("Fetching packages...")).start();
+  const __fetch_start = performance.now();
 
   await Promise.all(
     deps.map(async (dep) => {
@@ -74,15 +83,22 @@ export default async function install(opts: string[]) {
       pkgs.push({
         name: dep.name,
         version: manifest.version,
+        spec: dep.version,
         tarball: manifest.dist.tarball,
         parent: dep.parent || undefined,
       });
     })
   );
 
-  __fetch.succeed(chalk.green("Fetched all packages!"));
+  const __fetch_end = performance.now();
+  __fetch.succeed(
+    chalk.green(
+      `Fetched packages in ${chalk.gray(parseTime(__fetch_start, __fetch_end))}`
+    )
+  );
 
   const __install = ora(chalk.green("Installing packages...")).start();
+  const __install_start = performance.now();
 
   await Promise.all(
     pkgs.map(async (pkg) => {
@@ -90,12 +106,53 @@ export default async function install(opts: string[]) {
     })
   );
 
-  __install.succeed(chalk.green("Installed all packages!"));
+  const __install_end = performance.now();
+  __install.succeed(
+    chalk.green(
+      `Installed packages in ${chalk.gray(
+        parseTime(__install_start, __install_end)
+      )}`
+    )
+  );
+
+  // Get all __SKIPPED packages, check if they are in __INSTALLED and install them if not
+  await Promise.all(
+    [...__SKIPPED].map(async (pkg) => {
+      const isInstalled = __INSTALLED.find((i) => i.name === pkg);
+
+      if (!isInstalled) {
+        const manifest = await pacote.manifest(`${pkg}@latest`, {
+          registry: REGISTRY,
+        });
+
+        ora(chalk.gray(`Installing ${pkg}@latest...`)).info();
+        await installPkg(
+          {
+            name: pkg,
+            version: manifest.version,
+            spec: "latest",
+            tarball: manifest.dist.tarball,
+          },
+          undefined,
+          undefined
+        );
+      }
+
+      return;
+    })
+  );
 
   const __binaries = ora(chalk.blue("Installing binaries...")).start();
+  const __binaries_start = performance.now();
   await installBins();
-
-  __binaries.succeed(chalk.blue("Installed binaries!"));
+  const __binaries_end = performance.now();
+  __binaries.succeed(
+    chalk.blue(
+      `Installed binaries in ${chalk.gray(
+        parseTime(__binaries_start, __binaries_end)
+      )}`
+    )
+  );
 
   // If addDeps is not empty, add them to package.json using flag
   if (addDeps.length > 0) {
@@ -153,12 +210,29 @@ export async function installPkg(
   spinner?: Ora
 ) {
   const cacheFolder = `${userFnpmCache}/${manifest.name}/${manifest.version}`;
-  // Check if package is already installed
+
   if (
     __INSTALLED.find(
       (pkg) => pkg.name === manifest.name && pkg.version === manifest.version
     )
   ) {
+    return;
+  }
+
+  const pkgInstalled =
+    manifest.spec &&
+    __INSTALLED.find(
+      (pkg) =>
+        pkg.name === manifest.name && satisfies(pkg.version, manifest.spec)
+    );
+
+  if (pkgInstalled) {
+    return;
+  }
+
+  // Check if spec is * and add it to __SKIPPED
+  if (manifest.spec === "*") {
+    __SKIPPED.push(manifest.name);
     return;
   }
 
@@ -177,18 +251,6 @@ export async function installPkg(
       name: manifest.name,
       version: manifest.version,
     });
-  } else {
-    ora(
-      chalk.yellow(
-        `Package ${
-          manifest.name
-        } is already installed in root node_modules! (${chalk.gray(
-          isSuitable.version
-        )} -> ${chalk.gray(manifest.version)}) Installing in ${chalk.grey(
-          pkgProjectDir.replace(process.cwd(), "")
-        )}...`
-      )
-    ).warn();
   }
 
   // Check if parent exists
@@ -216,20 +278,10 @@ export async function installPkg(
       readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
     );
 
-    const thisPath = path.join(
-      process.cwd(),
-      "node_modules",
-      parent ? parent : ""
-    );
-
     for (const dep of Object.keys(cachedDeps)) {
       const name = dep;
       const version = Object.keys(cachedDeps[dep])[0];
       const { tarball, pathname = path } = cachedDeps[dep][version];
-
-      const depPath = path.join(thisPath, "node_modules", name);
-
-      const installed = existsSync(depPath);
 
       await installPkg(
         {
@@ -265,8 +317,9 @@ export async function installPkg(
           dev: true,
         });
 
-        if (deps.length > 0)
-          mkdir(`${cacheFolder}/node_modules`, { recursive: true });
+        // Disable dir creation to test if it works :)
+        /* if (deps.length > 0)
+          mkdir(`${cacheFolder}/node_modules`, { recursive: true }); */
 
         // Install production deps
         const installed = await Promise.all(
@@ -283,6 +336,7 @@ export async function installPkg(
                 name: dep.name,
                 version: manifest.version,
                 tarball: manifest.dist.tarball,
+                spec: dep.version,
               },
               pkgProjectDir,
               spinner
@@ -290,6 +344,7 @@ export async function installPkg(
             return {
               name: dep.name,
               version: manifest.version,
+              spec: dep.version,
               tarball: manifest.dist.tarball,
               path: path.join(userFnpmCache, dep.name, manifest.version),
             };
@@ -304,6 +359,7 @@ export async function installPkg(
             [dep.version]: {
               path: dep.path,
               tarball: dep.tarball,
+              spec: dep.spec,
             },
           };
         });

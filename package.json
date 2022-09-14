@@ -1,6 +1,6 @@
 {
   "name": "fnpm",
-  "version": "0.3.10",
+  "version": "0.4.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -18,9 +18,9 @@
   },
   "devDependencies": {
     "eslint-config-custom": "*",
+    "ora": "6.1.2",
     "prettier": "latest",
-    "turbo": "latest",
-    "ora": "6.1.2"
+    "turbo": "latest"
   },
   "engines": {
     "npm": ">=7.0.0",

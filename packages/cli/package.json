@@ -1,6 +1,6 @@
 {
   "name": "@fnpm-io/cli",
-  "version": "0.3.10",
+  "version": "0.4.0",
   "description": "FNPM CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
@@ -27,13 +27,15 @@
   "dependencies": {
     "axios": "0.27.2",
     "chalk": "5.0.1",
-    "execa": "^6.1.0",
+    "execa": "6.1.0",
     "glob": "8.0.3",
-    "markdown-table": "^3.0.2",
+    "markdown-table": "3.0.2",
     "ora": "6.1.2",
     "pacote": "13.6.2",
-    "prompts": "^2.4.2",
-    "read-package-json-fast": "2.0.3"
+    "prompts": "2.4.2",
+    "read-package-json-fast": "2.0.3",
+    "npm-pick-manifest": "7.0.2",
+    "compare-versions": "5.0.1"
   },
   "devDependencies": {
     "@types/glob": "7.2.0",
