@@ -1,3 +1,4 @@
+import { Link } from "@remix-run/react";
 import Feature from "~/components/featureCard";
 import Graph from "~/components/graph";
 import Snippet from "~/components/snippet";
@@ -9,10 +10,7 @@ export default function Index() {
         id="hero"
         className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center"
       >
-        <h1 className="text-4xl font-bold text-white">Welcome to </h1>
-        <h1 className="mb-4 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-7xl font-extrabold text-transparent">
-          FNPM
-        </h1>
+        <img className="w-64 h-64" src="/images/fnpm@3x.png" alt="logo" />
         <p className="text-xl text-white">A really fast package manager.</p>
         <Snippet />
       </section>
@@ -42,7 +40,7 @@ export default function Index() {
       </section>
       <section
         id="comparison"
-        className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-start gap-2 p-10"
+        className="flex h-full my-20 w-full flex-1 flex-col items-center justify-start gap-2 p-10"
       >
         <h1 className="text-4xl font-bold text-white">Comparison</h1>
         <p className="text-xl text-white">
@@ -50,6 +48,22 @@ export default function Index() {
           Vite project.
         </p>
         <Graph />
+      </section>
+      <section
+        id="get-started"
+        className="flex w-full flex-1 flex-col items-center justify-center gap-2 p-10 bg-secondary"
+      >
+        <div className="flex flex-col items-center justify-center gap-10 py-24">
+          <h1 className="text-4xl font-bold text-white">
+            Do you want to know more?
+          </h1>
+          <Link
+            to="/docs/get-started"
+            className="text-2xl font-semibold text-white home-gradient px-6 py-3 rounded-lg transition duration-200 ease-in-out"
+          >
+            Get Started
+          </Link>
+        </div>
       </section>
     </div>
   );

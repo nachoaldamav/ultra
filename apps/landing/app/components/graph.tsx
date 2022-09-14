@@ -6,54 +6,52 @@ const data = [
   {
     name: "NPM (Cache / no lock)",
     value: 18.81,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   },
   {
     name: "Yarn (Cache / no lock)",
     value: 110.4,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   },
   /*   {
     name: "PNPM (No cache)",
     value: 33.39,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   }, */
   {
     name: "FNPM (No cache)",
     value: 55.46,
-    className:
-      "bg-gradient-to-r from-purple-400 to-pink-600 h-8 rounded rounded-l-none",
+    className: "fnpm-gradient h-8 rounded rounded-l-none",
   },
   {
     name: "NPM (No cache)",
     value: 151.8,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   },
   {
     name: "Yarn (No cache)",
     value: 123.6,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   },
   {
     name: "Yarn (cache / lock)",
     value: 16.85,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   },
   {
     name: "NPM (cache / lock)",
     value: 18.81,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   },
   /*   {
     name: "PNPM (cache / lock)",
     value: 7.75,
-    className: "h-8 rounded rounded-l-none bg-blue-600",
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   }, */
   {
     name: "FNPM (cache)",
     value: 15.69,
-    className:
-      "bg-gradient-to-r from-purple-400 to-pink-600 h-8 rounded rounded-l-none",
+    className: "fnpm-gradient h-8 rounded rounded-l-none",
   },
 ];
 

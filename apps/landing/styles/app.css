@@ -1,5 +1,40 @@
 @tailwind base;
 @tailwind components;
+
+.fnpm-gradient {
+  @apply bg-gradient-to-r animate-gradient-x;
+  background: linear-gradient(
+    270deg,
+    #0bdf9fff,
+    #09d7adff,
+    #07cebaff,
+    #03bcd5ff,
+    #03b1d6ff,
+    #03a6d7ff,
+    #0390d8ff,
+    #037ad9ff,
+    #0264daff,
+    #8906dbff
+  );
+}
+
+.home-gradient {
+  @apply bg-gradient-to-r animate-gradient-x;
+  background: linear-gradient(
+    270deg,
+    #0bdf9fff,
+    #09d7adff,
+    #07cebaff,
+    #03bcd5ff,
+    #03b1d6ff,
+    #03a6d7ff,
+    #0390d8ff,
+    #037ad9ff,
+    #0264daff,
+    #8906dbff
+  );
+}
+
 @tailwind utilities;
 
 @font-face {
@@ -8,6 +43,14 @@
   font-weight: 400;
   src: url("/fonts/mono/JetBrainsMono-Regular.ttf") format("ttf"),
     url("/fonts/mono/JetBrainsMono-Regular.ttf") format("ttf");
+}
+
+@font-face {
+  font-family: "Buhkari";
+  font-style: normal;
+  font-weight: 500;
+  src: url("/fonts/styled/styled_font.ttf") format("ttf"),
+    url("/fonts/styled/styled_font.ttf") format("ttf");
 }
 
 .glow {
