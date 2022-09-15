@@ -15,6 +15,7 @@ import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
 import { hardLink } from "../utils/hardLink.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
+import readWasm from "../utils/readWasm.js";
 import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
 
@@ -273,7 +274,7 @@ export async function installPkg(
     dirs.pop();
     await mkdir(dirs.join("/"), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
-    // Get deps from file (is an object of objects)
+    // Get deps from file
     const cachedDeps = JSON.parse(
       readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
     );
