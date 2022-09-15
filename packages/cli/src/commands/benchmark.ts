@@ -65,17 +65,17 @@ const tests = [
     group: 3,
   },
   {
-    name: "SNPM install (no cache)",
-    command: "snpm install",
-    pre: "npm cache clean -f && snpm clear",
-    spinner: ora(chalk.green(`Running "SNPM install (no cache)"...`)).stop(),
+    name: "FNPM install (no cache)",
+    command: "fnpm install",
+    pre: "npm cache clean -f && fnpm clear",
+    spinner: ora(chalk.green(`Running "FNPM install (no cache)"...`)).stop(),
     group: 1,
   },
   {
-    name: "SNPM install (with cache)",
-    command: "snpm install",
+    name: "FNPM install (with cache)",
+    command: "fnpm install",
     pre: "rm -rf node_modules",
-    spinner: ora(chalk.green(`Running "SNPM install (with cache)"...`)).stop(),
+    spinner: ora(chalk.green(`Running "FNPM install (with cache)"...`)).stop(),
     group: 3,
   },
   {
@@ -92,7 +92,7 @@ const tests = [
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
   },
-  /*   {
+  {
     name: "Bun install (no cache / no lockfile)",
     command: "bun install",
     pre: `npm cache clean -f && rm -rf ${homeDir}.bun bun.lockb node_modules package-lock.json yarn.lock`,
@@ -114,10 +114,39 @@ const tests = [
     pre: "rm -rf node_modules",
     spinner: ora(chalk.green(`Running "Bun install (with cache)"...`)).stop(),
     group: 3,
-  }, */
+  },
 ];
 
 export async function benchmark(args: string[]) {
+  // If the user passed flag --only-fnpm, we only run the fnpm tests
+  const onlyfnpm = args.includes("--only-fnpm");
+  const ignoreBun = args.includes("--ignore-bun");
+
+  if (onlyfnpm) ora(chalk.yellow("Only running fnpm tests")).warn();
+
+  const selectedGroup = args
+    .find((arg) => arg.startsWith("--group="))
+    ?.replace("--group=", "");
+
+  const testsToRun = !selectedGroup
+    ? onlyfnpm
+      ? tests.filter((test) => test.name.includes("fnpm"))
+      : tests
+    : tests.filter((test) => test.group === parseInt(selectedGroup));
+
+  // If the user passed flag --ignore-bun, we remove the Bun tests
+  if (ignoreBun) {
+    const firstBunTestIndex = testsToRun.findIndex((test) =>
+      test.name.includes("Bun")
+    );
+    testsToRun.splice(firstBunTestIndex, 3);
+    ora(
+      chalk.yellow(
+        `Bun tests have been ignored. To run them, remove the --ignore-bun flag.`
+      )
+    ).warn();
+  }
+
   const __init = ora(chalk.green("Starting benchmark...")).start();
 
   await execa("npm", [
@@ -130,20 +159,12 @@ export async function benchmark(args: string[]) {
 
   __init.succeed("Benchmark started");
 
-  // If the user passed flag --only-snpm, we only run the SNPM tests
-  const onlySnpm = args.includes("--only-snpm");
-
-  const selectedGroup = args
-    .find((arg) => arg.startsWith("--group="))
-    ?.replace("--group=", "");
-
-  const testsToRun = !selectedGroup
-    ? onlySnpm
-      ? tests.filter((test) => test.name.includes("SNPM"))
-      : tests
-    : tests.filter((test) => test.group === parseInt(selectedGroup));
-
-  const results: { name: string; time: number; group: number }[] = [];
+  const results: {
+    name: string;
+    time: number;
+    group: number;
+    error: boolean;
+  }[] = [];
   // Run the tests not in parallel
   for await (const test of testsToRun) {
     test.spinner.start();
@@ -185,13 +206,17 @@ export async function benchmark(args: string[]) {
         );
       }, 1000);
       exec(test.command, (error, stdout, stderr) => {
-        if (stderr.includes("Error: Command failed")) {
-          console.log(stderr);
-          err = stderr;
+        if (error) {
+          end = performance.now();
+          resolve(error);
+          ora(chalk.red(`[Error] ${error}`)).fail();
+          err = true;
+          clearInterval(interval);
+        } else {
+          end = performance.now();
+          resolve(stdout);
+          clearInterval(interval);
         }
-        end = performance.now();
-        clearInterval(interval);
-        resolve(true);
       });
     });
 
@@ -199,6 +224,7 @@ export async function benchmark(args: string[]) {
       name: test.name,
       time: end - start,
       group: test.group,
+      error: err ? true : false,
     });
 
     test.spinner.text = chalk.green(
@@ -216,11 +242,12 @@ export async function benchmark(args: string[]) {
   const fmt = results.map((result) => {
     return {
       name: result.name,
-      // Convert to seconds or minutes if its more than 60 seconds
-      time:
-        result.time > 60000
-          ? `${(result.time / 60000).toFixed(2)} minutes`
-          : `${(result.time / 1000).toFixed(2)} seconds`,
+      // Convert to seconds or minutes if its more than 60 seconds show ❌ if there was an error
+      time: result.error
+        ? "❌"
+        : result.time > 60000
+        ? `${(result.time / 60000).toFixed(2)}m`
+        : `${(result.time / 1000).toFixed(2)}s`,
       group: result.group,
     };
   });

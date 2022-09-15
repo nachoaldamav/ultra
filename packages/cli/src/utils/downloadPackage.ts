@@ -5,7 +5,7 @@ import { _downloadSpinner } from "./downloadSpinner.js";
 import { symlink } from "fs/promises";
 import { existsSync } from "fs";
 
-const userSnpmCache = `${os.homedir()}/.snpm-cache`;
+const userFnpmCache = `${os.homedir()}/.fnpm-cache`;
 
 export async function downloadPackage(
   tarball: string,
@@ -14,11 +14,11 @@ export async function downloadPackage(
   version: string
 ) {
   try {
-    const cacheFolder = `${userSnpmCache}/${name}/${version}`;
+    const cacheFolder = `${userFnpmCache}/${name}/${version}`;
 
     if (!existsSync(cacheFolder)) {
       await pacote.extract(tarball, cacheFolder, {
-        cache: userSnpmCache,
+        cache: userFnpmCache,
       });
       await symlink(cacheFolder, pathName, "dir");
     } else {

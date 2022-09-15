@@ -1,10 +1,10 @@
 {
-  "name": "fast-npm",
-  "version": "0.3.2",
+  "name": "fnpm",
+  "version": "0.4.0",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/nachoaldamav/snpm"
+    "url": "https://github.com/nachoaldamav/fnpm"
   },
   "workspaces": [
     "apps/*",
@@ -18,16 +18,13 @@
   },
   "devDependencies": {
     "eslint-config-custom": "*",
+    "ora": "6.1.2",
     "prettier": "latest",
-    "turbo": "latest",
-    "ora": "6.1.2"
+    "turbo": "latest"
   },
   "engines": {
     "npm": ">=7.0.0",
     "node": ">=14.0.0"
   },
-  "dependencies": {
-    "bin-links": "^3.0.3"
-  },
-  "packageManager": "npm@8.12.1"
+  "packageManager": "pnpm@7.11.0"
 }

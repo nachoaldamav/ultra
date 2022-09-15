@@ -4,6 +4,10 @@ import { benchmark } from "./benchmark.js";
 import upgrade from "./upgrade.js";
 import list from "./list.js";
 import checkVersion from "../utils/checkVersion.js";
+import run from "./run.js";
+import { update } from "../utils/readConfig.js";
+import create from "./create.js";
+import remove from "./remove.js";
 
 export async function commands(args: string[]) {
   const [command, ...rest] = args;
@@ -26,6 +30,18 @@ export async function commands(args: string[]) {
       break;
     case "ls":
       await list(rest[0]);
+      break;
+    case "run":
+      await run(rest);
+      break;
+    case "set":
+      update(rest);
+      break;
+    case "create":
+      await create(rest);
+      break;
+    case "remove":
+      await remove(rest);
       break;
     default:
       console.log(`Unknown command: ${command}`);
