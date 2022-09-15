@@ -35,8 +35,7 @@
     "prompts": "2.4.2",
     "read-package-json-fast": "2.0.3",
     "npm-pick-manifest": "7.0.2",
-    "compare-versions": "5.0.1",
-    "wasm_links": "*"
+    "compare-versions": "5.0.1"
   },
   "devDependencies": {
     "@types/glob": "7.2.0",
