@@ -8,8 +8,14 @@ import { writeFile } from "fs/promises";
 import { markdownTable } from "markdown-table";
 import path from "path";
 import { execa } from "execa";
+import rpjf from "read-package-json-fast";
+import { fileURLToPath } from "url";
 
 const homeDir = os.homedir();
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
 
 const tests = [
   {
@@ -118,6 +124,8 @@ const tests = [
 ];
 
 export async function benchmark(args: string[]) {
+  const pkg = await rpjf(path.join(__dirname, "..", "..", "package.json"));
+  const currentPkg = await rpjf(path.join(process.cwd(), "package.json"));
   // If the user passed flag --only-fnpm, we only run the fnpm tests
   const onlyfnpm = args.includes("--only-fnpm");
   const ignoreBun = args.includes("--ignore-bun");
@@ -130,7 +138,7 @@ export async function benchmark(args: string[]) {
 
   const testsToRun = !selectedGroup
     ? onlyfnpm
-      ? tests.filter((test) => test.name.includes("fnpm"))
+      ? tests.filter((test) => test.name.includes("FNPM"))
       : tests
     : tests.filter((test) => test.group === parseInt(selectedGroup));
 
@@ -251,6 +259,16 @@ export async function benchmark(args: string[]) {
       group: result.group,
     };
   });
+
+  // Print version info
+  console.log(
+    chalk.green(`
+  Node.js: ${process.version}
+  OS: ${process.platform}
+  FNPM version: ${pkg.version}
+  Current project: ${currentPkg.name} (${currentPkg.version || "no version"})
+  \n`)
+  );
 
   // Print the results
   console.table(fmt);
