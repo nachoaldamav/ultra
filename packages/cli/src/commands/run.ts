@@ -5,9 +5,11 @@ import chalk from "chalk";
 import { spawn } from "child_process";
 import { readdirSync } from "fs";
 import { execa } from "execa";
+import checkNodeVersion from "../utils/checkNodeVersion.js";
 
 export default async function run(args: Array<string>) {
   const pkg = await rpjf(path.join(process.cwd(), "package.json"));
+  await checkNodeVersion(pkg.engines);
   const { scripts } = pkg;
   const script = scripts[args[0]];
 

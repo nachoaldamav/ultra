@@ -17,6 +17,7 @@ import { hardLink } from "../utils/hardLink.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
+import { spinnerGradient } from "../utils/spinnerGradient.js";
 
 type pkg = {
   name: string;
@@ -97,12 +98,37 @@ export default async function install(opts: string[]) {
     )
   );
 
-  const __install = ora(chalk.green("Installing packages...")).start();
+  const __install = spinnerGradient("Installing packages...");
   const __install_start = performance.now();
 
   await Promise.all(
     pkgs.map(async (pkg) => {
       await installPkg(pkg, pkg.parent, __install);
+    })
+  );
+
+  await Promise.all(
+    [...new Set(__SKIPPED)].map(async (pkg) => {
+      const isInstalled = __INSTALLED.find((i) => i.name === pkg);
+
+      if (!isInstalled) {
+        const manifest = await pacote.manifest(`${pkg}@latest`, {
+          registry: REGISTRY,
+        });
+
+        await installPkg(
+          {
+            name: pkg,
+            version: manifest.version,
+            spec: "latest",
+            tarball: manifest.dist.tarball,
+          },
+          undefined,
+          __install
+        );
+      }
+
+      return;
     })
   );
 
@@ -113,33 +139,6 @@ export default async function install(opts: string[]) {
         parseTime(__install_start, __install_end)
       )}`
     )
-  );
-
-  // Get all __SKIPPED packages, check if they are in __INSTALLED and install them if not
-  await Promise.all(
-    [...__SKIPPED].map(async (pkg) => {
-      const isInstalled = __INSTALLED.find((i) => i.name === pkg);
-
-      if (!isInstalled) {
-        const manifest = await pacote.manifest(`${pkg}@latest`, {
-          registry: REGISTRY,
-        });
-
-        ora(chalk.gray(`Installing ${pkg}@latest...`)).info();
-        await installPkg(
-          {
-            name: pkg,
-            version: manifest.version,
-            spec: "latest",
-            tarball: manifest.dist.tarball,
-          },
-          undefined,
-          undefined
-        );
-      }
-
-      return;
-    })
   );
 
   const __binaries = ora(chalk.blue("Installing binaries...")).start();
@@ -237,16 +236,24 @@ export async function installPkg(
   }
 
   // Check if package is already in root node_modules
-  const isSuitable = __INSTALLED.find((pkg) => pkg.name === manifest.name);
+  const isInRoot = existsSync(
+    path.join(process.cwd(), "node_modules", manifest.name)
+  );
 
-  // If package is already installed, but not in root node_modules then install it in root node_modules else install it in parent node_modules
-  const pkgProjectDir = !isSuitable
-    ? path.join(process.cwd(), "node_modules", manifest.name)
-    : parent
-    ? path.join(parent, "node_modules", manifest.name)
-    : path.join(process.cwd(), "node_modules", manifest.name);
+  const getDir = () => {
+    if (!isInRoot) {
+      return path.join(process.cwd(), "node_modules", manifest.name);
+    }
+    if (parent) {
+      return path.join(parent, "node_modules", manifest.name);
+    } else {
+      return path.join(process.cwd(), "node_modules", manifest.name);
+    }
+  };
 
-  if (!isSuitable) {
+  const pkgProjectDir = getDir();
+
+  if (!isInRoot) {
     __INSTALLED.push({
       name: manifest.name,
       version: manifest.version,
@@ -268,11 +275,13 @@ export async function installPkg(
       spinner.text = chalk.green(
         `Installing ${manifest.name}... ${chalk.grey("(cached)")}`
       );
+
     // Create directory for package without the last folder
     const dirs = pkgProjectDir.split("/");
     dirs.pop();
     await mkdir(dirs.join("/"), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
+
     // Get deps from file
     const cachedDeps = JSON.parse(
       readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
@@ -281,16 +290,16 @@ export async function installPkg(
     for (const dep of Object.keys(cachedDeps)) {
       const name = dep;
       const version = Object.keys(cachedDeps[dep])[0];
-      const { tarball, pathname = path } = cachedDeps[dep][version];
+      const { tarball, spec } = cachedDeps[dep][version];
 
       await installPkg(
         {
           name,
           version,
           tarball,
-          pathname,
+          spec,
         },
-        path.join(process.cwd(), "node_modules", manifest.name),
+        pkgProjectDir,
         spinner
       );
     }
@@ -300,9 +309,7 @@ export async function installPkg(
         `Installing ${manifest.name}... ${chalk.grey("(cache miss)")}`
       );
     await extract(cacheFolder, manifest.tarball);
-    if (existsSync(pkgProjectDir)) {
-      await rm(pkgProjectDir, { recursive: true });
-    }
+
     // Create directory for package without the last folder
     const dirs = pkgProjectDir.split("/");
     dirs.pop();
@@ -317,10 +324,6 @@ export async function installPkg(
           dev: true,
         });
 
-        // Disable dir creation to test if it works :)
-        /* if (deps.length > 0)
-          mkdir(`${cacheFolder}/node_modules`, { recursive: true }); */
-
         // Install production deps
         const installed = await Promise.all(
           deps.map(async (dep) => {
@@ -330,6 +333,14 @@ export async function installPkg(
                 registry: REGISTRY,
               }
             );
+
+            if (manifest.deprecated) {
+              ora(
+                `[DEPR] ${chalk.bgYellowBright.black(
+                  manifest.name + "@" + manifest.version
+                )} - ${manifest.deprecated}`
+              ).warn();
+            }
 
             await installPkg(
               {
@@ -341,6 +352,7 @@ export async function installPkg(
               pkgProjectDir,
               spinner
             );
+
             return {
               name: dep.name,
               version: manifest.version,
@@ -369,28 +381,41 @@ export async function installPkg(
           JSON.stringify(object, null, 2),
           "utf-8"
         );
-      }
 
-      // Execute postinstall script if exists
-      const postinstall = pkg.scripts.postinstall;
-      if (postinstall) {
-        const postinstallPath = path.join(cacheFolder, "node_modules", ".");
-        const postinstallScript = path.join(postinstallPath, postinstall);
+        // Execute postinstall script if exists
+        const postinstall = pkg.scripts.postinstall;
+        if (postinstall) {
+          const postinstallPath = path.join(cacheFolder, "node_modules", ".");
+          const postinstallScript = path.join(postinstallPath, postinstall);
 
-        if (existsSync(postinstallScript)) {
-          exec(`${postinstallScript}`, {
-            cwd: postinstallPath,
-          });
+          if (existsSync(postinstallScript)) {
+            exec(`${postinstallScript}`, {
+              cwd: postinstallPath,
+            });
+          }
         }
-      }
 
-      __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
-      return;
-    } catch (error: any) {
-      // Check if error is ENOENT
-      if (error.code === "ENOENT") {
-        return await extract(cacheFolder, manifest.tarball);
+        __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
+        return;
+      } else {
+        // Execute postinstall script if exists
+        const postinstall = pkg.scripts.postinstall;
+        if (postinstall) {
+          const postinstallPath = path.join(cacheFolder, "node_modules", ".");
+          const postinstallScript = path.join(postinstallPath, postinstall);
+
+          if (existsSync(postinstallScript)) {
+            exec(`${postinstallScript}`, {
+              cwd: postinstallPath,
+            });
+          }
+        }
+
+        __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
+        return;
       }
+    } catch (error: any) {
+      return;
     }
   }
 }
@@ -429,17 +454,8 @@ async function extract(cacheFolder: string, tarball: string): Promise<any> {
     return await extract(cacheFolder, tarball);
   }
 
-  await writeFile(path.join(cacheFolder, downloadFile), JSON.stringify([]));
+  await writeFile(path.join(cacheFolder, downloadFile), JSON.stringify({}));
   __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
 
   return { res, error };
 }
-
-type cachedDep = {
-  [key: string]: {
-    [key: string]: {
-      path: string;
-      tarball: string;
-    };
-  };
-};

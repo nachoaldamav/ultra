@@ -1,6 +1,6 @@
 {
   "name": "@fnpm-io/cli",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "FNPM CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
@@ -13,7 +13,8 @@
   "scripts": {
     "dev": "swc ./src -d ./build --watch",
     "build": "swc ./src -d ./build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "npm publish"
   },
   "files": [
     "build"
