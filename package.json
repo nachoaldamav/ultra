@@ -17,7 +17,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "eslint-config-custom": "*",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
     "ora": "6.1.2",
     "prettier": "latest",
     "turbo": "latest"

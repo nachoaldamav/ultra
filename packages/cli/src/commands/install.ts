@@ -17,6 +17,7 @@ import { hardLink } from "../utils/hardLink.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
+import { spinnerGradient } from "../utils/spinnerGradient.js";
 
 type pkg = {
   name: string;
@@ -97,22 +98,13 @@ export default async function install(opts: string[]) {
     )
   );
 
-  const __install = ora(chalk.green("Installing packages...")).start();
+  const __install = spinnerGradient("Installing packages...");
   const __install_start = performance.now();
 
   await Promise.all(
     pkgs.map(async (pkg) => {
       await installPkg(pkg, pkg.parent, __install);
     })
-  );
-
-  const __install_end = performance.now();
-  __install.succeed(
-    chalk.green(
-      `Installed packages in ${chalk.gray(
-        parseTime(__install_start, __install_end)
-      )}`
-    )
   );
 
   await Promise.all(
@@ -124,7 +116,6 @@ export default async function install(opts: string[]) {
           registry: REGISTRY,
         });
 
-        ora(chalk.gray(`Installing ${pkg}@latest...`)).info();
         await installPkg(
           {
             name: pkg,
@@ -133,12 +124,21 @@ export default async function install(opts: string[]) {
             tarball: manifest.dist.tarball,
           },
           undefined,
-          undefined
+          __install
         );
       }
 
       return;
     })
+  );
+
+  const __install_end = performance.now();
+  __install.succeed(
+    chalk.green(
+      `Installed packages in ${chalk.gray(
+        parseTime(__install_start, __install_end)
+      )}`
+    )
   );
 
   const __binaries = ora(chalk.blue("Installing binaries...")).start();
@@ -334,6 +334,14 @@ export async function installPkg(
               }
             );
 
+            if (manifest.deprecated) {
+              ora(
+                `[DEPR] ${chalk.bgYellowBright.black(
+                  manifest.name + "@" + manifest.version
+                )} - ${manifest.deprecated}`
+              ).warn();
+            }
+
             await installPkg(
               {
                 name: dep.name,
@@ -407,10 +415,7 @@ export async function installPkg(
         return;
       }
     } catch (error: any) {
-      // Check if error is ENOENT
-      if (error.code === "ENOENT") {
-        return await extract(cacheFolder, manifest.tarball);
-      }
+      return;
     }
   }
 }
