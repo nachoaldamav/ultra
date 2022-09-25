@@ -15,7 +15,7 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "publish": "turbo run publish"
+    "publish-pkg": "turbo run publish-pkg"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",

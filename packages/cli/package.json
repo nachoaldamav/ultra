@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "swc ./src -d ./build --watch",
     "build": "swc ./src -d ./build",
-    "publish": "pnpm run build && npm publish"
+    "publish-pkg": "pnpm run build && npm publish"
   },
   "files": [
     "build"
