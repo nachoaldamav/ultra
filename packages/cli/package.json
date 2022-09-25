@@ -35,12 +35,13 @@
     "prompts": "2.4.2",
     "read-package-json-fast": "2.0.3",
     "npm-pick-manifest": "7.0.2",
-    "compare-versions": "5.0.1"
+    "semver": "7.3.7"
   },
   "devDependencies": {
     "@types/glob": "7.2.0",
     "@types/pacote": "11.1.5",
     "@types/prompts": "^2.0.14",
+    "@types/semver": "7.3.12",
     "@swc/cli": "0.1.57",
     "@swc/core": "1.2.242",
     "@types/mv": "2.1.2"
