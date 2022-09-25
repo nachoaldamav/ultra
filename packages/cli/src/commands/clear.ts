@@ -13,6 +13,7 @@ export async function clear() {
 
   const __clear = ora("Clearing cache...").start();
   await rm(cacheFolder, { recursive: true, force: true });
+  await rm(`${process.cwd()}/fnpm.lock`, { force: true }).catch(() => {});
   __clear.succeed("Cleared cache!");
 
   await mkdir(cacheFolder, { recursive: true });

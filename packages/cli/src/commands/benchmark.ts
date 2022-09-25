@@ -50,24 +50,26 @@ const tests = [
     command: "yarn install --force",
     pre: "yarn cache clean && rm -rf node_modules yarn.lock",
     spinner: ora(
-      chalk.green(`Running "YARN install (no cache, no lockfile)"...`)
+      chalk.green(`Running "YARN install (no cache / no lockfile)"...`)
     ).stop(),
     group: 1,
   },
   {
-    name: "YARN install (with cache, no lock)",
+    name: "YARN install (with cache / no lockfile)",
     command: "yarn install --force",
     pre: "rm -rf node_modules yarn.lock",
     spinner: ora(
-      chalk.green(`Running "YARN install (with cache, no lock)"...`)
+      chalk.green(`Running "YARN install (with cache / no lockfile)"...`)
     ).stop(),
     group: 2,
   },
   {
-    name: "YARN install (with cache)",
+    name: "YARN install (with cache / with lockfile)",
     command: "yarn install --force",
     pre: "rm -rf node_modules",
-    spinner: ora(chalk.green(`Running "YARN install (with cache)"...`)).stop(),
+    spinner: ora(
+      chalk.green(`Running "YARN install (with cache / with lockfile)"...`)
+    ).stop(),
     group: 3,
   },
   {
@@ -85,11 +87,20 @@ const tests = [
     group: 3,
   },
   {
-    name: "PNPM install (no cache)",
+    name: "PNPM install (no cache / no lockfile)",
     command: "pnpm install --force",
     pre: `npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml ${homeDir}.local/share/pnpm/store/v3`,
     spinner: ora(chalk.green(`Running "PNPM install (no cache)"...`)).stop(),
     group: 1,
+  },
+  {
+    name: "PNPM install (with cache / no lockfile)",
+    command: "pnpm install --force",
+    pre: `rm -rf node_modules pnpm-lock.yaml`,
+    spinner: ora(
+      chalk.green(`Running "PNPM install (with cache / no lockfile)"...`)
+    ).stop(),
+    group: 2,
   },
   {
     name: "PNPM install (with cache)",
@@ -111,14 +122,18 @@ const tests = [
     name: "Bun install (with cache / no lockfile)",
     command: "bun install",
     pre: "rm -rf node_modules bun.lockb package-lock.json yarn.lock",
-    spinner: ora(chalk.green(`Running "Bun install (with cache)"...`)).stop(),
+    spinner: ora(
+      chalk.green(`Running "Bun install (with cache / no lockfile)"...`)
+    ).stop(),
     group: 2,
   },
   {
     name: "Bun install (with cache / with lockfile)",
     command: "bun install",
     pre: "rm -rf node_modules",
-    spinner: ora(chalk.green(`Running "Bun install (with cache)"...`)).stop(),
+    spinner: ora(
+      chalk.green(`Running "Bun install (with cache / with lockfile)"...`)
+    ).stop(),
     group: 3,
   },
 ];
@@ -163,7 +178,7 @@ export async function benchmark(args: string[]) {
     "yarn@latest",
     "pnpm@latest",
     "npm@latest",
-  ]);
+  ]).catch((err) => {});
 
   __init.succeed("Benchmark started");
 

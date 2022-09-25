@@ -2,16 +2,16 @@ import ora, { Ora } from "ora";
 import chalk from "chalk";
 
 const gradientColors = [
-  "#F44369",
-  "#C74174",
-  "#B04079",
-  "#993F7E",
-  "#833E83",
-  "#6C3D88",
-  "#613D8B",
-  "#553C8D",
-  "#4A3C90",
   "#3E3B92",
+  "#4A3C90",
+  "#553C8D",
+  "#613D8B",
+  "#6C3D88",
+  "#833E83",
+  "#993F7E",
+  "#B04079",
+  "#C74174",
+  "#F44369",
 ];
 
 export const rocketAscii = "■■";
@@ -36,32 +36,7 @@ function getGradientAnimFrames() {
   return frames;
 }
 
-function getIntroAnimFrames() {
-  const frames = [];
-  for (let end = 1; end <= gradientColors.length; end++) {
-    const leadingSpacesArr = Array.from(
-      new Array(Math.abs(gradientColors.length - end - 1)),
-      () => " "
-    );
-    const gradientArr = gradientColors
-      .slice(0, end)
-      .map((g) => chalk.bgHex(g)(" "));
-    frames.push([...leadingSpacesArr, ...gradientArr].join(""));
-  }
-  return frames;
-}
-
 export function spinnerGradient(text: string): Ora {
-  const frames = getIntroAnimFrames();
-  const intro = ora({
-    spinner: {
-      interval: 30,
-      frames,
-    },
-    text: `${rocketAscii} ${text}`,
-  });
-  intro.start();
-  intro.stop();
   const spinner = ora({
     spinner: {
       interval: 80,
