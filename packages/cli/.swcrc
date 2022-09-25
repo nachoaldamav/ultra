@@ -12,5 +12,5 @@
       "loose": true,
       "externalHelpers": false
     },
-    "minify": true
+    "minify": false
 }
