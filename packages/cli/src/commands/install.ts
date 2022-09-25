@@ -1,23 +1,22 @@
 import chalk from "chalk";
-import ora, { Ora } from "ora";
+import ora from "ora";
 import rpjf from "read-package-json-fast";
-import { mkdir, rm, readdir, writeFile } from "fs/promises";
-import { exec } from "child_process";
+import { writeFile, readFile } from "fs/promises";
 import path from "path";
-import { existsSync, readFileSync } from "fs";
 import pacote from "pacote";
 import { performance } from "perf_hooks";
-import { satisfies } from "compare-versions";
 import { getDeps } from "../utils/getDeps.js";
 import { installBins } from "../utils/addBinaries.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
-import { hardLink } from "../utils/hardLink.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
+import { installPkg } from "../utils/installPkg.js";
+import { fnpm_lock } from "../../types/pkg.js";
+import { hardLink } from "../utils/hardLink.js";
 
 type pkg = {
   name: string;
@@ -29,19 +28,19 @@ type pkg = {
 
 let pkgs: pkg[] = [];
 
-const __INSTALLED: {
+export const __INSTALLED: {
   name: string;
   version: string;
 }[] = [];
 
-const __DOWNLOADING: string[] = [];
-const __DOWNLOADED: string[] = [];
-const __SKIPPED: string[] = [];
+export const __DOWNLOADING: string[] = [];
+export const __DOWNLOADED: any = [];
+export const __SKIPPED: string[] = [];
 
-const userFnpmCache = readConfig().cache;
-const downloadFile = ".fnpm";
+export const userFnpmCache = readConfig().cache;
+export const downloadFile = ".fnpm";
 
-const REGISTRY = readConfig().registry;
+export const REGISTRY = readConfig().registry;
 
 export default async function install(opts: string[]) {
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
@@ -51,6 +50,37 @@ export default async function install(opts: string[]) {
   const flag = opts.filter((opt) => opt.startsWith("-"))[0];
 
   await createModules();
+
+  // Read fnpm.lock file as JSON
+  const lockFile: string | null = await readFile(
+    path.join(process.cwd(), "fnpm.lock"),
+    "utf-8"
+  ).catch(() => null);
+
+  const lock = lockFile ? JSON.parse(lockFile) : null;
+
+  if (lock) {
+    const __install = ora(chalk.green("Installing dependencies...")).start();
+    // Hardlink all the packages in fnpm.lock to each path from cache
+    for (const pkg in lock) {
+      for (const version in lock[pkg]) {
+        __install.text = chalk.green(
+          `Installing ${pkg}@${version} from cache...`
+        );
+        const pathname = path.join(process.cwd(), lock[pkg][version].path);
+        const cache = path.join(userFnpmCache, lock[pkg][version].cache);
+
+        await hardLink(cache, pathname);
+      }
+    }
+
+    __install.succeed(chalk.green("Installed dependencies from cache!"));
+    const __binaries = ora(chalk.green("Installing binaries...")).start();
+    await installBins();
+    __binaries.succeed(chalk.green("Installed binaries!"));
+
+    return;
+  }
 
   // Read package.json
   const pkg = await rpjf("./package.json");
@@ -103,7 +133,7 @@ export default async function install(opts: string[]) {
 
   await Promise.all(
     pkgs.map(async (pkg) => {
-      await installPkg(pkg, pkg.parent, __install);
+      return await installPkg(pkg, pkg.parent, __install);
     })
   );
 
@@ -200,262 +230,27 @@ export default async function install(opts: string[]) {
   }
 
   ora(chalk.green("Done!")).succeed();
-  process.exit();
-}
 
-export async function installPkg(
-  manifest: any,
-  parent?: string,
-  spinner?: Ora
-) {
-  const cacheFolder = `${userFnpmCache}/${manifest.name}/${manifest.version}`;
+  const downloadedPkgs: fnpm_lock = {};
 
-  if (
-    __INSTALLED.find(
-      (pkg) => pkg.name === manifest.name && pkg.version === manifest.version
-    )
-  ) {
+  __DOWNLOADED.forEach((pkg: any) => {
+    if (!downloadedPkgs[pkg.name]) {
+      downloadedPkgs[pkg.name] = {};
+    }
+
+    downloadedPkgs[pkg.name][pkg.version] = {
+      path: pkg.path,
+      cache: pkg.cache,
+    };
+
     return;
-  }
+  });
 
-  const pkgInstalled =
-    manifest.spec &&
-    __INSTALLED.find(
-      (pkg) =>
-        pkg.name === manifest.name && satisfies(pkg.version, manifest.spec)
-    );
-
-  if (pkgInstalled) {
-    return;
-  }
-
-  // Check if spec is * and add it to __SKIPPED
-  if (manifest.spec === "*") {
-    __SKIPPED.push(manifest.name);
-    return;
-  }
-
-  // Check if package is already in root node_modules
-  const isInRoot = existsSync(
-    path.join(process.cwd(), "node_modules", manifest.name)
+  await writeFile(
+    path.join(process.cwd(), "fnpm.lock"),
+    JSON.stringify(downloadedPkgs, null, 2),
+    "utf-8"
   );
 
-  const getDir = () => {
-    if (!isInRoot) {
-      return path.join(process.cwd(), "node_modules", manifest.name);
-    }
-    if (parent) {
-      return path.join(parent, "node_modules", manifest.name);
-    } else {
-      return path.join(process.cwd(), "node_modules", manifest.name);
-    }
-  };
-
-  const pkgProjectDir = getDir();
-
-  if (!isInRoot) {
-    __INSTALLED.push({
-      name: manifest.name,
-      version: manifest.version,
-    });
-  }
-
-  // Check if parent exists
-  if (parent) {
-    if (!existsSync(`${parent}/node_modules`)) {
-      await mkdir(`${parent}/node_modules`, { recursive: true });
-    }
-  }
-
-  let savedDeps: any[] | null = null;
-
-  // Check if package is already in cache, searching for file .fnpm
-  if (existsSync(`${cacheFolder}/${downloadFile}`)) {
-    if (spinner)
-      spinner.text = chalk.green(
-        `Installing ${manifest.name}... ${chalk.grey("(cached)")}`
-      );
-
-    // Create directory for package without the last folder
-    const dirs = pkgProjectDir.split("/");
-    dirs.pop();
-    await mkdir(dirs.join("/"), { recursive: true });
-    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
-
-    // Get deps from file
-    const cachedDeps = JSON.parse(
-      readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
-    );
-
-    for (const dep of Object.keys(cachedDeps)) {
-      const name = dep;
-      const version = Object.keys(cachedDeps[dep])[0];
-      const { tarball, spec } = cachedDeps[dep][version];
-
-      await installPkg(
-        {
-          name,
-          version,
-          tarball,
-          spec,
-        },
-        pkgProjectDir,
-        spinner
-      );
-    }
-  } else {
-    if (spinner)
-      spinner.text = chalk.green(
-        `Installing ${manifest.name}... ${chalk.grey("(cache miss)")}`
-      );
-    await extract(cacheFolder, manifest.tarball);
-
-    // Create directory for package without the last folder
-    const dirs = pkgProjectDir.split("/");
-    dirs.pop();
-    await mkdir(dirs.join("/"), { recursive: true });
-    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
-
-    // Get production deps
-    try {
-      const pkg = await rpjf(`${cacheFolder}/package.json`);
-      if (!savedDeps) {
-        const deps = getDeps(pkg, {
-          dev: true,
-        });
-
-        // Install production deps
-        const installed = await Promise.all(
-          deps.map(async (dep) => {
-            const manifest = await pacote.manifest(
-              `${dep.name}@${dep.version}`,
-              {
-                registry: REGISTRY,
-              }
-            );
-
-            if (manifest.deprecated) {
-              ora(
-                `[DEPR] ${chalk.bgYellowBright.black(
-                  manifest.name + "@" + manifest.version
-                )} - ${manifest.deprecated}`
-              ).warn();
-            }
-
-            await installPkg(
-              {
-                name: dep.name,
-                version: manifest.version,
-                tarball: manifest.dist.tarball,
-                spec: dep.version,
-              },
-              pkgProjectDir,
-              spinner
-            );
-
-            return {
-              name: dep.name,
-              version: manifest.version,
-              spec: dep.version,
-              tarball: manifest.dist.tarball,
-              path: path.join(userFnpmCache, dep.name, manifest.version),
-            };
-          })
-        );
-
-        // Save installed deps with its path in .fnpm file as objects
-        let object: { [key: string]: any } = {};
-
-        installed.forEach((dep) => {
-          object[dep.name] = {
-            [dep.version]: {
-              path: dep.path,
-              tarball: dep.tarball,
-              spec: dep.spec,
-            },
-          };
-        });
-
-        await writeFile(
-          `${cacheFolder}/${downloadFile}`,
-          JSON.stringify(object, null, 2),
-          "utf-8"
-        );
-
-        // Execute postinstall script if exists
-        const postinstall = pkg.scripts.postinstall;
-        if (postinstall) {
-          const postinstallPath = path.join(cacheFolder, "node_modules", ".");
-          const postinstallScript = path.join(postinstallPath, postinstall);
-
-          if (existsSync(postinstallScript)) {
-            exec(`${postinstallScript}`, {
-              cwd: postinstallPath,
-            });
-          }
-        }
-
-        __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
-        return;
-      } else {
-        // Execute postinstall script if exists
-        const postinstall = pkg.scripts.postinstall;
-        if (postinstall) {
-          const postinstallPath = path.join(cacheFolder, "node_modules", ".");
-          const postinstallScript = path.join(postinstallPath, postinstall);
-
-          if (existsSync(postinstallScript)) {
-            exec(`${postinstallScript}`, {
-              cwd: postinstallPath,
-            });
-          }
-        }
-
-        __DOWNLOADED.push(`${manifest.name}@${manifest.version}`);
-        return;
-      }
-    } catch (error: any) {
-      return;
-    }
-  }
-}
-
-async function extract(cacheFolder: string, tarball: string): Promise<any> {
-  // Check if file ".fnpm" exists inside cacheFolder using access
-  const folderContent = await readdir(cacheFolder)
-    .then((files) => {
-      return files;
-    })
-    .catch(() => {
-      return [];
-    });
-
-  // @ts-ignore-next-line
-  if (folderContent.length > 0 && folderContent.includes(downloadFile)) {
-    return { res: "exists", error: null };
-  }
-
-  if (__DOWNLOADING.includes(tarball)) {
-    return { res: "downloading", error: null };
-  }
-
-  __DOWNLOADING.push(tarball);
-  const { res, error } = await pacote
-    .extract(tarball, cacheFolder)
-    .then(() => {
-      return { res: "ok", error: null };
-    })
-    .catch(async (err) => {
-      return { res: null, error: err };
-    });
-
-  if (res === null) {
-    ora(chalk.red(`Trying to extract ${tarball} again!`)).fail();
-    return await extract(cacheFolder, tarball);
-  }
-
-  await writeFile(path.join(cacheFolder, downloadFile), JSON.stringify({}));
-  __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
-
-  return { res, error };
+  process.exit();
 }

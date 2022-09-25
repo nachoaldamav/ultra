@@ -3,7 +3,7 @@ import ora from "ora";
 import { satisfies } from "compare-versions";
 
 export default async function checkNodeVersion(engines: any) {
-  if (!engines.node) {
+  if (!engines || !engines.node) {
     return;
   }
 
