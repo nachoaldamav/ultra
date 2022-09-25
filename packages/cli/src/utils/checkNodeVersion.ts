@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora from "ora";
-import { satisfies } from "compare-versions";
+import { satisfies } from "semver";
 
 export default async function checkNodeVersion(engines: any) {
   if (!engines || !engines.node) {
