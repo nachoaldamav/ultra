@@ -25,7 +25,7 @@ jobs:
       - name: Build CLI
         run: cd packages/cli && pnpm run build
       - name: Install CLI
-        run: cd packages/cli && pnpm install . -g && cd ../../
+        run: cd packages/cli && npm install . -g && cd ../../
       - name: Run benchmark
         run: cd examples/vite-demo && fnpm benchmark --ignore-bun
       - name: Read results
