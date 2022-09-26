@@ -73,17 +73,21 @@ const tests = [
     group: 3,
   },
   {
-    name: "FNPM install (no cache)",
+    name: "FNPM install (no cache / no lockfile)",
     command: "fnpm install",
     pre: "npm cache clean -f && fnpm clear",
-    spinner: ora(chalk.green(`Running "FNPM install (no cache)"...`)).stop(),
+    spinner: ora(
+      chalk.green(`Running "FNPM install (no cache / no lockfile)"...`)
+    ).stop(),
     group: 1,
   },
   {
-    name: "FNPM install (with cache)",
+    name: "FNPM install (with cache / with lockfile)",
     command: "fnpm install",
     pre: "rm -rf node_modules",
-    spinner: ora(chalk.green(`Running "FNPM install (with cache)"...`)).stop(),
+    spinner: ora(
+      chalk.green(`Running "FNPM install (with cache / with lockfile)"...`)
+    ).stop(),
     group: 3,
   },
   {
