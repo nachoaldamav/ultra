@@ -147,14 +147,13 @@ export async function installPkg(
         pkgProjectDir,
         spinner
       );
-
-      __DOWNLOADED.push({
-        name,
-        version,
-        path: pkgProjectDir.replace(process.cwd(), ""),
-        cache: cacheFolder.replace(userFnpmCache, ""),
-      });
     }
+    __DOWNLOADED.push({
+      name: manifest.name,
+      version: manifest.version,
+      path: pkgProjectDir.replace(process.cwd(), ""),
+      cache: cacheFolder.replace(userFnpmCache, ""),
+    });
   } else {
     if (spinner)
       spinner.text = chalk.green(
