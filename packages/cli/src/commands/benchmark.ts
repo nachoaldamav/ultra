@@ -46,7 +46,7 @@ const tests = [
     group: 3,
   },
   {
-    name: "YARN install (no cache, no lockfile)",
+    name: "YARN install (no cache / no lockfile)",
     command: "yarn install --force",
     pre: "yarn cache clean && rm -rf node_modules yarn.lock",
     spinner: ora(
@@ -82,6 +82,15 @@ const tests = [
     group: 1,
   },
   {
+    name: "FNPM install (with cache / no lockfile)",
+    command: "fnpm install",
+    pre: "rm -rf node_modules fnpm.lock",
+    spinner: ora(
+      chalk.green(`Running "FNPM install (with cache / no lockfile)"...`)
+    ).stop(),
+    group: 2,
+  },
+  {
     name: "FNPM install (with cache / with lockfile)",
     command: "fnpm install",
     pre: "rm -rf node_modules",
@@ -107,7 +116,7 @@ const tests = [
     group: 2,
   },
   {
-    name: "PNPM install (with cache)",
+    name: "PNPM install (with cache / with lockfile)",
     command: "pnpm install",
     pre: "rm -rf node_modules",
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),

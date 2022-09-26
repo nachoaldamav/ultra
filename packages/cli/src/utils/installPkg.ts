@@ -5,7 +5,6 @@ import { mkdir, readdir, writeFile } from "fs/promises";
 import { exec } from "child_process";
 import path from "path";
 import { existsSync, readFileSync } from "fs";
-import pacote from "pacote";
 import semver from "semver";
 import { getDeps } from "../utils/getDeps.js";
 import { hardLink } from "../utils/hardLink.js";
@@ -19,6 +18,7 @@ import {
   downloadFile,
 } from "../commands/install.js";
 import { extract } from "./extract.js";
+import manifestFetcher from "./manifestFetcher.js";
 
 export async function installPkg(
   manifest: any,
@@ -182,7 +182,7 @@ export async function installPkg(
         // Install production deps
         const installed = await Promise.all(
           deps.map(async (dep) => {
-            const manifest = await pacote.manifest(
+            const manifest = await manifestFetcher(
               `${dep.name}@${dep.version}`,
               {
                 registry: REGISTRY,
