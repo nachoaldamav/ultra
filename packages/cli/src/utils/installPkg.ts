@@ -114,6 +114,16 @@ export async function installPkg(
 
   let savedDeps: any[] | null = null;
 
+  // Push to downloaded package info
+  __DOWNLOADED.push({
+    name: manifest.name,
+    version: manifest.version,
+    // Remove cwd from path
+    path: pkgProjectDir.replace(process.cwd(), ""),
+    // Remove homeDir from path
+    cache: cacheFolder.replace(userFnpmCache, ""),
+  });
+
   // Check if package is already in cache, searching for file .fnpm
   if (existsSync(`${cacheFolder}/${downloadFile}`)) {
     if (spinner)
@@ -148,12 +158,6 @@ export async function installPkg(
         spinner
       );
     }
-    __DOWNLOADED.push({
-      name: manifest.name,
-      version: manifest.version,
-      path: pkgProjectDir.replace(process.cwd(), ""),
-      cache: cacheFolder.replace(userFnpmCache, ""),
-    });
   } else {
     if (spinner)
       spinner.text = chalk.green(
@@ -246,16 +250,6 @@ export async function installPkg(
           }
         }
 
-        // Push to downloaded package info
-        __DOWNLOADED.push({
-          name: manifest.name,
-          version: manifest.version,
-          // Remove cwd from path
-          path: pkgProjectDir.replace(process.cwd(), ""),
-          // Remove homeDir from path
-          cache: cacheFolder.replace(userFnpmCache, ""),
-        });
-
         return;
       } else {
         // Execute postinstall script if exists
@@ -270,16 +264,6 @@ export async function installPkg(
             });
           }
         }
-
-        // Push to downloaded package info
-        __DOWNLOADED.push({
-          name: manifest.name,
-          version: manifest.version,
-          // Remove cwd from path
-          path: pkgProjectDir.replace(process.cwd(), ""),
-          // Remove homeDir from path
-          cache: cacheFolder.replace(userFnpmCache, ""),
-        });
         return;
       }
     } catch (error: any) {
