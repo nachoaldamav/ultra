@@ -1,7 +1,10 @@
 import chalk from "chalk";
-import { link, lstat, mkdir, readdir } from "fs/promises";
+import { link, lstat, mkdir, readdir, copyFile } from "fs/promises";
 import ora from "ora";
 import path from "path";
+import os from "os";
+
+const isMac = os.platform() === "darwin";
 
 export async function hardLink(dir: string, targetDir: string) {
   try {
@@ -20,12 +23,21 @@ export async function hardLink(dir: string, targetDir: string) {
         } else {
           // Create previous folders if they don't exist
           await mkdir(path.dirname(targetPath), { recursive: true });
-          await link(filePath, targetPath).catch((e) => {
-            if (e.code === "EEXIST") {
-              return;
-            }
-            ora(chalk.red(e.message)).fail();
-          });
+          if (!isMac) {
+            await link(filePath, targetPath).catch((e) => {
+              if (e.code === "EEXIST") {
+                return;
+              }
+              ora(chalk.red(e.message)).fail();
+            });
+          } else {
+            await copyFile(filePath, targetPath).catch((e) => {
+              if (e.code === "EEXIST") {
+                return;
+              }
+              ora(chalk.red(e.message)).fail();
+            });
+          }
         }
       })
     );
