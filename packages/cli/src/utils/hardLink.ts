@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { link, lstat, mkdir, readdir, copyFile } from "fs/promises";
+import { constants } from "fs";
 import ora from "ora";
 import path from "path";
 import os from "os";
@@ -31,7 +32,12 @@ export async function hardLink(dir: string, targetDir: string) {
               ora(chalk.red(e.message)).fail();
             });
           } else {
-            await copyFile(filePath, targetPath).catch((e) => {
+            // Use clonefile on mac
+            await copyFile(
+              filePath,
+              targetPath,
+              constants.COPYFILE_FICLONE
+            ).catch((e) => {
               if (e.code === "EEXIST") {
                 return;
               }
