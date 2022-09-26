@@ -61,6 +61,7 @@ export default async function install(opts: string[]) {
 
   if (lock) {
     const __install = ora(chalk.green("Installing dependencies...")).start();
+    const start = performance.now();
     // Hardlink all the packages in fnpm.lock to each path from cache
     for (const pkg in lock) {
       for (const version in lock[pkg]) {
@@ -74,7 +75,14 @@ export default async function install(opts: string[]) {
       }
     }
 
-    __install.succeed(chalk.green("Installed dependencies from cache!"));
+    const end = performance.now();
+    __install.succeed(
+      chalk.green(
+        `Installed dependencies in ${chalk.grey(
+          parseTime(start, end)
+        )} ${chalk.grey("(from lockfile)")}`
+      )
+    );
     const __binaries = ora(chalk.green("Installing binaries...")).start();
     await installBins();
     __binaries.succeed(chalk.green("Installed binaries!"));
