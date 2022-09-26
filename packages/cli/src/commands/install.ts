@@ -17,6 +17,7 @@ import { spinnerGradient } from "../utils/spinnerGradient.js";
 import { installPkg } from "../utils/installPkg.js";
 import { fnpm_lock } from "../../types/pkg.js";
 import { hardLink } from "../utils/hardLink.js";
+import manifestFetcher from "../utils/manifestFetcher.js";
 
 type pkg = {
   name: string;
@@ -113,7 +114,7 @@ export default async function install(opts: string[]) {
         return;
       }
 
-      const manifest = await pacote.manifest(`${dep.name}@${dep.version}`, {
+      const manifest = await manifestFetcher(`${dep.name}@${dep.version}`, {
         registry: REGISTRY,
       });
 
