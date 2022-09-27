@@ -132,9 +132,7 @@ export async function installPkg(
       );
 
     // Create directory for package without the last folder
-    const dirs = pkgProjectDir.split("/");
-    dirs.pop();
-    await mkdir(dirs.join("/"), { recursive: true });
+    await mkdir(path.dirname(pkgProjectDir), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
 
     // Get deps from file
@@ -166,9 +164,7 @@ export async function installPkg(
     await extract(cacheFolder, manifest.tarball);
 
     // Create directory for package without the last folder
-    const dirs = pkgProjectDir.split("/");
-    dirs.pop();
-    await mkdir(dirs.join("/"), { recursive: true });
+    await mkdir(path.dirname(pkgProjectDir), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
 
     // Get production deps

@@ -151,7 +151,7 @@ export default async function install(opts: string[]) {
       const isInstalled = __INSTALLED.find((i) => i.name === pkg);
 
       if (!isInstalled) {
-        const manifest = await pacote.manifest(`${pkg}@latest`, {
+        const manifest = await manifestFetcher(`${pkg}@latest`, {
           registry: REGISTRY,
         });
 
