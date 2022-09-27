@@ -1,9 +1,8 @@
 import chalk from "chalk";
 import ora from "ora";
 import rpjf from "read-package-json-fast";
-import { writeFile, readFile } from "fs/promises";
+import { writeFile, readFile, unlink } from "fs/promises";
 import path from "path";
-import pacote from "pacote";
 import { performance } from "perf_hooks";
 import { getDeps } from "../utils/getDeps.js";
 import { installBins } from "../utils/addBinaries.js";
@@ -61,34 +60,44 @@ export default async function install(opts: string[]) {
   const lock = lockFile ? JSON.parse(lockFile) : null;
 
   if (lock) {
-    const __install = ora(chalk.green("Installing dependencies...")).start();
-    const start = performance.now();
-    // Hardlink all the packages in fnpm.lock to each path from cache
-    for (const pkg in lock) {
-      for (const version in lock[pkg]) {
-        __install.text = chalk.green(
-          `Installing ${pkg}@${version} from cache...`
-        );
-        const pathname = path.join(process.cwd(), lock[pkg][version].path);
-        const cache = path.join(userFnpmCache, lock[pkg][version].cache);
+    try {
+      const __install = ora(chalk.green("Installing dependencies...")).start();
+      const start = performance.now();
+      // Hardlink all the packages in fnpm.lock to each path from cache
+      for (const pkg in lock) {
+        for (const version in lock[pkg]) {
+          __install.text = chalk.green(
+            `Installing ${pkg}@${version} from cache...`
+          );
+          const pathname = path.join(process.cwd(), lock[pkg][version].path);
+          const cache = path.join(userFnpmCache, lock[pkg][version].cache);
 
-        await hardLink(cache, pathname);
+          await hardLink(cache, pathname);
+        }
       }
+
+      const end = performance.now();
+      __install.succeed(
+        chalk.green(
+          `Installed dependencies in ${chalk.grey(
+            parseTime(start, end)
+          )} ${chalk.grey("(from lockfile)")}`
+        )
+      );
+      const __binaries = ora(chalk.green("Installing binaries...")).start();
+      await installBins();
+      __binaries.succeed(chalk.green("Installed binaries!"));
+
+      return;
+    } catch (e) {
+      ora(chalk.red(`Error: ${e}`)).fail();
+      ora(
+        chalk.yellow("Lockfile is outdated, installing from cache...")
+      ).warn();
+      await unlink(path.join(process.cwd(), "fnpm.lock"));
+      await install(opts);
+      return;
     }
-
-    const end = performance.now();
-    __install.succeed(
-      chalk.green(
-        `Installed dependencies in ${chalk.grey(
-          parseTime(start, end)
-        )} ${chalk.grey("(from lockfile)")}`
-      )
-    );
-    const __binaries = ora(chalk.green("Installing binaries...")).start();
-    await installBins();
-    __binaries.succeed(chalk.green("Installed binaries!"));
-
-    return;
   }
 
   // Read package.json

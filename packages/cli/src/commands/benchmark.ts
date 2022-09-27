@@ -270,6 +270,8 @@ export async function benchmark(args: string[]) {
         )
     );
     test.spinner.succeed();
+
+    await sleep(2000);
   }
 
   // Sort the results by time
@@ -314,4 +316,8 @@ export async function benchmark(args: string[]) {
   );
 
   await writeFile(path.join(process.cwd(), "results.md"), md);
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

@@ -1,10 +1,9 @@
 import chalk from "chalk";
 import ora, { Ora } from "ora";
 import rpjf from "read-package-json-fast";
-import { mkdir, readdir, writeFile } from "fs/promises";
+import { mkdirSync, existsSync, writeFileSync, readFileSync } from "fs";
 import { exec } from "child_process";
 import path from "path";
-import { existsSync, readFileSync } from "fs";
 import semver from "semver";
 import { getDeps } from "../utils/getDeps.js";
 import { hardLink } from "../utils/hardLink.js";
@@ -105,13 +104,6 @@ export async function installPkg(
     });
   }
 
-  // Check if parent exists
-  if (parent) {
-    if (!existsSync(`${parent}/node_modules`)) {
-      await mkdir(`${parent}/node_modules`, { recursive: true });
-    }
-  }
-
   let savedDeps: any[] | null = null;
 
   // Push to downloaded package info
@@ -132,7 +124,7 @@ export async function installPkg(
       );
 
     // Create directory for package without the last folder
-    await mkdir(path.dirname(pkgProjectDir), { recursive: true });
+    mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
 
     // Get deps from file
@@ -164,7 +156,7 @@ export async function installPkg(
     await extract(cacheFolder, manifest.tarball);
 
     // Create directory for package without the last folder
-    await mkdir(path.dirname(pkgProjectDir), { recursive: true });
+    mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
 
     // Get production deps
@@ -227,7 +219,7 @@ export async function installPkg(
           };
         });
 
-        await writeFile(
+        writeFileSync(
           `${cacheFolder}/${downloadFile}`,
           JSON.stringify(object, null, 2),
           "utf-8"

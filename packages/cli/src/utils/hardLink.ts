@@ -1,48 +1,40 @@
-import chalk from "chalk";
-import { link, lstat, mkdir, readdir, copyFile } from "fs/promises";
+import { linkSync, lstatSync, mkdirSync, readdirSync, copyFileSync } from "fs";
 import { constants } from "fs";
-import ora from "ora";
 import path from "path";
 import os from "os";
+import ora from "ora";
+import chalk from "chalk";
 
 const isMac = os.platform() === "darwin";
 
 export async function hardLink(dir: string, targetDir: string) {
   try {
-    const files = await readdir(dir);
+    const files = readdirSync(dir);
     return await Promise.all(
       files.map(async (file) => {
         const filePath = path.join(dir, file);
         const targetPath = path.join(targetDir, file);
-        const stat = await lstat(filePath);
+        const stat = lstatSync(filePath);
         if (stat.isDirectory()) {
-          await mkdir(targetPath).catch((e) => {
-            if (e.code !== "EEXIST") return;
-            if (e.code === "ENOENT") ora(chalk.red(e.message)).fail();
-          });
+          mkdirSync(targetPath, { recursive: true });
           await hardLink(filePath, targetPath);
         } else {
           // Create previous folders if they don't exist
-          await mkdir(path.dirname(targetPath), { recursive: true });
+          mkdirSync(path.dirname(targetPath), { recursive: true });
           if (!isMac) {
-            await link(filePath, targetPath).catch((e) => {
-              if (e.code === "EEXIST") {
-                return;
-              }
-              ora(chalk.red(e.message)).fail();
-            });
+            try {
+              linkSync(filePath, targetPath);
+            } catch (e: any) {
+              if (e.code === "EEXIST") return;
+              ora(
+                chalk.red(
+                  `Error: ${e.message} (file: ${filePath}, target: ${targetPath})`
+                )
+              ).fail();
+            }
           } else {
             // Use clonefile on mac
-            await copyFile(
-              filePath,
-              targetPath,
-              constants.COPYFILE_FICLONE
-            ).catch((e) => {
-              if (e.code === "EEXIST") {
-                return;
-              }
-              ora(chalk.red(e.message)).fail();
-            });
+            copyFileSync(filePath, targetPath, constants.COPYFILE_FICLONE);
           }
         }
       })
