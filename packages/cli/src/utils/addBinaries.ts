@@ -2,8 +2,7 @@ import path from "path";
 import glob from "glob";
 import chalk from "chalk";
 import ora from "ora";
-import { chmod, symlink } from "fs/promises";
-import { _downloadSpinner } from "../utils/downloadSpinner.js";
+import { chmodSync, symlinkSync } from "fs";
 import rpjf from "read-package-json-fast";
 
 export async function installBins() {
@@ -44,13 +43,9 @@ export async function installBins() {
               );
 
               // Create symlink to bin file
-              await symlink(path.join(packagePath, bin[key]), binPath).catch(
-                (err) => {
-                  throw err;
-                }
-              );
+              symlinkSync(path.join(packagePath, bin[key]), binPath);
 
-              await chmod(binPath, 0o755);
+              chmodSync(binPath, 0o755);
 
               break;
             }
@@ -64,11 +59,9 @@ export async function installBins() {
             );
 
             // Create symlink to bin file
-            await symlink(path.join(packagePath, bin), binPath).catch((err) => {
-              throw err;
-            });
+            symlinkSync(path.join(packagePath, bin), binPath);
 
-            await chmod(path.join(binPath), 0o755);
+            chmodSync(path.join(binPath), 0o755);
             return;
           }
         }
