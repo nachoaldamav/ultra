@@ -22,7 +22,11 @@ You can test for example, with a Next or a Vite project and it should work.
 
 ## FNPM doesn't verify the integrity of the packages?
 
-Yes, it doesn't. That's because how FNPM works, I didn't think it was necessary to verify the integrity of the packages. It's because FNPM doesnt use any type of lockfile. It just gets the dependencies from the NPM registry and installs them. Although, I've created a "Discussion" in the Github repository to talk about this [here](https://github.com/nachoaldamav/fnpm/discussions/44)
+Yes, it doesn't. That's because how FNPM works, I didn't think it was necessary to verify the integrity of the packages.
+
+It's because the lockfile created by FNPM only uses paths. 
+
+I've created a "Discussion" in the Github repository to talk about this [here](https://github.com/nachoaldamav/fnpm/discussions/44)
 
 ## How much faster is FNPM than NPM?
 

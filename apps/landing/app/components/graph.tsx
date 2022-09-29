@@ -3,55 +3,80 @@ import { useAnimation, motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
 const data = [
-  {
-    name: "NPM (Cache / no lock)",
-    value: 18.81,
-    className: "h-8 rounded rounded-l-none bg-[#40916c]",
-  },
-  {
-    name: "Yarn (Cache / no lock)",
-    value: 110.4,
-    className: "h-8 rounded rounded-l-none bg-[#40916c]",
-  },
   /*   {
-    name: "PNPM (No cache)",
-    value: 33.39,
+    name: "Bun install (with cache / with lockfile)",
+    value: 0.74,
     className: "h-8 rounded rounded-l-none bg-[#40916c]",
   }, */
   {
-    name: "FNPM (No cache)",
-    value: 55.46,
+    name: "FNPM install (with cache / with lockfile)",
+    value: 3.76,
     className: "fnpm-gradient h-8 rounded rounded-l-none",
   },
   {
-    name: "NPM (No cache)",
-    value: 151.8,
-    className: "h-8 rounded rounded-l-none bg-[#40916c]",
-  },
-  {
-    name: "Yarn (No cache)",
-    value: 123.6,
-    className: "h-8 rounded rounded-l-none bg-[#40916c]",
-  },
-  {
-    name: "Yarn (cache / lock)",
-    value: 16.85,
-    className: "h-8 rounded rounded-l-none bg-[#40916c]",
-  },
-  {
-    name: "NPM (cache / lock)",
-    value: 18.81,
-    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+    name: "FNPM install (with cache / no lockfile)",
+    value: 5.99,
+    className: "fnpm-gradient h-8 rounded rounded-l-none",
   },
   /*   {
-    name: "PNPM (cache / lock)",
-    value: 7.75,
+    name: "PNPM install (with cache / with lockfile)",
+    value: 6.69,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  {
+    name: "Bun install (with cache / no lockfile)",
+    value: 9.41,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  {
+    name: "Bun install (no cache / no lockfile)",
+    value: 12.84,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  {
+    name: "PNPM install (with cache / no lockfile)",
+    value: 15.53,
     className: "h-8 rounded rounded-l-none bg-[#40916c]",
   }, */
   {
-    name: "FNPM (cache)",
-    value: 15.69,
+    name: "NPM install (with cache / with lockfile)",
+    value: 17.48,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  {
+    name: "NPM install (with cache / no lockfile)",
+    value: 22.49,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  /*   {
+    name: "PNPM install (no cache / no lockfile)",
+    value: 27.89,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  }, */
+  {
+    name: "YARN install (with cache / with lockfile)",
+    value: 28.25,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  {
+    name: "YARN install (with cache / no lockfile)",
+    value: 105.6,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  {
+    name: "FNPM install (no cache / no lockfile)",
+    value: 122.4,
     className: "fnpm-gradient h-8 rounded rounded-l-none",
+  },
+  {
+    name: "YARN install (no cache / no lockfile)",
+    value: 127.8,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
+  },
+  {
+    name: "NPM install (no cache / no lockfile)",
+    value: 155.4,
+    className: "h-8 rounded rounded-l-none bg-[#40916c]",
   },
 ];
 

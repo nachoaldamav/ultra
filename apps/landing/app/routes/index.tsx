@@ -45,7 +45,7 @@ export default function Index() {
         <h1 className="text-4xl font-bold text-white">Comparison</h1>
         <p className="text-xl text-white">
           Here&apos;s a comparison between FNPM and other package managers in a
-          Vite project.
+          project with many dependencies.
         </p>
         <Graph />
       </section>
