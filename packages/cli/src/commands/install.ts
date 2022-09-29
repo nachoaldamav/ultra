@@ -259,6 +259,7 @@ export default async function install(opts: string[]) {
     downloadedPkgs[pkg.name][pkg.version] = {
       path: pkg.path,
       cache: pkg.cache,
+      tarball: pkg.tarball,
     };
 
     return;

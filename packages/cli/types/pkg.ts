@@ -3,6 +3,7 @@ export type fnpm_lock = {
     [key: string]: {
       path: string;
       cache: string;
+      tarball: string;
     };
   };
 };

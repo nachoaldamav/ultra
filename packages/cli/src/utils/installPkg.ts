@@ -32,6 +32,31 @@ export async function installPkg(
     return;
   }
 
+  if (
+    __INSTALLED.find(
+      (pkg) => pkg.name === manifest.name && pkg.version === manifest.version
+    )
+  ) {
+    return;
+  }
+
+  const pkgInstalled =
+    manifest.spec &&
+    __INSTALLED.find(
+      (pkg) =>
+        pkg.name === manifest.name &&
+        semver.satisfies(pkg.version, manifest.spec)
+    );
+
+  if (pkgInstalled) {
+    if (spinner) {
+      spinner.text = chalk.green(
+        `Skipping ${manifest.name}@${manifest.spec} as it's satisfied by ${pkgInstalled.version}`
+      );
+    }
+    return;
+  }
+
   // Check if package is already in root node_modules
   const isInRoot = existsSync(
     path.join(process.cwd(), "node_modules", manifest.name)
@@ -77,34 +102,12 @@ export async function installPkg(
 
   if (existsSync(pkgProjectDir)) return;
 
-  if (
-    __INSTALLED.find(
-      (pkg) => pkg.name === manifest.name && pkg.version === manifest.version
-    )
-  ) {
-    return;
-  }
-
-  const pkgInstalled =
-    manifest.spec &&
-    __INSTALLED.find(
-      (pkg) =>
-        pkg.name === manifest.name &&
-        semver.satisfies(pkg.version, manifest.spec)
-    );
-
-  if (pkgInstalled) {
-    return;
-  }
-
   if (!isInRoot) {
     __INSTALLED.push({
       name: manifest.name,
       version: manifest.version,
     });
   }
-
-  let savedDeps: any[] | null = null;
 
   // Push to downloaded package info
   __DOWNLOADED.push({
@@ -162,98 +165,79 @@ export async function installPkg(
     // Get production deps
     try {
       const pkg = await rpjf(`${cacheFolder}/package.json`);
-      if (!savedDeps) {
-        const deps = getDeps(pkg, {
-          dev: true,
-        });
+      const deps = getDeps(pkg, {
+        dev: true,
+      });
 
-        // Install production deps
-        const installed = await Promise.all(
-          deps.map(async (dep) => {
-            const manifest = await manifestFetcher(
-              `${dep.name}@${dep.version}`,
-              {
-                registry: REGISTRY,
-              }
-            );
+      // Install production deps
+      const installed = await Promise.all(
+        deps.map(async (dep) => {
+          const manifest = await manifestFetcher(`${dep.name}@${dep.version}`, {
+            registry: REGISTRY,
+          });
 
-            if (manifest.deprecated) {
-              ora(
-                `[DEPR] ${chalk.bgYellowBright.black(
-                  manifest.name + "@" + manifest.version
-                )} - ${manifest.deprecated}`
-              ).warn();
-            }
+          if (manifest.deprecated) {
+            ora(
+              `[DEPR] ${chalk.bgYellowBright.black(
+                manifest.name + "@" + manifest.version
+              )} - ${manifest.deprecated}`
+            ).warn();
+          }
 
-            await installPkg(
-              {
-                name: dep.name,
-                version: manifest.version,
-                tarball: manifest.dist.tarball,
-                spec: dep.version,
-              },
-              pkgProjectDir,
-              spinner
-            );
-
-            return {
+          await installPkg(
+            {
               name: dep.name,
               version: manifest.version,
-              spec: dep.version,
               tarball: manifest.dist.tarball,
-              path: path.join(userFnpmCache, dep.name, manifest.version),
-            };
-          })
-        );
-
-        // Save installed deps with its path in .fnpm file as objects
-        let object: { [key: string]: any } = {};
-
-        installed.forEach((dep) => {
-          object[dep.name] = {
-            [dep.version]: {
-              path: dep.path,
-              tarball: dep.tarball,
-              spec: dep.spec,
+              spec: dep.version,
             },
+            pkgProjectDir,
+            spinner
+          );
+
+          return {
+            name: dep.name,
+            version: manifest.version,
+            spec: dep.version,
+            tarball: manifest.dist.tarball,
+            path: path.join(userFnpmCache, dep.name, manifest.version),
           };
-        });
+        })
+      );
 
-        writeFileSync(
-          `${cacheFolder}/${downloadFile}`,
-          JSON.stringify(object, null, 2),
-          "utf-8"
-        );
+      // Save installed deps with its path in .fnpm file as objects
+      let object: { [key: string]: any } = {};
 
-        // Execute postinstall script if exists
-        const postinstall = pkg.scripts.postinstall;
-        if (postinstall) {
-          const postinstallPath = path.join(cacheFolder, "node_modules", ".");
-          const postinstallScript = path.join(postinstallPath, postinstall);
+      installed.forEach((dep) => {
+        object[dep.name] = {
+          [dep.version]: {
+            path: dep.path,
+            tarball: dep.tarball,
+            spec: dep.spec,
+          },
+        };
+      });
 
-          if (existsSync(postinstallScript)) {
-            exec(`${postinstallScript}`, {
-              cwd: postinstallPath,
-            });
-          }
+      writeFileSync(
+        `${cacheFolder}/${downloadFile}`,
+        JSON.stringify(object, null, 2),
+        "utf-8"
+      );
+
+      // Execute postinstall script if exists
+      const postinstall = pkg.scripts.postinstall;
+      if (postinstall) {
+        const postinstallPath = path.join(cacheFolder, "node_modules", ".");
+        const postinstallScript = path.join(postinstallPath, postinstall);
+
+        if (existsSync(postinstallScript)) {
+          exec(`${postinstallScript}`, {
+            cwd: postinstallPath,
+          });
         }
-
-        return;
-      } else {
-        // Execute postinstall script if exists
-        const postinstall = pkg.scripts.postinstall;
-        if (postinstall) {
-          const postinstallPath = path.join(cacheFolder, "node_modules", ".");
-          const postinstallScript = path.join(postinstallPath, postinstall);
-
-          if (existsSync(postinstallScript)) {
-            exec(`${postinstallScript}`, {
-              cwd: postinstallPath,
-            });
-          }
-        }
-        return;
       }
+
+      return;
     } catch (error: any) {
       return;
     }
