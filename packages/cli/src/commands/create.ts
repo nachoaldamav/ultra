@@ -3,11 +3,11 @@ import chalk from "chalk";
 import pacote from "pacote";
 import prompts from "prompts";
 import path from "path";
-import rpjf from "read-package-json-fast";
 import { execa } from "execa";
 import { existsSync, rm, rmSync, symlinkSync } from "fs";
 import { spawn } from "child_process";
 import { getDeps } from "../utils/getDeps.js";
+import readPackage from "../utils/readPackage.js";
 
 export default async function create(args: string[]) {
   if (args.length === 0) {
@@ -71,7 +71,7 @@ export default async function create(args: string[]) {
     __installing.succeed();
 
     // Get bin path
-    const bin = await rpjf(globalPath + "/package.json").then(
+    const bin = readPackage(globalPath + "/package.json").then(
       (res: any) => res.bin
     );
 
@@ -112,7 +112,7 @@ async function installPkg(
   await pacote.extract(`${dep}@${version}`, installPath);
 
   // Read package.json
-  const pkg = await rpjf(path.join(installPath, "package.json"));
+  const pkg = readPackage(path.join(installPath, "package.json"));
 
   const deps = getDeps(pkg, {
     dev: true,

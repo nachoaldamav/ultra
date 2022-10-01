@@ -2,13 +2,13 @@ import os from "os";
 import { mkdir, rm } from "fs/promises";
 import path from "path";
 import ora from "ora";
-import rpjf from "read-package-json-fast";
 import glob from "glob";
+import readPackage from "../utils/readPackage.js";
 
 export async function clear() {
   const cacheFolder = `${os.homedir()}/.fnpm-cache`;
   const packageJson = `${process.cwd()}/package.json`;
-  const pkg = await rpjf(packageJson);
+  const pkg = readPackage(packageJson);
   const workspaces = pkg.workspaces || null;
 
   const __clear = ora("Clearing cache...").start();

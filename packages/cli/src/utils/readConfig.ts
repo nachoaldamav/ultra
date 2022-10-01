@@ -7,7 +7,13 @@ const BASIC_CONFIG = {
   cache: path.join(os.homedir(), ".fnpm-cache"),
 };
 
-export default function readConfig() {
+type CONFIG = {
+  registry: string;
+  cache: string;
+  token?: string;
+};
+
+export default function readConfig(): CONFIG {
   const configPath = `${os.homedir()}/.fnpm/.fnpmrc`;
   const workspaceConfigPath = `${process.cwd()}/.fnpmrc`;
 
@@ -27,7 +33,7 @@ export default function readConfig() {
 
 export function update(params: string[]) {
   const configPath = `${os.homedir()}/.fnpm/.fnpmrc`;
-  const config = readConfig();
+  const config = JSON.parse(readFileSync(configPath, "utf8"));
 
   const [key, value] = params;
   config[key] = value;

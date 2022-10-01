@@ -1,9 +1,7 @@
-import chalk from "chalk";
 import glob from "glob";
-import ora from "ora";
 import path from "path";
-import rpjf from "read-package-json-fast";
 import { getDeps } from "./getDeps.js";
+import readPackage from "./readPackage.js";
 
 export async function getDepsWorkspaces(globs: string[]) {
   if (!globs) return [];
@@ -15,7 +13,7 @@ export async function getDepsWorkspaces(globs: string[]) {
     globs.map(async (pattern) => {
       const files = glob.sync(`${pattern}/package.json`);
       for await (const file of files) {
-        const pkg = await rpjf(file);
+        const pkg = readPackage(file);
         const packageName = pkg.name;
         // Save the package name with its file path if package is not private
         localDeps.push({
@@ -46,7 +44,7 @@ export async function getDepsWorkspaces(globs: string[]) {
     // If package version is * find package in local deps and replace version with the path
     if (localDep) {
       pkg.version = `file:${process.cwd()}/${localDep.path}`;
-    } else if (pkg.version === "*") {
+    } else if (pkg.version.includes("*")) {
       // Find package in local deps and replace version with the path
       const localDep = localDeps.find((dep) => dep.name === pkg.name);
       if (localDep) {

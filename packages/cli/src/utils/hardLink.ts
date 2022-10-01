@@ -1,5 +1,11 @@
-import { linkSync, lstatSync, mkdirSync, readdirSync, copyFileSync } from "fs";
-import { constants } from "fs";
+import {
+  linkSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  copyFileSync,
+  constants,
+} from "fs";
 import path from "path";
 import os from "os";
 import ora from "ora";

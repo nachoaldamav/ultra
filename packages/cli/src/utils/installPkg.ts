@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora, { Ora } from "ora";
-import rpjf from "read-package-json-fast";
+import readPackage from "./readPackage.js";
 import { mkdirSync, existsSync, writeFileSync, readFileSync } from "fs";
 import { exec } from "child_process";
 import path from "path";
@@ -63,39 +63,45 @@ export async function installPkg(
   );
 
   const getDir = () => {
-    if (!isInRoot || !parent) {
-      return path.join(process.cwd(), "node_modules", manifest.name);
-    }
+    try {
+      if (!isInRoot || !parent) {
+        return path.join(process.cwd(), "node_modules", manifest.name);
+      }
 
-    // Check how many node_modules are in the path
-    const count = parent.split("node_modules").length - 1;
-    if (count === 1) {
+      // Check how many node_modules are in the path
+      const count = parent.split("node_modules").length - 1;
+      if (count === 1) {
+        return path.join(parent, "node_modules", manifest.name);
+      }
+
+      // Check if the dir exists in previous node_modules
+      const dir = path.join(
+        process.cwd(),
+        "node_modules",
+        parent.split("node_modules")[1],
+        "node_modules",
+        manifest.name
+      );
+
+      if (!existsSync(dir)) {
+        return dir;
+      }
+
+      // If it exists, check if the version is suitable with manifest.spec
+      const pkg = JSON.parse(
+        readFileSync(path.join(dir, "package.json"), "utf-8")
+      );
+
+      if (semver.satisfies(pkg.version, manifest.spec)) {
+        return dir;
+      }
+
       return path.join(parent, "node_modules", manifest.name);
+    } catch (e) {
+      return parent
+        ? path.join(parent, "node_modules", manifest.name)
+        : path.join(process.cwd(), "node_modules", manifest.name);
     }
-
-    // Check if the dir exists in previous node_modules
-    const dir = path.join(
-      process.cwd(),
-      "node_modules",
-      parent.split("node_modules")[1],
-      "node_modules",
-      manifest.name
-    );
-
-    if (!existsSync(dir)) {
-      return dir;
-    }
-
-    // If it exists, check if the version is suitable with manifest.spec
-    const pkg = JSON.parse(
-      readFileSync(path.join(dir, "package.json"), "utf-8")
-    );
-
-    if (semver.satisfies(pkg.version, manifest.spec)) {
-      return dir;
-    }
-
-    return path.join(parent, "node_modules", manifest.name);
   };
 
   const pkgProjectDir = getDir();
@@ -164,7 +170,7 @@ export async function installPkg(
 
     // Get production deps
     try {
-      const pkg = await rpjf(`${cacheFolder}/package.json`);
+      const pkg = readPackage(`${cacheFolder}/package.json`);
       const deps = getDeps(pkg, {
         dev: true,
       });
