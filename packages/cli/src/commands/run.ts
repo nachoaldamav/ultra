@@ -1,14 +1,14 @@
 import path from "path";
-import rpjf from "read-package-json-fast";
 import ora from "ora";
 import chalk from "chalk";
 import { spawn } from "child_process";
 import { readdirSync } from "fs";
 import { execa } from "execa";
 import checkNodeVersion from "../utils/checkNodeVersion.js";
+import readPackage from "../utils/readPackage.js";
 
 export default async function run(args: Array<string>) {
-  const pkg = await rpjf(path.join(process.cwd(), "package.json"));
+  const pkg = readPackage(path.join(process.cwd(), "package.json"));
   await checkNodeVersion(pkg.engines);
   const { scripts } = pkg;
   const script = scripts[args[0]];
