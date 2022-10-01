@@ -1,10 +1,13 @@
 import os from "os";
 import path from "path";
 import pacote from "pacote";
-import { readFile, writeFile, mkdir } from "fs/promises";
+import { mkdir } from "fs/promises";
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import readConfig from "./readConfig.js";
 
 const cacheFolder = path.join(os.homedir(), ".fnpm", "__manifests__");
+
+const token = readConfig().token;
 
 const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
 
@@ -29,7 +32,10 @@ export default async function manifestFetcher(spec: string, props: any) {
     }
 
     // Fetch manifest
-    const manifest = await pacote.manifest(spec, props);
+    const manifest = await pacote.manifest(spec, {
+      ...props,
+      _authToken: token ? token : null,
+    });
 
     mkdirSync(path.dirname(cacheFile), { recursive: true });
 
@@ -46,7 +52,10 @@ export default async function manifestFetcher(spec: string, props: any) {
 
     return manifest;
   } catch (e) {
-    const manifest = await pacote.manifest(spec, props);
+    const manifest = await pacote.manifest(spec, {
+      ...props,
+      _authToken: token ? token : null,
+    });
 
     mkdirSync(path.dirname(cacheFile), { recursive: true });
 

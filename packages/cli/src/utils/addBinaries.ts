@@ -3,7 +3,7 @@ import glob from "glob";
 import chalk from "chalk";
 import ora from "ora";
 import { chmodSync, symlinkSync } from "fs";
-import rpjf from "read-package-json-fast";
+import readPackage from "./readPackage.js";
 
 export async function installBins() {
   try {
@@ -17,7 +17,7 @@ export async function installBins() {
 
     return await Promise.allSettled(
       packages.map(async (data) => {
-        const packageJSON = await rpjf(
+        const packageJSON = readPackage(
           path.join(process.cwd(), "node_modules", data)
         );
         const { bin } = packageJSON;

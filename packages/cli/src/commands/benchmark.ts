@@ -8,8 +8,8 @@ import { writeFile } from "fs/promises";
 import { markdownTable } from "markdown-table";
 import path from "path";
 import { execa } from "execa";
-import rpjf from "read-package-json-fast";
 import { fileURLToPath } from "url";
+import readPackage from "../utils/readPackage.js";
 
 const homeDir = os.homedir();
 
@@ -45,6 +45,14 @@ const tests = [
     ).stop(),
     group: 3,
   },
+  /*   {
+    name: "NPM add",
+    command: "npm install @swc/core -D --force",
+    pre: "ls",
+    post: "npm uninstall @swc/core -D --force",
+    spinner: ora(chalk.green(`Running "NPM add" ...`)).stop(),
+    group: 4,
+  }, */
   {
     name: "YARN install (no cache / no lockfile)",
     command: "yarn install --force",
@@ -72,6 +80,14 @@ const tests = [
     ).stop(),
     group: 3,
   },
+  /*   {
+    name: "YARN add",
+    command: "yarn add @swc/core -D --force",
+    pre: "ls",
+    post: "yarn remove @swc/core -D --force",
+    spinner: ora(chalk.green(`Running "YARN add" ...`)).stop(),
+    group: 4,
+  }, */
   {
     name: "FNPM install (no cache / no lockfile)",
     command: "fnpm install",
@@ -99,6 +115,14 @@ const tests = [
     ).stop(),
     group: 3,
   },
+  /*   {
+    name: "FNPM add",
+    command: "fnpm install @swc/core -D",
+    pre: "ls",
+    post: "fnpm remove @swc/core",
+    spinner: ora(chalk.green(`Running "FNPM add" ...`)).stop(),
+    group: 4,
+  }, */
   {
     name: "PNPM install (no cache / no lockfile)",
     command: "pnpm install --force",
@@ -122,6 +146,14 @@ const tests = [
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
   },
+  /*   {
+    name: "PNPM add",
+    command: "pnpm add @swc/core -D",
+    pre: "ls",
+    post: "pnpm remove @swc/core",
+    spinner: ora(chalk.green(`Running "PNPM add" ...`)).stop(),
+    group: 4,
+  }, */
   {
     name: "Bun install (no cache / no lockfile)",
     command: "bun install",
@@ -149,14 +181,23 @@ const tests = [
     ).stop(),
     group: 3,
   },
+  /*   {
+    name: "Bun add",
+    command: "bun add @swc/core -d",
+    pre: "ls",
+    post: "bun remove @swc/core",
+    spinner: ora(chalk.green(`Running "Bun add" ...`)).stop(),
+    group: 4,
+  }, */
 ];
 
 export async function benchmark(args: string[]) {
-  const pkg = await rpjf(path.join(__dirname, "..", "..", "package.json"));
-  const currentPkg = await rpjf(path.join(process.cwd(), "package.json"));
+  const pkg = readPackage(path.join(__dirname, "..", "..", "package.json"));
+  const currentPkg = readPackage(path.join(process.cwd(), "package.json"));
   // If the user passed flag --only-fnpm, we only run the fnpm tests
   const onlyfnpm = args.includes("--only-fnpm");
   const ignoreBun = args.includes("--ignore-bun");
+  const ignorePnpm = args.includes("--ignore-pnpm");
 
   if (onlyfnpm) ora(chalk.yellow("Only running fnpm tests")).warn();
 
@@ -179,6 +220,18 @@ export async function benchmark(args: string[]) {
     ora(
       chalk.yellow(
         `Bun tests have been ignored. To run them, remove the --ignore-bun flag.`
+      )
+    ).warn();
+  }
+
+  if (ignorePnpm) {
+    const firstPnpmTestIndex = testsToRun.findIndex((test) =>
+      test.name.includes("PNPM")
+    );
+    testsToRun.splice(firstPnpmTestIndex, 3);
+    ora(
+      chalk.yellow(
+        `Pnpm tests have been ignored. To run them, remove the --ignore-pnpm flag.`
       )
     ).warn();
   }

@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import ora from "ora";
-import rpjf from "read-package-json-fast";
 import { writeFile, readFile, unlink } from "fs/promises";
 import path from "path";
 import { performance } from "perf_hooks";
@@ -17,6 +16,7 @@ import { installPkg } from "../utils/installPkg.js";
 import { fnpm_lock } from "../../types/pkg.js";
 import { hardLink } from "../utils/hardLink.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
+import readPackage from "../utils/readPackage.js";
 
 type pkg = {
   name: string;
@@ -43,8 +43,6 @@ export const downloadFile = ".fnpm";
 export const REGISTRY = readConfig().registry;
 
 export default async function install(opts: string[]) {
-  ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
-
   const addDeps = await getParamsDeps(opts);
 
   const flag = opts.filter((opt) => opt.startsWith("-"))[0];
@@ -59,7 +57,7 @@ export default async function install(opts: string[]) {
 
   const lock = lockFile ? JSON.parse(lockFile) : null;
 
-  if (lock) {
+  if (lock && addDeps.length === 0) {
     try {
       const __install = ora(chalk.green("Installing dependencies...")).start();
       const start = performance.now();
@@ -70,6 +68,20 @@ export default async function install(opts: string[]) {
             `Installing ${pkg}@${version} from cache...`
           );
           const pathname = path.join(process.cwd(), lock[pkg][version].path);
+
+          // If version is local, it's a local dependency
+          if (version === "local") {
+            await installLocalDep({
+              name: pkg,
+              version: pathname,
+            }).catch((err) => {
+              ora(chalk.red(`Error installing ${pkg}@${version}`)).fail();
+              throw err;
+            });
+
+            continue;
+          }
+
           const cache = path.join(userFnpmCache, lock[pkg][version].cache);
 
           await hardLink(cache, pathname);
@@ -100,8 +112,10 @@ export default async function install(opts: string[]) {
     }
   }
 
+  ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
+
   // Read package.json
-  const pkg = await rpjf("./package.json");
+  const pkg = readPackage("./package.json");
 
   // Read "workspaces" field
   const workspaces = pkg.workspaces || null;
@@ -119,6 +133,11 @@ export default async function install(opts: string[]) {
       const islocal = dep.version.startsWith("file:");
 
       if (islocal) {
+        __DOWNLOADED.push({
+          name: dep.name,
+          version: "local",
+          path: dep.version,
+        });
         await installLocalDep(dep);
         return;
       }
@@ -146,7 +165,7 @@ export default async function install(opts: string[]) {
     )
   );
 
-  const __install = spinnerGradient("Installing packages...");
+  const __install = spinnerGradient(chalk.green("Installing packages..."));
   const __install_start = performance.now();
 
   await Promise.all(
@@ -239,6 +258,18 @@ export default async function install(opts: string[]) {
 
       if (flag) delete pkg.dependencies[dep.name];
     });
+
+    // Remove empty objects
+    if (Object.keys(pkg.dependencies).length === 0) delete pkg.dependencies;
+
+    if (Object.keys(pkg.devDependencies).length === 0)
+      delete pkg.devDependencies;
+
+    if (Object.keys(pkg.peerDependencies).length === 0)
+      delete pkg.peerDependencies;
+
+    if (Object.keys(pkg.optionalDependencies).length === 0)
+      delete pkg.optionalDependencies;
 
     await writeFile(
       path.join(process.cwd(), "package.json"),
