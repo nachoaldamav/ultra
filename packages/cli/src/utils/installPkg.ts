@@ -1,7 +1,14 @@
 import chalk from "chalk";
 import ora, { Ora } from "ora";
 import readPackage from "./readPackage.js";
-import { mkdirSync, existsSync, writeFileSync, readFileSync } from "fs";
+import {
+  mkdirSync,
+  existsSync,
+  writeFileSync,
+  readFileSync,
+  symlinkSync,
+  chmodSync,
+} from "fs";
 import { exec } from "child_process";
 import path from "path";
 import semver from "semver";
@@ -136,15 +143,34 @@ export async function installPkg(
     mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
     await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
 
+    const pkg = readPackage(path.join(pkgProjectDir, "package.json"));
+
     // Get deps from file
     const cachedDeps = JSON.parse(
       readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
     );
 
+    // Symlink bin files
+    const bins = pkg.bin;
+    if (bins) {
+      for (const bin of Object.keys(bins)) {
+        try {
+          const binPath = path.join(pkgProjectDir, bins[bin]);
+          const binLink = path.join(process.cwd(), "node_modules", ".bin", bin);
+
+          if (existsSync(binPath)) {
+            mkdirSync(path.dirname(binLink), { recursive: true });
+            symlinkSync(binPath, binLink);
+            chmodSync(binPath, 0o755);
+          }
+        } catch (e) {}
+      }
+    }
+
     for (const dep of Object.keys(cachedDeps)) {
       const name = dep;
       const version = Object.keys(cachedDeps[dep])[0];
-      const { tarball, spec } = cachedDeps[dep][version];
+      const { tarball, spec, bins } = cachedDeps[dep][version];
 
       await installPkg(
         {
@@ -240,6 +266,21 @@ export async function installPkg(
           exec(`${postinstallScript}`, {
             cwd: postinstallPath,
           });
+        }
+      }
+
+      // Symlink bin files
+      const bins = pkg.bin;
+      if (bins) {
+        for (const bin of Object.keys(bins)) {
+          const binPath = path.join(pkgProjectDir, bins[bin]);
+          const binLink = path.join(process.cwd(), "node_modules", ".bin", bin);
+
+          if (existsSync(binPath)) {
+            mkdirSync(path.dirname(binLink), { recursive: true });
+            symlinkSync(binPath, binLink);
+            chmodSync(binPath, 0o755);
+          }
         }
       }
 

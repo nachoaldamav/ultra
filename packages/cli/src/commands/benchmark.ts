@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 import ora from "ora";
 import { performance } from "perf_hooks";
 import os from "os";
@@ -254,6 +254,7 @@ export async function benchmark(args: string[]) {
     group: number;
     error: boolean;
   }[] = [];
+
   // Run the tests not in parallel
   for await (const test of testsToRun) {
     test.spinner.start();
@@ -294,17 +295,22 @@ export async function benchmark(args: string[]) {
             )
         );
       }, 1000);
-      exec(test.command, (error, stdout, stderr) => {
-        if (error) {
+
+      const child = spawn(test.command, {
+        shell: true,
+        stdio: "pipe",
+      });
+
+      child.on("exit", (code) => {
+        if (code === 0) {
           end = performance.now();
-          resolve(error);
-          ora(chalk.red(`[Error] ${error}`)).fail();
-          err = true;
+          resolve(true);
           clearInterval(interval);
         } else {
           end = performance.now();
-          resolve(stdout);
+          resolve(true);
           clearInterval(interval);
+          err = true;
         }
       });
     });

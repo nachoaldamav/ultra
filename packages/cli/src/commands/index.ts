@@ -8,45 +8,89 @@ import run from "./run.js";
 import { update } from "../utils/readConfig.js";
 import create from "./create.js";
 import remove from "./remove.js";
+import autocompletion from "./autocompletion.js";
+import { performance } from "perf_hooks";
+import ora from "ora";
+
+const comms = [
+  {
+    name: "install",
+    description: "Install a package",
+    command: install,
+    abr: "i",
+    params: true,
+  },
+  {
+    name: "benchmark",
+    description: "Benchmark a package",
+    command: benchmark,
+    abr: "b",
+    params: false,
+  },
+  {
+    name: "upgrade",
+    description: "Upgrade FNPM",
+    command: upgrade,
+    abr: "u",
+    params: false,
+  },
+  {
+    name: "set",
+    description: "Set a config value",
+    command: update,
+    abr: "s",
+    params: true,
+  },
+  {
+    name: "list",
+    description: "List package versions",
+    command: list,
+    abr: "ls",
+    params: true,
+  },
+  {
+    name: "run",
+    description: "Run a script",
+    command: run,
+    abr: "r",
+    params: true,
+  },
+  {
+    name: "create",
+    description: "Create a new package from a template",
+    command: create,
+    abr: "c",
+    params: true,
+  },
+  {
+    name: "remove",
+    description: "Remove a package",
+    command: remove,
+    abr: "rm",
+    params: true,
+  },
+  {
+    name: "clear",
+    description: "Clear the cache",
+    command: clear,
+    abr: "c",
+    params: false,
+  },
+];
 
 export async function commands(args: string[]) {
   const [command, ...rest] = args;
 
-  switch (command) {
-    case "install":
-      await install(rest);
-      break;
-    case "i":
-      await install(rest);
-      break;
-    case "benchmark":
-      await benchmark(rest);
-      break;
-    case "clear":
-      await clear();
-      break;
-    case "upgrade":
-      await upgrade();
-      break;
-    case "ls":
-      await list(rest[0]);
-      break;
-    case "run":
-      await run(rest);
-      break;
-    case "set":
-      update(rest);
-      break;
-    case "create":
-      await create(rest);
-      break;
-    case "remove":
-      await remove(rest);
-      break;
-    default:
-      console.log(`Unknown command: ${command}`);
+  const comm = comms.find((c) => c.name === command || c.abr === command);
+
+  if (comm) {
+    // @ts-ignore-next-line
+    return comm.command(rest);
   }
 
-  // Disabled until I can show this only once
-  /* await checkVersion(); */
+  console.log("Unknown command");
+  console.log("Available commands:");
+  comms.forEach((c) => {
+    console.log(`- ${c.name}: ${c.description}`);
+  });
 }

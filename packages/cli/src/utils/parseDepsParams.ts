@@ -1,14 +1,13 @@
-import chalk from "chalk";
-import ora from "ora";
-import pacote from "pacote";
+import manifestFetcher from "./manifestFetcher.js";
+import { REGISTRY } from "../commands/install.js";
 
 export default async function getParamsDeps(opts: string[]) {
   const instalableDeps = opts.filter((opt) => !opt.startsWith("-"));
 
   const addDeps =
     instalableDeps.map(async (dep) => {
-      const res = await pacote.manifest(dep, {
-        registry: "https://registry.npmjs.org/",
+      const res = await manifestFetcher(dep, {
+        registry: REGISTRY,
       });
 
       // Return the dependency with version

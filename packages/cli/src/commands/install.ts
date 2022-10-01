@@ -1,10 +1,10 @@
 import chalk from "chalk";
 import ora from "ora";
 import { writeFile, readFile, unlink } from "fs/promises";
+import { mkdirSync, existsSync, symlinkSync, chmodSync } from "fs";
 import path from "path";
 import { performance } from "perf_hooks";
 import { getDeps } from "../utils/getDeps.js";
-import { installBins } from "../utils/addBinaries.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import { createModules } from "../utils/createModules.js";
@@ -43,11 +43,7 @@ export const downloadFile = ".fnpm";
 export const REGISTRY = readConfig().registry;
 
 export default async function install(opts: string[]) {
-  const addDeps = await getParamsDeps(opts);
-
-  const flag = opts.filter((opt) => opt.startsWith("-"))[0];
-
-  await createModules();
+  const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
 
   // Read fnpm.lock file as JSON
   const lockFile: string | null = await readFile(
@@ -57,7 +53,7 @@ export default async function install(opts: string[]) {
 
   const lock = lockFile ? JSON.parse(lockFile) : null;
 
-  if (lock && addDeps.length === 0) {
+  if (lock && !newDeps) {
     try {
       const __install = ora(chalk.green("Installing dependencies...")).start();
       const start = performance.now();
@@ -85,6 +81,29 @@ export default async function install(opts: string[]) {
           const cache = path.join(userFnpmCache, lock[pkg][version].cache);
 
           await hardLink(cache, pathname);
+
+          const manifest = readPackage(path.join(pathname, "package.json"));
+          const bins = manifest.bin;
+
+          if (bins) {
+            for (const bin of Object.keys(bins)) {
+              try {
+                const binPath = path.join(pathname, bins[bin]);
+                const binLink = path.join(
+                  process.cwd(),
+                  "node_modules",
+                  ".bin",
+                  bin
+                );
+
+                if (existsSync(binPath)) {
+                  mkdirSync(path.dirname(binLink), { recursive: true });
+                  symlinkSync(binPath, binLink);
+                  chmodSync(binPath, 0o755);
+                }
+              } catch (e) {}
+            }
+          }
         }
       }
 
@@ -96,9 +115,6 @@ export default async function install(opts: string[]) {
           )} ${chalk.grey("(from lockfile)")}`
         )
       );
-      const __binaries = ora(chalk.green("Installing binaries...")).start();
-      await installBins();
-      __binaries.succeed(chalk.green("Installed binaries!"));
 
       return;
     } catch (e) {
@@ -112,6 +128,12 @@ export default async function install(opts: string[]) {
     }
   }
 
+  const addDeps = await getParamsDeps(opts);
+
+  const flag = opts.filter((opt) => opt.startsWith("-"))[0];
+
+  await createModules();
+
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
 
   // Read package.json
@@ -120,7 +142,7 @@ export default async function install(opts: string[]) {
   // Read "workspaces" field
   const workspaces = pkg.workspaces || null;
 
-  const wsDeps = await getDepsWorkspaces(workspaces);
+  const wsDeps = workspaces ? await getDepsWorkspaces(workspaces) : [];
 
   // Get all dependencies with version
   const deps = getDeps(pkg).concat(wsDeps).concat(addDeps);
@@ -204,18 +226,6 @@ export default async function install(opts: string[]) {
     chalk.green(
       `Installed packages in ${chalk.gray(
         parseTime(__install_start, __install_end)
-      )}`
-    )
-  );
-
-  const __binaries = ora(chalk.blue("Installing binaries...")).start();
-  const __binaries_start = performance.now();
-  await installBins();
-  const __binaries_end = performance.now();
-  __binaries.succeed(
-    chalk.blue(
-      `Installed binaries in ${chalk.gray(
-        parseTime(__binaries_start, __binaries_end)
       )}`
     )
   );
