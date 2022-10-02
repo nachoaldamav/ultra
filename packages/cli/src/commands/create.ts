@@ -4,7 +4,7 @@ import pacote from "pacote";
 import prompts from "prompts";
 import path from "path";
 import { execa } from "execa";
-import { existsSync, rm, rmSync, symlinkSync } from "fs";
+import { existsSync, rm, rmSync, symlinkSync } from "node:fs";
 import { spawn } from "child_process";
 import { getDeps } from "../utils/getDeps.js";
 import readPackage from "../utils/readPackage.js";

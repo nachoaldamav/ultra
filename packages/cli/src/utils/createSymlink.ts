@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import { existsSync } from "fs";
-import { mkdir, rm, symlink } from "fs/promises";
+import { existsSync } from "node:fs";
+import { mkdir, rm, symlink } from "node:fs/promises";
 import ora from "ora";
 
 export async function createSymlink(baseDir: string, targetDir: string) {

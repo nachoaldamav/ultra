@@ -5,7 +5,7 @@ import {
   readdirSync,
   copyFileSync,
   constants,
-} from "fs";
+} from "node:fs";
 import path from "path";
 import os from "os";
 import ora from "ora";

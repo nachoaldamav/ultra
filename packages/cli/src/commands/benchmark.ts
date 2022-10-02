@@ -4,7 +4,7 @@ import ora from "ora";
 import { performance } from "perf_hooks";
 import os from "os";
 import deleteBunManifests from "../utils/deleteBunManifests.js";
-import { writeFile } from "fs/promises";
+import { writeFile } from "node:fs/promises";
 import { markdownTable } from "markdown-table";
 import path from "path";
 import { execa } from "execa";

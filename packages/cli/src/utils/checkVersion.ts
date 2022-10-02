@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { readFile } from "fs/promises";
+import { readFile } from "node:fs/promises";
 import ora from "ora";
 import pacote from "pacote";
 

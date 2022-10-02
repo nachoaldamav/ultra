@@ -1,4 +1,4 @@
-import { unlinkSync } from "fs";
+import { unlinkSync } from "node:fs";
 import os from "os";
 import path from "path";
 import glob from "glob";

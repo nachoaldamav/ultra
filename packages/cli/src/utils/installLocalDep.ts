@@ -1,5 +1,5 @@
-import { existsSync } from "fs";
-import { mkdirSync, rmSync, symlinkSync } from "fs";
+import { existsSync } from "node:fs";
+import { mkdirSync, rmSync, symlinkSync } from "node:fs";
 import path from "path";
 
 export async function installLocalDep(pkg: { name: string; version: string }) {

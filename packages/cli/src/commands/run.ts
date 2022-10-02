@@ -2,7 +2,7 @@ import path from "path";
 import ora from "ora";
 import chalk from "chalk";
 import { spawn } from "child_process";
-import { readdirSync } from "fs";
+import { readdirSync } from "node:fs";
 import { execa } from "execa";
 import checkNodeVersion from "../utils/checkNodeVersion.js";
 import readPackage from "../utils/readPackage.js";

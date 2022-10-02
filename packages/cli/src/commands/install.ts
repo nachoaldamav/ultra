@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import ora from "ora";
-import { writeFile, readFile, unlink } from "fs/promises";
-import { mkdirSync, existsSync, symlinkSync, chmodSync } from "fs";
+import { writeFile, readFile, unlink } from "node:fs/promises";
+import { mkdirSync, existsSync, symlinkSync, chmodSync } from "node:fs";
 import path from "path";
 import { performance } from "perf_hooks";
 import { getDeps } from "../utils/getDeps.js";

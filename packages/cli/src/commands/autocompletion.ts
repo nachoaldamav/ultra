@@ -1,6 +1,6 @@
 import path from "path";
 import os from "os";
-import { writeFileSync, readFileSync } from "fs";
+import { writeFileSync, readFileSync } from "node:fs";
 
 const homeDir = os.homedir();
 

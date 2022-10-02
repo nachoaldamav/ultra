@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import { existsSync } from "fs";
-import { lstat, readdir } from "fs/promises";
+import { existsSync } from "node:fs";
+import { lstat, readdir } from "node:fs/promises";
 import ora from "ora";
 import os from "os";
 import path from "path";

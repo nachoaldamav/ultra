@@ -8,7 +8,7 @@ import {
   readFileSync,
   symlinkSync,
   chmodSync,
-} from "fs";
+} from "node:fs";
 import { exec } from "child_process";
 import path from "path";
 import semver from "semver";

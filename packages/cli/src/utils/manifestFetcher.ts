@@ -1,8 +1,8 @@
 import os from "os";
 import path from "path";
 import pacote from "pacote";
-import { mkdir } from "fs/promises";
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { mkdir } from "node:fs/promises";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import readConfig from "./readConfig.js";
 
 const cacheFolder = path.join(os.homedir(), ".fnpm", "__manifests__");

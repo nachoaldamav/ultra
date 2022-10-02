@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 
 export default function readPackage(path: string) {
   try {

@@ -2,8 +2,8 @@ import chalk from "chalk";
 import pacote from "pacote";
 import os from "os";
 import { _downloadSpinner } from "./downloadSpinner.js";
-import { symlink } from "fs/promises";
-import { existsSync } from "fs";
+import { symlink } from "node:fs/promises";
+import { existsSync } from "node:fs";
 
 const userFnpmCache = `${os.homedir()}/.fnpm-cache`;
 

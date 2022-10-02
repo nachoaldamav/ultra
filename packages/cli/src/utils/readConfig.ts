@@ -1,5 +1,5 @@
 import os from "os";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "path";
 
 const BASIC_CONFIG = {

@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora from "ora";
-import { readdir, writeFile } from "fs/promises";
+import { readdir, writeFile } from "node:fs/promises";
 import path from "path";
 import pacote from "pacote";
 import {

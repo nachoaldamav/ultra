@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { writeFile } from "fs/promises";
+import { writeFile } from "node:fs/promises";
 import readPackage from "../utils/readPackage.js";
 
 export default async function remove(args: string[]) {

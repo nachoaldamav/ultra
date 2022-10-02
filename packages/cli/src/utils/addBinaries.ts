@@ -2,7 +2,7 @@ import path from "path";
 import glob from "glob";
 import chalk from "chalk";
 import ora from "ora";
-import { chmodSync, symlinkSync } from "fs";
+import { chmodSync, symlinkSync } from "node:fs";
 import readPackage from "./readPackage.js";
 
 export async function installBins() {

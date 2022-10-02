@@ -1,5 +1,5 @@
 import os from "os";
-import { mkdir, rm } from "fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import path from "path";
 import ora from "ora";
 import glob from "glob";
