@@ -70,16 +70,17 @@ export async function installPkg(
 
   let cacheFolder;
 
-  const installedVersions = readdirSync(
-    path.join(userFnpmCache, manifest.name)
-  );
+  const installedVersions = existsSync(path.join(userFnpmCache, manifest.name))
+    ? readdirSync(path.join(userFnpmCache, manifest.name))
+    : [];
 
   const suitableVersion = installedVersions.find((version) =>
     semver.satisfies(version, manifest.version)
   );
 
-  if (suitableVersion)
+  if (suitableVersion) {
     cacheFolder = path.join(userFnpmCache, manifest.name, suitableVersion);
+  }
 
   function getDir() {
     try {
@@ -205,17 +206,17 @@ export async function installPkg(
 
   cacheFolder = path.join(userFnpmCache, pkg.name, pkg.version);
 
+  if (
+    __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
+  ) {
+    return null;
+  }
+
   if (!islocalInstalled) {
     __INSTALLED.push({
       name: manifest.name,
       version: pkg.version,
     });
-  }
-
-  if (
-    __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
-  ) {
-    return null;
   }
 
   if (spinner) {
@@ -235,7 +236,11 @@ export async function installPkg(
   mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
 
   await hardLink(cacheFolder, pkgProjectDir).catch((e) => {
-    throw new Error(e);
+    ora(
+      chalk.red(
+        `Error while installing ${manifest.name}@${manifest.version} - ${e.message}`
+      )
+    ).fail();
   });
 
   // Get production deps

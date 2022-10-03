@@ -7,7 +7,6 @@ import binLinks from "bin-links";
 import { getDeps } from "../utils/getDeps.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
-import { createModules } from "../utils/createModules.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
