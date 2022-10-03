@@ -1,9 +1,9 @@
 import chalk from "chalk";
 import ora from "ora";
 import { writeFile, readFile, unlink } from "node:fs/promises";
-import { mkdirSync, existsSync, symlinkSync, chmodSync } from "node:fs";
 import path from "path";
 import { performance } from "perf_hooks";
+import binLinks from "bin-links";
 import { getDeps } from "../utils/getDeps.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
@@ -86,27 +86,13 @@ export default async function install(opts: string[]) {
           await hardLink(cache, pathname);
 
           const manifest = readPackage(path.join(pathname, "package.json"));
-          const bins = manifest.bin;
 
-          if (bins) {
-            for (const bin of Object.keys(bins)) {
-              try {
-                const binPath = path.join(pathname, bins[bin]);
-                const binLink = path.join(
-                  process.cwd(),
-                  "node_modules",
-                  ".bin",
-                  bin
-                );
-
-                if (existsSync(binPath)) {
-                  mkdirSync(path.dirname(binLink), { recursive: true });
-                  symlinkSync(binPath, binLink);
-                  chmodSync(binPath, 0o755);
-                }
-              } catch (e) {}
-            }
-          }
+          await binLinks({
+            path: pathname,
+            pkg: manifest,
+            global: false,
+            force: true,
+          });
         }
       }
 
