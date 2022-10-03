@@ -1,6 +1,6 @@
 {
   "name": "@fnpm-io/cli",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "FNPM CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
