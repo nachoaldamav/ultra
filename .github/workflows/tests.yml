@@ -27,12 +27,12 @@ jobs:
       - name: Install CLI
         run: cd packages/cli && npm install . -g && cd ../../
       - name: Run benchmark
-        run: cd examples/vite-demo && fnpm benchmark --ignore-bun
+        run: cd examples/alotta && fnpm benchmark --ignore-bun
       - name: Read results
         id: read_file
         uses: andstor/file-reader-action@v1
         with:
-          path: "./examples/vite-demo/results.md"
+          path: "./examples/alotta/results.md"
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
