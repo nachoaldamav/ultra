@@ -1,17 +1,11 @@
 import chalk from "chalk";
 import ora, { Ora } from "ora";
 import readPackage from "./readPackage.js";
-import {
-  mkdirSync,
-  existsSync,
-  writeFileSync,
-  readFileSync,
-  symlinkSync,
-  chmodSync,
-} from "node:fs";
+import { mkdirSync, existsSync, writeFileSync, readFileSync } from "node:fs";
 import { exec } from "child_process";
 import path from "path";
 import semver from "semver";
+import binLinks from "bin-links";
 import { getDeps } from "../utils/getDeps.js";
 import { hardLink } from "../utils/hardLink.js";
 import {
@@ -149,21 +143,12 @@ export async function installPkg(
     );
 
     // Symlink bin files
-    const bins = pkg.bin;
-    if (bins) {
-      for (const bin of Object.keys(bins)) {
-        try {
-          const binPath = path.join(pkgProjectDir, bins[bin]);
-          const binLink = path.join(process.cwd(), "node_modules", ".bin", bin);
-
-          if (existsSync(binPath)) {
-            mkdirSync(path.dirname(binLink), { recursive: true });
-            symlinkSync(binPath, binLink);
-            chmodSync(binPath, 0o755);
-          }
-        } catch (e) {}
-      }
-    }
+    await binLinks({
+      path: pkgProjectDir,
+      pkg,
+      global: false,
+      force: true,
+    });
 
     for (const dep of Object.keys(cachedDeps)) {
       const name = dep;
@@ -278,29 +263,12 @@ export async function installPkg(
       }
 
       // Symlink bin files
-      const bins = pkg?.bin || null;
-      if (bins) {
-        for (const bin of Object.keys(bins)) {
-          try {
-            const binPath = path.join(pkgProjectDir, bins[bin]);
-            const binLink = path.join(
-              process.cwd(),
-              "node_modules",
-              ".bin",
-              bin
-            );
-
-            if (existsSync(binPath)) {
-              mkdirSync(path.dirname(binLink), { recursive: true });
-              symlinkSync(binPath, binLink);
-              chmodSync(binPath, 0o755);
-            }
-          } catch (e: any) {
-            // If error is EEEXIST, ignore
-            if (e.code !== "EEXIST") throw e;
-          }
-        }
-      }
+      await binLinks({
+        path: pkgProjectDir,
+        pkg,
+        global: false,
+        force: true,
+      });
 
       return;
     } catch (error: any) {
