@@ -45,14 +45,6 @@ const tests = [
     ).stop(),
     group: 3,
   },
-  /*   {
-    name: "NPM add",
-    command: "npm install @swc/core -D --force",
-    pre: "ls",
-    post: "npm uninstall @swc/core -D --force",
-    spinner: ora(chalk.green(`Running "NPM add" ...`)).stop(),
-    group: 4,
-  }, */
   {
     name: "YARN install (no cache / no lockfile)",
     command: "yarn install --force",
@@ -80,14 +72,7 @@ const tests = [
     ).stop(),
     group: 3,
   },
-  /*   {
-    name: "YARN add",
-    command: "yarn add @swc/core -D --force",
-    pre: "ls",
-    post: "yarn remove @swc/core -D --force",
-    spinner: ora(chalk.green(`Running "YARN add" ...`)).stop(),
-    group: 4,
-  }, */
+
   {
     name: "FNPM install (no cache / no lockfile)",
     command: "fnpm install",
@@ -115,14 +100,33 @@ const tests = [
     ).stop(),
     group: 3,
   },
-  /*   {
-    name: "FNPM add",
-    command: "fnpm install @swc/core -D",
-    pre: "ls",
-    post: "fnpm remove @swc/core",
-    spinner: ora(chalk.green(`Running "FNPM add" ...`)).stop(),
-    group: 4,
-  }, */
+  {
+    name: "FNPM Beta install (no cache / no lockfile)",
+    command: "fnpm ib",
+    pre: "npm cache clean -f && fnpm clear",
+    spinner: ora(
+      chalk.green(`Running "FNPM Beta install (no cache / no lockfile)"...`)
+    ).stop(),
+    group: 1,
+  },
+  {
+    name: "FNPM Beta install (with cache / no lockfile)",
+    command: "fnpm ib",
+    pre: "rm -rf node_modules fnpm.lock",
+    spinner: ora(
+      chalk.green(`Running "FNPM Beta install (with cache / no lockfile)"...`)
+    ).stop(),
+    group: 2,
+  },
+  {
+    name: "FNPM Beta install (with cache / with lockfile)",
+    command: "fnpm ib",
+    pre: "rm -rf node_modules",
+    spinner: ora(
+      chalk.green(`Running "FNPM Beta install (with cache / with lockfile)"...`)
+    ).stop(),
+    group: 3,
+  },
   {
     name: "PNPM install (no cache / no lockfile)",
     command: "pnpm install --force",
@@ -146,14 +150,7 @@ const tests = [
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
   },
-  /*   {
-    name: "PNPM add",
-    command: "pnpm add @swc/core -D",
-    pre: "ls",
-    post: "pnpm remove @swc/core",
-    spinner: ora(chalk.green(`Running "PNPM add" ...`)).stop(),
-    group: 4,
-  }, */
+
   {
     name: "Bun install (no cache / no lockfile)",
     command: "bun install",
@@ -181,14 +178,6 @@ const tests = [
     ).stop(),
     group: 3,
   },
-  /*   {
-    name: "Bun add",
-    command: "bun add @swc/core -d",
-    pre: "ls",
-    post: "bun remove @swc/core",
-    spinner: ora(chalk.green(`Running "Bun add" ...`)).stop(),
-    group: 4,
-  }, */
 ];
 
 export async function benchmark(args: string[]) {
@@ -296,22 +285,17 @@ export async function benchmark(args: string[]) {
         );
       }, 1000);
 
-      const child = spawn(test.command, {
-        shell: true,
-        stdio: "pipe",
-      });
-
-      child.on("exit", (code) => {
-        if (code === 0) {
+      // Execute the command
+      exec(test.command, (error, stdout, stderr) => {
+        clearInterval(interval);
+        if (error) {
+          err = true;
+          ora(chalk.red(`[Error] ${error}`)).fail();
           end = performance.now();
-          resolve(true);
-          clearInterval(interval);
         } else {
           end = performance.now();
-          resolve(true);
-          clearInterval(interval);
-          err = true;
         }
+        resolve(stdout);
       });
     });
 

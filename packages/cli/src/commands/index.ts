@@ -12,6 +12,7 @@ import autocompletion from "./autocompletion.js";
 import { performance } from "perf_hooks";
 import ora from "ora";
 import test from "./test.js";
+import installBeta from "./install-beta.js";
 
 const comms = [
   {
@@ -82,6 +83,13 @@ const comms = [
     description: "Run a tests",
     command: test,
     abr: "t",
+    params: true,
+  },
+  {
+    name: "install-beta",
+    description: "Install a package (beta)",
+    command: installBeta,
+    abr: "ib",
     params: true,
   },
 ];

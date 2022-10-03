@@ -17,6 +17,10 @@ export async function extract(
   const fnpmFile = path.join(cacheFolder, downloadFile);
   const fnpmFileExists = existsSync(fnpmFile);
 
+  if (!tarball) {
+    throw new Error("No tarball provided");
+  }
+
   if (fnpmFileExists) {
     return {
       res: "skipped",
