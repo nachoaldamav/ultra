@@ -2,20 +2,19 @@
   <a href="https://fnpm.vercel.app/">
   <img src="apps/landing/public/images/banner_gh.jpg" />
   </a>
-  <p>⚡ <strong>fnpm</strong> is an alternative for NPM, it is faster and saves more space</p>
-  <br />
+  <p><h3><strong>⚡ <strong>fnpm</strong> is an alternative for NPM, it is faster and saves more space</strong></h3></p>
   <a href="https://fnpm.vercel.app/docs/get-started">📚 Documentation</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="https://github.com/nachoaldamav/fnpm/tree/main/examples">📦 Examples</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="#">⚡ Benchmarks</a>
-  <br />
+  <a href="#-benchmarks">⚡ Benchmarks</a>
+  <br /><br />
 
 </div>
 
-> 🚧 This project was made to learn more about Package Managers, for now you should only use it to play with it.
-
 ## 🚀 Getting Started
+
+> 🚧 This project was made to learn more about Package Managers, for now you should only use it to play with it.
 
 You will need:
 
