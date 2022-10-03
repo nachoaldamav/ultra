@@ -30,7 +30,7 @@ export async function installPkg(
   manifest: any,
   parent?: string,
   spinner?: Ora
-) {
+): Promise<any> {
   const cacheFolder = `${userFnpmCache}/${manifest.name}/${manifest.version}`;
 
   // Check if spec is * and add it to __SKIPPED
@@ -95,9 +95,7 @@ export async function installPkg(
       }
 
       // If it exists, check if the version is suitable with manifest.spec
-      const pkg = JSON.parse(
-        readFileSync(path.join(dir, "package.json"), "utf-8")
-      );
+      const pkg = readPackage(path.join(dir, "package.json"));
 
       if (semver.satisfies(pkg.version, manifest.spec)) {
         return dir;
@@ -170,7 +168,7 @@ export async function installPkg(
     for (const dep of Object.keys(cachedDeps)) {
       const name = dep;
       const version = Object.keys(cachedDeps[dep])[0];
-      const { tarball, spec, bins } = cachedDeps[dep][version];
+      const { tarball, spec } = cachedDeps[dep][version];
 
       await installPkg(
         {
@@ -184,19 +182,29 @@ export async function installPkg(
       );
     }
   } else {
-    if (spinner)
+    if (spinner) {
       spinner.text = chalk.green(
         `Installing ${manifest.name}... ${chalk.grey("(cache miss)")}`
       );
-    await extract(cacheFolder, manifest.tarball);
+    }
+
+    const status = await extract(cacheFolder, manifest.tarball);
+
+    if (status.res === "skipped") {
+      return;
+    }
 
     // Create directory for package without the last folder
     mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
-    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
+
+    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {
+      throw new Error(e);
+    });
 
     // Get production deps
     try {
       const pkg = readPackage(`${cacheFolder}/package.json`);
+
       const deps = getDeps(pkg, {
         dev: true,
       });
@@ -257,7 +265,7 @@ export async function installPkg(
       );
 
       // Execute postinstall script if exists
-      const postinstall = pkg.scripts.postinstall;
+      const postinstall = pkg?.scripts?.postinstall || null;
       if (postinstall) {
         const postinstallPath = path.join(cacheFolder, "node_modules", ".");
         const postinstallScript = path.join(postinstallPath, postinstall);
@@ -270,22 +278,53 @@ export async function installPkg(
       }
 
       // Symlink bin files
-      const bins = pkg.bin;
+      const bins = pkg?.bin || null;
       if (bins) {
         for (const bin of Object.keys(bins)) {
-          const binPath = path.join(pkgProjectDir, bins[bin]);
-          const binLink = path.join(process.cwd(), "node_modules", ".bin", bin);
+          try {
+            const binPath = path.join(pkgProjectDir, bins[bin]);
+            const binLink = path.join(
+              process.cwd(),
+              "node_modules",
+              ".bin",
+              bin
+            );
 
-          if (existsSync(binPath)) {
-            mkdirSync(path.dirname(binLink), { recursive: true });
-            symlinkSync(binPath, binLink);
-            chmodSync(binPath, 0o755);
+            if (existsSync(binPath)) {
+              mkdirSync(path.dirname(binLink), { recursive: true });
+              symlinkSync(binPath, binLink);
+              chmodSync(binPath, 0o755);
+            }
+          } catch (e: any) {
+            // If error is EEEXIST, ignore
+            if (e.code !== "EEXIST") throw e;
           }
         }
       }
 
       return;
     } catch (error: any) {
+      if (error.message.includes("ENOENT")) {
+        return await installPkg(
+          {
+            name: manifest.name,
+            version: manifest.version,
+            tarball: manifest.tarball,
+            spec: manifest.spec,
+          },
+          parent,
+          spinner
+        );
+      }
+
+      ora(
+        chalk.red(
+          `[ERR] ${chalk.bgRedBright.black(
+            `${manifest.name}@${manifest.version}`
+          )} - ${error.message}`
+        )
+      ).fail();
+
       return;
     }
   }

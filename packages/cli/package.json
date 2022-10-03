@@ -30,20 +30,21 @@
     "execa": "6.1.0",
     "glob": "8.0.3",
     "markdown-table": "3.0.2",
+    "npm-pick-manifest": "7.0.2",
     "ora": "6.1.2",
     "pacote": "13.6.2",
     "prompts": "2.4.2",
     "read-package-json-fast": "2.0.3",
-    "npm-pick-manifest": "7.0.2",
     "semver": "7.3.7"
   },
   "devDependencies": {
-    "@types/glob": "7.2.0",
-    "@types/pacote": "11.1.5",
-    "@types/prompts": "^2.0.14",
-    "@types/semver": "7.3.12",
     "@swc/cli": "0.1.57",
     "@swc/core": "1.2.242",
-    "@types/mv": "2.1.2"
+    "@types/glob": "7.2.0",
+    "@types/mv": "2.1.2",
+    "@types/pacote": "11.1.5",
+    "@types/prompts": "2.0.14",
+    "@types/semver": "7.3.12",
+    "chokidar": "3.5.3"
   }
 }

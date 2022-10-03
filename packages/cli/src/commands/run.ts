@@ -59,12 +59,18 @@ export default async function run(args: Array<string>) {
       // Run the binary
       execa(path.join(binPath, binary), [...parsedArgs], {
         stdio: "inherit",
+      }).catch((e) => {
+        process.exit(1);
       });
     } else {
       // Run the script
       spawn(script, {
         stdio: "inherit",
         shell: true,
+      }).on("exit", (code) => {
+        if (code !== 0) {
+          process.exit(1);
+        }
       });
     }
   });

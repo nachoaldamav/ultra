@@ -11,6 +11,7 @@ import remove from "./remove.js";
 import autocompletion from "./autocompletion.js";
 import { performance } from "perf_hooks";
 import ora from "ora";
+import test from "./test.js";
 
 const comms = [
   {
@@ -75,6 +76,13 @@ const comms = [
     command: clear,
     abr: "c",
     params: false,
+  },
+  {
+    name: "test",
+    description: "Run a tests",
+    command: test,
+    abr: "t",
+    params: true,
   },
 ];
 

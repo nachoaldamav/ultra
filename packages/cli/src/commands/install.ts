@@ -17,6 +17,7 @@ import { fnpm_lock } from "../../types/pkg.js";
 import { hardLink } from "../utils/hardLink.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 import readPackage from "../utils/readPackage.js";
+import basePostInstall from "../utils/basePostInstall.js";
 
 type pkg = {
   name: string;
@@ -37,10 +38,12 @@ export const __DOWNLOADING: string[] = [];
 export const __DOWNLOADED: any = [];
 export const __SKIPPED: string[] = [];
 
-export const userFnpmCache = readConfig().cache;
 export const downloadFile = ".fnpm";
 
-export const REGISTRY = readConfig().registry;
+const config = readConfig();
+
+export const userFnpmCache = config.cache;
+export const REGISTRY = config.registry;
 
 export default async function install(opts: string[]) {
   const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
@@ -116,6 +119,7 @@ export default async function install(opts: string[]) {
         )
       );
 
+      await basePostInstall();
       return;
     } catch (e) {
       ora(chalk.red(`Error: ${e}`)).fail();
@@ -311,6 +315,8 @@ export default async function install(opts: string[]) {
     JSON.stringify(downloadedPkgs, null, 2),
     "utf-8"
   );
+
+  await basePostInstall();
 
   process.exit();
 }

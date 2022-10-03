@@ -11,7 +11,7 @@ export default function readPackage(path: string) {
       pkg.bin = { [pkg.name]: pkg.bin };
     }
     return pkg;
-  } catch (err) {
-    throw new Error(`Error reading package.json from ${path}`);
+  } catch (err: any) {
+    throw new Error(`Error reading package.json from ${path} - ${err.message}`);
   }
 }
