@@ -15,13 +15,19 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "publish-pkg": "turbo run publish-pkg"
+    "publish-pkg": "turbo run publish-pkg",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=apps^... --filter=examples && changeset publish"
+  },
+  "dependencies": {
+    "@changesets/cli": "2.25.0"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
-    "tsconfig": "workspace:*",
     "ora": "6.1.2",
     "prettier": "latest",
+    "tsconfig": "workspace:*",
     "turbo": "latest"
   },
   "engines": {

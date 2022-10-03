@@ -1,45 +1,60 @@
-# FNPM (WIP)
-FNPM is an "alternative" for NPM, it is faster and saves more space.
+<div align="center">
+  <a href="https://fnpm.vercel.app/">
+  <img src="apps/landing/public/images/banner_gh.jpg" />
+  </a>
+  <p><h3><strong>⚡ <strong>fnpm</strong> is an alternative for NPM, it is faster and saves more space</strong></h3></p>
+  <a href="https://fnpm.vercel.app/docs/get-started">📚 Documentation</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/nachoaldamav/fnpm/tree/main/examples">📦 Examples</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="#-benchmarks">⚡ Benchmarks</a>
+  <br /><br />
 
-**DISCLAIMER 🚧**
+</div>
 
-This project was made to learn more about Package Managers, for now you should only use it to play with it.
+## 🚀 Getting Started
 
-## Requirements
-- Node v16 or higher
-- Linux or Mac OS (Working on Windows support [issue](https://github.com/nachoaldamav/snpm/issues/40))
+> 🚧 This project was made to learn more about Package Managers, for now you should only use it to play with it.
 
-## CLI
-The FNPM CLI is used to install packages from the package.json of a project.
+You will need:
 
-Its advantages are that it is faster than NPM and saves more space.
+- 🍃 [Nodejs v16](https://nodejs.org/en/) or higher.
+- 💻 Linux or Mac OS (Working on Windows support [issue](https://github.com/nachoaldamav/snpm/issues/40)).
 
-### Instalation
+### **Install:**
+
 ```bash
 npm i @fnpm-io/cli -g
 ```
 
-### Commands
-- `fnpm install [pkg (optional), flags]` Installs packages
-- `fnpm run <script> <params>` Run script from package.json
-- `fnpm create <template> <arguments>` Create a project from a template (Similar to npm init)
-- `fnpm benchmark` Tests SNPM against NPM and PNPM
-- `fnpm clear` Remove .snpm-cache folder
-- `fnpm ls <pkg>` Show versions installed by SNPM
+## 🔭 Commands
 
+| Command                                | Description                                             |
+| -------------------------------------- | ------------------------------------------------------- |
+| `fnpm install [pkg (optional), flags]` | Install packages.                                       |
+| `fnpm run <script> <params>`           | Run script from package.json                            |
+| `fnpm create <template> <arguments>`   | Create a project from a template (Similar to npm init). |
+| `fnpm benchmark`                       | Tests SNPM against NPM and PNPM.                        |
+| `fnpm clear`                           | Remove .fnpm-cache folder.                              |
+| `fnpm ls <pkg>`                        | Show versions installed by SNPM.                        |
 
-### Todo
-- [ ] Make it work in some JS Frameworks ([Follow progress here](https://github.com/nachoaldamav/snpm/issues?q=is%3Aissue+is%3Aopen+label%3Aframeworks))
-- [ ] Fix monorepos integration (WIP, degradated performance in some repos)
+## 🗒️ Todo
 
-### Why is it faster?
-SNPM uses the same installation system as PNPM, fetch dependency, download dependency. Without waiting for the rest of the dependencies.
+- [ ] Make it work in some JS Frameworks ([Follow progress here](https://github.com/nachoaldamav/snpm/issues?q=is%3Aissue+is%3Aopen+label%3Aframeworks)).
+- [ ] Fix monorepos integration (WIP, degradated performance in some repos).
+
+## 🤔 FAQ
+
+- **Why is it faster?**
+
+FNPM uses the same installation system as PNPM, fetch dependency, download dependency. Without waiting for the rest of the dependencies.
 
 Now you are probably wondering how that makes the space more efficient than in NPM.
 
 Each dependency is a hard link to a common store inside `.fnpm-cache`, so all your projects use shared dependencies.
 
-### It works?
+- **It works?**
+
 Short answer, probably no, but in some cases it works. (For now)
 
 I've selected some quickstart templates to test SNPM, and I'm working on make it work in all of them.
@@ -48,9 +63,10 @@ If you want to test a template, you can use Next or Vite, I've already tested th
 
 (If you want to test a template and it doesn't work, please open an issue)
 
-### Benchmarks
+## ⚡ Benchmarks
 
-### Nextjs - TS
+- **▲ [Nextjs](https://nextjs.org/) with Typescript:**
+
 This example is generated using `npx create-next-app --use-npm --ts`
 
 WARNING: It works now, but some errors may appear.
@@ -60,7 +76,6 @@ WARNING: It works now, but some errors may appear.
   OS: linux
   FNPM version: 0.4.0
   Current project: fnpm-next-test (0.1.0)
-
 
 ┌─────────┬────────────────────────────────────────────┬──────────┬───────┐
 │ (index) │                    name                    │   time   │ group │
@@ -81,5 +96,4 @@ WARNING: It works now, but some errors may appear.
 └─────────┴────────────────────────────────────────────┴──────────┴───────┘
 ```
 
-The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for FNPM.
-
+> The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (SNPM uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for FNPM.
