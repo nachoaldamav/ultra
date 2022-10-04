@@ -100,7 +100,7 @@ const tests = [
     ).stop(),
     group: 3,
   },
-  {
+  /*{
     name: "FNPM Beta install (no cache / no lockfile)",
     command: "fnpm ib",
     pre: "npm cache clean -f && fnpm clear",
@@ -126,7 +126,7 @@ const tests = [
       chalk.green(`Running "FNPM Beta install (with cache / with lockfile)"...`)
     ).stop(),
     group: 3,
-  },
+  }, */
   {
     name: "PNPM install (no cache / no lockfile)",
     command: "pnpm install --force",

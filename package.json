@@ -26,7 +26,7 @@
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
     "ora": "6.1.2",
-    "prettier": "latest",
+    "prettier": "2.7.1",
     "tsconfig": "workspace:*",
     "turbo": "latest"
   },

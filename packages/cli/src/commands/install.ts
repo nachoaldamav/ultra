@@ -7,23 +7,21 @@ import binLinks from "bin-links";
 import { getDeps } from "../utils/getDeps.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
-import { createModules } from "../utils/createModules.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
 import { installPkg } from "../utils/installPkg.js";
 import { fnpm_lock } from "../../types/pkg.js";
-import { hardLink } from "../utils/hardLink.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
+import { __dirname } from "../utils/__dirname.js";
+import { hardLinkSync } from "../utils/hardLinkSync.js";
 
 type pkg = {
   name: string;
   version: string;
-  spec: string;
-  tarball: string;
   parent?: string;
 };
 
@@ -45,7 +43,8 @@ const config = readConfig();
 export const userFnpmCache = config.cache;
 export const REGISTRY = config.registry;
 
-export default async function install(opts: string[]) {
+export default async function installBeta(opts: string[]) {
+  const start = performance.now();
   const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
 
   // Read fnpm.lock file as JSON
@@ -58,43 +57,52 @@ export default async function install(opts: string[]) {
 
   if (lock && !newDeps) {
     try {
-      const __install = ora(chalk.green("Installing dependencies...")).start();
+      const __install = ora({
+        text: chalk.green("Installing dependencies..."),
+        discardStdin: false,
+      }).start();
+
       const start = performance.now();
       // Hardlink all the packages in fnpm.lock to each path from cache
-      for (const pkg in lock) {
-        for (const version in lock[pkg]) {
-          __install.text = chalk.green(
-            `Installing ${pkg}@${version} from cache...`
+      await Promise.all(
+        Object.keys(lock).map(async (pkg) => {
+          // Install depenedencies in parallel using forks
+          await Promise.all(
+            Object.keys(lock[pkg]).map(async (version) => {
+              const pathname = path.join(
+                process.cwd(),
+                lock[pkg][version].path
+              );
+
+              // If version is local, it's a local dependency
+              if (version === "local") {
+                await installLocalDep({
+                  name: pkg,
+                  version: pathname,
+                }).catch((err) => {
+                  ora(chalk.red(`Error installing ${pkg}@${version}`)).fail();
+                  throw err;
+                });
+
+                return;
+              }
+
+              const cache = path.join(userFnpmCache, lock[pkg][version].cache);
+
+              hardLinkSync(cache, pathname);
+
+              const manifest = readPackage(path.join(pathname, "package.json"));
+
+              await binLinks({
+                path: pathname,
+                pkg: manifest,
+                global: false,
+                force: true,
+              });
+            })
           );
-          const pathname = path.join(process.cwd(), lock[pkg][version].path);
-
-          // If version is local, it's a local dependency
-          if (version === "local") {
-            await installLocalDep({
-              name: pkg,
-              version: pathname,
-            }).catch((err) => {
-              ora(chalk.red(`Error installing ${pkg}@${version}`)).fail();
-              throw err;
-            });
-
-            continue;
-          }
-
-          const cache = path.join(userFnpmCache, lock[pkg][version].cache);
-
-          await hardLink(cache, pathname);
-
-          const manifest = readPackage(path.join(pathname, "package.json"));
-
-          await binLinks({
-            path: pathname,
-            pkg: manifest,
-            global: false,
-            force: true,
-          });
-        }
-      }
+        })
+      );
 
       const end = performance.now();
       __install.succeed(
@@ -113,7 +121,7 @@ export default async function install(opts: string[]) {
         chalk.yellow("Lockfile is outdated, installing from cache...")
       ).warn();
       await unlink(path.join(process.cwd(), "fnpm.lock"));
-      await install(opts);
+      await installBeta(opts);
       return;
     }
   }
@@ -121,8 +129,6 @@ export default async function install(opts: string[]) {
   const addDeps = await getParamsDeps(opts);
 
   const flag = opts.filter((opt) => opt.startsWith("-"))[0];
-
-  await createModules();
 
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
 
@@ -153,18 +159,9 @@ export default async function install(opts: string[]) {
         await installLocalDep(dep);
         return;
       }
-
-      const manifest = await manifestFetcher(`${dep.name}@${dep.version}`, {
-        registry: REGISTRY,
-      });
-
-      __fetch.text = chalk.green(`Fetched ${dep.name}!`);
-
       pkgs.push({
         name: dep.name,
-        version: manifest.version,
-        spec: dep.version,
-        tarball: manifest.dist.tarball,
+        version: dep.version,
         parent: dep.parent || undefined,
       });
     })
@@ -211,6 +208,7 @@ export default async function install(opts: string[]) {
     })
   );
 
+  __install.prefixText = "";
   const __install_end = performance.now();
   __install.succeed(
     chalk.green(
@@ -278,8 +276,6 @@ export default async function install(opts: string[]) {
     );
   }
 
-  ora(chalk.green("Done!")).succeed();
-
   const downloadedPkgs: fnpm_lock = {};
 
   __DOWNLOADED.forEach((pkg: any) => {
@@ -296,13 +292,21 @@ export default async function install(opts: string[]) {
     return;
   });
 
-  await writeFile(
-    path.join(process.cwd(), "fnpm.lock"),
-    JSON.stringify(downloadedPkgs, null, 2),
-    "utf-8"
-  );
+  if (__DOWNLOADED.length > 0) {
+    await writeFile(
+      path.join(process.cwd(), "fnpm.lock"),
+      JSON.stringify(downloadedPkgs, null, 2),
+      "utf-8"
+    );
+  } else {
+    ora(chalk.red("No packages were downloaded.")).warn();
+  }
 
   await basePostInstall();
+
+  ora(
+    chalk.green(`Done in ${chalk.gray(parseTime(start, performance.now()))}`)
+  ).succeed();
 
   process.exit();
 }

@@ -1,13 +1,18 @@
 import chalk from "chalk";
 import ora, { Ora } from "ora";
 import readPackage from "./readPackage.js";
-import { mkdirSync, existsSync, writeFileSync, readFileSync } from "node:fs";
+import {
+  mkdirSync,
+  existsSync,
+  writeFileSync,
+  readFileSync,
+  readdirSync,
+} from "node:fs";
 import { exec } from "child_process";
 import path from "path";
 import semver from "semver";
 import binLinks from "bin-links";
-import { getDeps } from "../utils/getDeps.js";
-import { hardLink } from "../utils/hardLink.js";
+import { getDeps } from "./getDeps.js";
 import {
   userFnpmCache,
   __DOWNLOADED,
@@ -17,55 +22,69 @@ import {
   __SKIPPED,
   downloadFile,
 } from "../commands/install.js";
-import { extract } from "./extract.js";
 import manifestFetcher from "./manifestFetcher.js";
+import { hardLinkSync } from "./hardLinkSync.js";
+import { fnpmExtract } from "./pkgDownloader.js";
+
+type Return = {
+  name: string;
+  version: string;
+  tarball: string;
+  parent?: string;
+  spec: string;
+};
 
 export async function installPkg(
   manifest: any,
   parent?: string,
   spinner?: Ora
-): Promise<any> {
-  const cacheFolder = `${userFnpmCache}/${manifest.name}/${manifest.version}`;
-
-  // Check if spec is * and add it to __SKIPPED
-  if (manifest.spec === "*") {
+): Promise<Return | null> {
+  // Skip * versions
+  if (manifest.version === "*") {
     __SKIPPED.push(manifest.name);
-    return;
+    return null;
   }
 
-  if (
-    __INSTALLED.find(
-      (pkg) => pkg.name === manifest.name && pkg.version === manifest.version
-    )
-  ) {
-    return;
-  }
-
-  const pkgInstalled =
-    manifest.spec &&
-    __INSTALLED.find(
-      (pkg) =>
-        pkg.name === manifest.name &&
-        semver.satisfies(pkg.version, manifest.spec)
-    );
-
-  if (pkgInstalled) {
-    if (spinner) {
-      spinner.text = chalk.green(
-        `Skipping ${manifest.name}@${manifest.spec} as it's satisfied by ${pkgInstalled.version}`
-      );
-    }
-    return;
-  }
-
-  // Check if package is already in root node_modules
-  const isInRoot = existsSync(
-    path.join(process.cwd(), "node_modules", manifest.name)
+  // Check if package is already installed in node_modules
+  const islocalInstalled = existsSync(
+    path.join(process.cwd(), "node_modules", manifest.name, "package.json")
   );
 
-  const getDir = () => {
+  const localManifest = islocalInstalled
+    ? readPackage(
+        path.join(process.cwd(), "node_modules", manifest.name, "package.json")
+      )
+    : null;
+
+  if (
+    localManifest &&
+    semver.satisfies(localManifest.version, manifest.version)
+  ) {
+    return null;
+  }
+
+  if (spinner) {
+    spinner.prefixText = "🔍";
+    spinner.text = chalk.green(`${manifest.name}@${manifest.version}`);
+  }
+
+  let cacheFolder;
+
+  const installedVersions = existsSync(path.join(userFnpmCache, manifest.name))
+    ? readdirSync(path.join(userFnpmCache, manifest.name))
+    : [];
+
+  const suitableVersion = installedVersions.find((version) =>
+    semver.satisfies(version, manifest.version)
+  );
+
+  if (suitableVersion) {
+    cacheFolder = path.join(userFnpmCache, manifest.name, suitableVersion);
+  }
+
+  function getDir() {
     try {
-      if (!isInRoot || !parent) {
+      if (!islocalInstalled || !parent) {
         return path.join(process.cwd(), "node_modules", manifest.name);
       }
 
@@ -101,46 +120,186 @@ export async function installPkg(
         ? path.join(parent, "node_modules", manifest.name)
         : path.join(process.cwd(), "node_modules", manifest.name);
     }
-  };
+  }
 
   const pkgProjectDir = getDir();
 
-  if (existsSync(pkgProjectDir)) return;
+  if (existsSync(pkgProjectDir)) return null;
 
-  if (!isInRoot) {
-    __INSTALLED.push({
+  const isSatisfied = cacheFolder
+    ? existsSync(path.join(cacheFolder, downloadFile))
+    : false;
+
+  if (isSatisfied && cacheFolder) {
+    // Push to downloaded package info
+    __DOWNLOADED.push({
       name: manifest.name,
-      version: manifest.version,
+      version: suitableVersion,
+      // Remove cwd from path
+      path: pkgProjectDir.replace(process.cwd(), ""),
+      // Remove homeDir from path
+      cache: cacheFolder.replace(userFnpmCache, ""),
     });
-  }
 
-  // Push to downloaded package info
-  __DOWNLOADED.push({
-    name: manifest.name,
-    version: manifest.version,
-    // Remove cwd from path
-    path: pkgProjectDir.replace(process.cwd(), ""),
-    // Remove homeDir from path
-    cache: cacheFolder.replace(userFnpmCache, ""),
-  });
-
-  // Check if package is already in cache, searching for file .fnpm
-  if (existsSync(`${cacheFolder}/${downloadFile}`)) {
-    if (spinner)
+    if (spinner) {
+      spinner.prefixText = "📦";
       spinner.text = chalk.green(
-        `Installing ${manifest.name}... ${chalk.grey("(cached)")}`
+        `${manifest.name}@${manifest.version}` + chalk.gray(" (cached)")
       );
+    }
 
     // Create directory for package without the last folder
     mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
-    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {});
+    hardLinkSync(cacheFolder, pkgProjectDir);
 
-    const pkg = readPackage(path.join(pkgProjectDir, "package.json"));
+    try {
+      const pkgjson = readPackage(path.join(cacheFolder, "package.json"));
 
-    // Get deps from file
-    const cachedDeps = JSON.parse(
-      readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
+      // Get deps from file
+      const cachedDeps = JSON.parse(
+        readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
+      );
+
+      // Symlink bin files
+      await binLinks({
+        path: pkgProjectDir,
+        pkg: pkgjson,
+        global: false,
+        force: true,
+      });
+
+      // Install deps
+      for (const dep of Object.keys(cachedDeps)) {
+        const name = dep;
+        const version = Object.keys(cachedDeps[dep])[0];
+
+        await installPkg(
+          {
+            name,
+            version,
+          },
+          pkgProjectDir,
+          spinner
+        );
+      }
+
+      __INSTALLED.push({
+        name: manifest.name,
+        version: manifest.version,
+      });
+
+      return null;
+    } catch (e: any) {
+      ora(
+        chalk.red(
+          `Error while installing ${manifest.name}@${manifest.version} from cache - ${e.message}`
+        )
+      ).fail();
+      return null;
+    }
+  }
+
+  // Fetch manifest
+  const pkg = await manifestFetcher(`${manifest.name}@${manifest.version}`, {
+    registry: REGISTRY,
+  });
+
+  cacheFolder = path.join(userFnpmCache, pkg.name, pkg.version);
+
+  if (
+    __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
+  ) {
+    return null;
+  }
+
+  if (!islocalInstalled) {
+    __INSTALLED.push({
+      name: manifest.name,
+      version: pkg.version,
+    });
+  }
+
+  if (spinner) {
+    spinner.prefixText = "📦";
+    spinner.text = chalk.green(
+      `${manifest.name}@${manifest.version}` + chalk.gray(" (cache miss)")
     );
+  }
+
+  const status = await fnpmExtract(cacheFolder, pkg.dist.tarball);
+
+  if (status.res === "skipped") {
+    return null;
+  }
+
+  // Create directory for package without the last folder
+  mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
+
+  hardLinkSync(cacheFolder, pkgProjectDir);
+
+  // Get production deps
+  try {
+    const deps = getDeps(pkg, {
+      dev: true,
+    });
+
+    // Install production deps
+    const installed = await Promise.all(
+      deps.map(async (dep) => {
+        const data = await installPkg(
+          {
+            name: dep.name,
+            version: dep.version,
+          },
+          pkgProjectDir,
+          spinner
+        );
+
+        if (!data) return null;
+
+        return {
+          name: dep.name,
+          version: data.version,
+          tarball: data.tarball,
+          path: path.join(userFnpmCache, dep.name, data.version),
+        };
+      })
+    );
+
+    // Remove null values
+    const filtered = installed.filter((i) => i);
+
+    // Save installed deps with its path in .fnpm file as objects
+    let object: { [key: string]: any } = {};
+
+    filtered.forEach((dep) => {
+      if (dep)
+        object[dep.name] = {
+          [dep.version]: {
+            path: dep.path,
+            tarball: dep.tarball,
+          },
+        };
+    });
+
+    writeFileSync(
+      `${cacheFolder}/${downloadFile}`,
+      JSON.stringify(object, null, 2),
+      "utf-8"
+    );
+
+    // Execute postinstall script if exists
+    const postinstall = pkg?.scripts?.postinstall || null;
+    if (postinstall) {
+      const postinstallPath = path.join(cacheFolder, "node_modules", ".");
+      const postinstallScript = path.join(postinstallPath, postinstall);
+
+      if (existsSync(postinstallScript)) {
+        exec(`${postinstallScript}`, {
+          cwd: postinstallPath,
+        });
+      }
+    }
 
     // Symlink bin files
     await binLinks({
@@ -150,150 +309,26 @@ export async function installPkg(
       force: true,
     });
 
-    for (const dep of Object.keys(cachedDeps)) {
-      const name = dep;
-      const version = Object.keys(cachedDeps[dep])[0];
-      const { tarball, spec } = cachedDeps[dep][version];
+    return {
+      name: manifest.name,
+      version: pkg.version,
+      tarball: pkg.dist.tarball,
+      spec: manifest.version,
+    };
+  } catch (error: any) {
+    ora(
+      chalk.red(
+        `[ERR] ${chalk.bgRedBright.black(
+          `${manifest.name}@${manifest.version}`
+        )} - ${error.message}`
+      )
+    ).fail();
 
-      await installPkg(
-        {
-          name,
-          version,
-          tarball,
-          spec,
-        },
-        pkgProjectDir,
-        spinner
-      );
-    }
-  } else {
-    if (spinner) {
-      spinner.text = chalk.green(
-        `Installing ${manifest.name}... ${chalk.grey("(cache miss)")}`
-      );
-    }
-
-    const status = await extract(cacheFolder, manifest.tarball);
-
-    if (status.res === "skipped") {
-      return;
-    }
-
-    // Create directory for package without the last folder
-    mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
-
-    await hardLink(cacheFolder, pkgProjectDir).catch((e) => {
-      throw new Error(e);
-    });
-
-    // Get production deps
-    try {
-      const pkg = readPackage(`${cacheFolder}/package.json`);
-
-      const deps = getDeps(pkg, {
-        dev: true,
-      });
-
-      // Install production deps
-      const installed = await Promise.all(
-        deps.map(async (dep) => {
-          const manifest = await manifestFetcher(`${dep.name}@${dep.version}`, {
-            registry: REGISTRY,
-          });
-
-          if (manifest.deprecated) {
-            ora(
-              `[DEPR] ${chalk.bgYellowBright.black(
-                manifest.name + "@" + manifest.version
-              )} - ${manifest.deprecated}`
-            ).warn();
-          }
-
-          await installPkg(
-            {
-              name: dep.name,
-              version: manifest.version,
-              tarball: manifest.dist.tarball,
-              spec: dep.version,
-            },
-            pkgProjectDir,
-            spinner
-          );
-
-          return {
-            name: dep.name,
-            version: manifest.version,
-            spec: dep.version,
-            tarball: manifest.dist.tarball,
-            path: path.join(userFnpmCache, dep.name, manifest.version),
-          };
-        })
-      );
-
-      // Save installed deps with its path in .fnpm file as objects
-      let object: { [key: string]: any } = {};
-
-      installed.forEach((dep) => {
-        object[dep.name] = {
-          [dep.version]: {
-            path: dep.path,
-            tarball: dep.tarball,
-            spec: dep.spec,
-          },
-        };
-      });
-
-      writeFileSync(
-        `${cacheFolder}/${downloadFile}`,
-        JSON.stringify(object, null, 2),
-        "utf-8"
-      );
-
-      // Execute postinstall script if exists
-      const postinstall = pkg?.scripts?.postinstall || null;
-      if (postinstall) {
-        const postinstallPath = path.join(cacheFolder, "node_modules", ".");
-        const postinstallScript = path.join(postinstallPath, postinstall);
-
-        if (existsSync(postinstallScript)) {
-          exec(`${postinstallScript}`, {
-            cwd: postinstallPath,
-          });
-        }
-      }
-
-      // Symlink bin files
-      await binLinks({
-        path: pkgProjectDir,
-        pkg,
-        global: false,
-        force: true,
-      });
-
-      return;
-    } catch (error: any) {
-      if (error.message.includes("ENOENT")) {
-        return await installPkg(
-          {
-            name: manifest.name,
-            version: manifest.version,
-            tarball: manifest.tarball,
-            spec: manifest.spec,
-          },
-          parent,
-          spinner
-        );
-      }
-
-      ora(
-        chalk.red(
-          `[ERR] ${chalk.bgRedBright.black(
-            `${manifest.name}@${manifest.version}`
-          )} - ${error.message}`
-        )
-      ).fail();
-
-      return;
-    }
+    return {
+      name: manifest.name,
+      version: pkg.version,
+      tarball: pkg.dist.tarball,
+      spec: manifest.version,
+    };
   }
 }
