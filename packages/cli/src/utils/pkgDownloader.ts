@@ -14,18 +14,18 @@ import {
 // Get system temp directory
 const tmpDir = os.tmpdir();
 
-const cacheBasePath = path.join(tmpDir, "fnpm_tmp");
+const cacheBasePath = path.join(tmpDir, "ultra_tmp");
 
-export async function fnpmExtract(target: string, tarball: string) {
+export async function ultraExtract(target: string, tarball: string) {
   if (!tarball) {
     throw new Error("No tarball provided");
   }
 
-  // Read .fnpm file to know if it's fully installed
-  const fnpmFile = path.join(target, downloadFile);
-  const fnpmFileExists = existsSync(fnpmFile);
+  // Read .ultra file to know if it's fully installed
+  const ultraFile = path.join(target, downloadFile);
+  const ultraFileExists = existsSync(ultraFile);
 
-  if (fnpmFileExists) {
+  if (ultraFileExists) {
     return {
       res: "skipped",
     };
@@ -63,8 +63,8 @@ export async function fnpmExtract(target: string, tarball: string) {
     strip: 1,
   });
 
-  // Create .fnpm file
-  writeFileSync(fnpmFile, "{}");
+  // Create .ultra file
+  writeFileSync(ultraFile, "{}");
 
   __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
 

@@ -1,4 +1,4 @@
-export type fnpm_lock = {
+export type ultra_lock = {
   [key: string]: {
     [key: string]: {
       path: string;

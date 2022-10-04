@@ -26,7 +26,14 @@ export default async function run(args: Array<string>) {
     });
   }
 
-  ora().info(chalk.blue(`Running ${chalk.grey(script)}...`));
+  const spinner = ora({
+    text: chalk.blue(`Running ${args[0]} script`),
+    color: "blue",
+  });
+
+  spinner.stopAndPersist({
+    symbol: chalk.blue("ℹ️"),
+  });
 
   // Separate scripts to run by &&
   const scriptsToRun = script.split("&&").map((s: string) => s.trim());

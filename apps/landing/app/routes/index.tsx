@@ -1,9 +1,19 @@
 import { Link } from "@remix-run/react";
+import { useState } from "react";
 import Feature from "~/components/featureCard";
 import Graph from "~/components/graph";
 import Snippet from "~/components/snippet";
 
+const GROUPS: {
+  [key: number]: string;
+} = {
+  1: "No cache / No lockfile",
+  2: "With cache / No lockfile",
+  3: "With cache / With lockfile",
+};
+
 export default function Index() {
+  const [group, setGroup] = useState(3);
   return (
     <div className="flex h-fit w-full flex-col bg-primary">
       <section
@@ -22,19 +32,19 @@ export default function Index() {
         <div className="mt-6 flex w-full flex-col md:flex-row flex-wrap justify-center gap-4 px-4">
           <Feature
             title="Fast"
-            description="FNPM is built with speed in mind. It's blazing fast."
+            description="ULTRA is built with speed in mind. It's blazing fast."
           />
           <Feature
             title="Lightweight"
-            description="FNPM uses hardlinks to install packages, saving a lot of your disk space."
+            description="ULTRA uses hardlinks to install packages, saving a lot of your disk space."
           />
           <Feature
             title="Edge caching"
-            description="FNPM uses edge caching to make your packages even faster."
+            description="ULTRA uses edge caching to make your packages even faster."
           />
           <Feature
             title="Open Source"
-            description="FNPM is open source, so you can contribute to it."
+            description="ULTRA is open source, so you can contribute to it."
           />
         </div>
       </section>
@@ -44,10 +54,23 @@ export default function Index() {
       >
         <h1 className="text-4xl font-bold text-white">Comparison</h1>
         <p className="text-xl text-white">
-          Here&apos;s a comparison between FNPM and other package managers in a
+          Here&apos;s a comparison between ULTRA and other package managers in a
           project with many dependencies.
         </p>
-        <Graph />
+        <Graph group={group} />
+        <div className="flex flex-row gap-2 mt-10">
+          {[3, 2, 1].map((i) => (
+            <button
+              key={i}
+              className={`${
+                group === i ? "bg-white text-primary" : "bg-primary text-white"
+              } px-4 py-2 rounded`}
+              onClick={() => setGroup(i)}
+            >
+              {GROUPS[i]}
+            </button>
+          ))}
+        </div>
       </section>
       <section
         id="get-started"

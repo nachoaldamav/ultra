@@ -12,7 +12,7 @@ import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
 import { installPkg } from "../utils/installPkg.js";
-import { fnpm_lock } from "../../types/pkg.js";
+import { ultra_lock } from "../../types/pkg.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
@@ -23,6 +23,7 @@ type pkg = {
   name: string;
   version: string;
   parent?: string;
+  fromMonorepo?: string;
 };
 
 let pkgs: pkg[] = [];
@@ -36,20 +37,20 @@ export const __DOWNLOADING: string[] = [];
 export const __DOWNLOADED: any = [];
 export const __SKIPPED: string[] = [];
 
-export const downloadFile = ".fnpm";
+export const downloadFile = ".ultra";
 
 const config = readConfig();
 
-export const userFnpmCache = config.cache;
+export const userUltraCache = config.cache;
 export const REGISTRY = config.registry;
 
 export default async function installBeta(opts: string[]) {
   const start = performance.now();
   const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
 
-  // Read fnpm.lock file as JSON
+  // Read ultra.lock file as JSON
   const lockFile: string | null = await readFile(
-    path.join(process.cwd(), "fnpm.lock"),
+    path.join(process.cwd(), "ultra.lock"),
     "utf-8"
   ).catch(() => null);
 
@@ -63,7 +64,7 @@ export default async function installBeta(opts: string[]) {
       }).start();
 
       const start = performance.now();
-      // Hardlink all the packages in fnpm.lock to each path from cache
+      // Hardlink all the packages in ultra.lock to each path from cache
       await Promise.all(
         Object.keys(lock).map(async (pkg) => {
           // Install depenedencies in parallel using forks
@@ -87,7 +88,7 @@ export default async function installBeta(opts: string[]) {
                 return;
               }
 
-              const cache = path.join(userFnpmCache, lock[pkg][version].cache);
+              const cache = path.join(userUltraCache, lock[pkg][version].cache);
 
               hardLinkSync(cache, pathname);
 
@@ -105,13 +106,15 @@ export default async function installBeta(opts: string[]) {
       );
 
       const end = performance.now();
-      __install.succeed(
-        chalk.green(
-          `Installed dependencies in ${chalk.grey(
-            parseTime(start, end)
-          )} ${chalk.grey("(from lockfile)")}`
-        )
+      __install.text = chalk.green(
+        `Installed dependencies in ${chalk.grey(
+          parseTime(start, end)
+        )} ${chalk.grey("(from lockfile)")}`
       );
+
+      __install.stopAndPersist({
+        symbol: chalk.green("✅"),
+      });
 
       await basePostInstall();
       return;
@@ -120,7 +123,7 @@ export default async function installBeta(opts: string[]) {
       ora(
         chalk.yellow("Lockfile is outdated, installing from cache...")
       ).warn();
-      await unlink(path.join(process.cwd(), "fnpm.lock"));
+      await unlink(path.join(process.cwd(), "ultra.lock"));
       await installBeta(opts);
       return;
     }
@@ -163,16 +166,20 @@ export default async function installBeta(opts: string[]) {
         name: dep.name,
         version: dep.version,
         parent: dep.parent || undefined,
+        fromMonorepo: dep.parent ? dep.parent : undefined,
       });
     })
   );
 
   const __fetch_end = performance.now();
-  __fetch.succeed(
-    chalk.green(
-      `Fetched packages in ${chalk.gray(parseTime(__fetch_start, __fetch_end))}`
-    )
+
+  __fetch.text = chalk.green(
+    `Fetched packages in ${chalk.gray(parseTime(__fetch_start, __fetch_end))}`
   );
+
+  __fetch.stopAndPersist({
+    symbol: chalk.green("✅"),
+  });
 
   const __install = spinnerGradient(chalk.green("Installing packages..."));
   const __install_start = performance.now();
@@ -210,13 +217,16 @@ export default async function installBeta(opts: string[]) {
 
   __install.prefixText = "";
   const __install_end = performance.now();
-  __install.succeed(
-    chalk.green(
-      `Installed packages in ${chalk.gray(
-        parseTime(__install_start, __install_end)
-      )}`
-    )
+
+  __install.text = chalk.green(
+    `Installed packages in ${chalk.gray(
+      parseTime(__install_start, __install_end)
+    )}`
   );
+
+  __install.stopAndPersist({
+    symbol: chalk.green("✅"),
+  });
 
   // If addDeps is not empty, add them to package.json using flag
   if (addDeps.length > 0) {
@@ -276,7 +286,7 @@ export default async function installBeta(opts: string[]) {
     );
   }
 
-  const downloadedPkgs: fnpm_lock = {};
+  const downloadedPkgs: ultra_lock = {};
 
   __DOWNLOADED.forEach((pkg: any) => {
     if (!downloadedPkgs[pkg.name]) {
@@ -294,7 +304,7 @@ export default async function installBeta(opts: string[]) {
 
   if (__DOWNLOADED.length > 0) {
     await writeFile(
-      path.join(process.cwd(), "fnpm.lock"),
+      path.join(process.cwd(), "ultra.lock"),
       JSON.stringify(downloadedPkgs, null, 2),
       "utf-8"
     );
@@ -308,5 +318,5 @@ export default async function installBeta(opts: string[]) {
     chalk.green(`Done in ${chalk.gray(parseTime(start, performance.now()))}`)
   ).succeed();
 
-  process.exit();
+  process.exit(0);
 }

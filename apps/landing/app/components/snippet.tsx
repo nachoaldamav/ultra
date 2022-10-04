@@ -5,14 +5,14 @@ import CopyIcon from "./icons/copy";
 
 export default function Snippet() {
   const [isCopied, setIsCopied] = useState(false);
-  const [text, setText] = useState("npm install @fnpm-io/cli -g");
+  const [text, setText] = useState("npm install ultrapkg -g");
 
   useEffect(() => {
     // After 2 seconds, reset the isCopied state and set text to "snpm install"
     if (isCopied) {
       setTimeout(() => {
         setIsCopied(false);
-        setText("fnpm install react react-dom -P");
+        setText("ultra install react react-dom -P");
       }, 2000);
     }
   }, [isCopied]);

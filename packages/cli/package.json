@@ -1,12 +1,12 @@
 {
-  "name": "@fnpm-io/cli",
+  "name": "ultrapkg",
   "version": "0.6.0",
-  "description": "FNPM CLI Tool.",
+  "description": "Ultrapkg CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nachoaldamav/fnpm",
+    "url": "https://github.com/nachoaldamav/ultra",
     "directory": "packages/cli"
   },
   "type": "module",
@@ -19,13 +19,12 @@
     "build"
   ],
   "bin": {
-    "fnpm": "./build/bin/cli.js"
+    "ultra": "./build/bin/cli.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/tar": "6.1.3",
     "axios": "0.27.2",
     "bin-links": "3.0.3",
     "chalk": "5.0.1",
@@ -45,6 +44,7 @@
     "@swc/core": "1.2.242",
     "@types/glob": "7.2.0",
     "@types/mv": "2.1.2",
+    "@types/tar": "6.1.3",
     "@types/pacote": "11.1.5",
     "@types/prompts": "2.0.14",
     "@types/semver": "7.3.12",

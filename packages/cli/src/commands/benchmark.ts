@@ -74,56 +74,56 @@ const tests = [
   },
 
   {
-    name: "FNPM install (no cache / no lockfile)",
-    command: "fnpm install",
-    pre: "npm cache clean -f && fnpm clear",
+    name: "⚡ ULTRA install (no cache / no lockfile)",
+    command: "ultra install",
+    pre: "npm cache clean -f && ultra clear",
     spinner: ora(
-      chalk.green(`Running "FNPM install (no cache / no lockfile)"...`)
+      chalk.green(`Running "ULTRA install (no cache / no lockfile)"...`)
     ).stop(),
     group: 1,
   },
   {
-    name: "FNPM install (with cache / no lockfile)",
-    command: "fnpm install",
-    pre: "rm -rf node_modules fnpm.lock",
+    name: "⚡ ULTRA install (with cache / no lockfile)",
+    command: "ultra install",
+    pre: "rm -rf node_modules ultra.lock",
     spinner: ora(
-      chalk.green(`Running "FNPM install (with cache / no lockfile)"...`)
+      chalk.green(`Running "ULTRA install (with cache / no lockfile)"...`)
     ).stop(),
     group: 2,
   },
   {
-    name: "FNPM install (with cache / with lockfile)",
-    command: "fnpm install",
+    name: "⚡ ULTRA install (with cache / with lockfile)",
+    command: "ultra install",
     pre: "rm -rf node_modules",
     spinner: ora(
-      chalk.green(`Running "FNPM install (with cache / with lockfile)"...`)
+      chalk.green(`Running "ULTRA install (with cache / with lockfile)"...`)
     ).stop(),
     group: 3,
   },
   /*{
-    name: "FNPM Beta install (no cache / no lockfile)",
-    command: "fnpm ib",
-    pre: "npm cache clean -f && fnpm clear",
+    name: "ULTRA Beta install (no cache / no lockfile)",
+    command: "ultra ib",
+    pre: "npm cache clean -f && ultra clear",
     spinner: ora(
-      chalk.green(`Running "FNPM Beta install (no cache / no lockfile)"...`)
+      chalk.green(`Running "ULTRA Beta install (no cache / no lockfile)"...`)
     ).stop(),
     group: 1,
   },
   {
-    name: "FNPM Beta install (with cache / no lockfile)",
-    command: "fnpm ib",
-    pre: "rm -rf node_modules fnpm.lock",
+    name: "ULTRA Beta install (with cache / no lockfile)",
+    command: "ultra ib",
+    pre: "rm -rf node_modules ultra.lock",
     spinner: ora(
-      chalk.green(`Running "FNPM Beta install (with cache / no lockfile)"...`)
+      chalk.green(`Running "ULTRA Beta install (with cache / no lockfile)"...`)
     ).stop(),
     group: 2,
   },
   {
-    name: "FNPM Beta install (with cache / with lockfile)",
-    command: "fnpm ib",
+    name: "ULTRA Beta install (with cache / with lockfile)",
+    command: "ultra ib",
     pre: "rm -rf node_modules",
     spinner: ora(
-      chalk.green(`Running "FNPM Beta install (with cache / with lockfile)"...`)
+      chalk.green(`Running "ULTRA Beta install (with cache / with lockfile)"...`)
     ).stop(),
     group: 3,
   }, */
@@ -183,20 +183,21 @@ const tests = [
 export async function benchmark(args: string[]) {
   const pkg = readPackage(path.join(__dirname, "..", "..", "package.json"));
   const currentPkg = readPackage(path.join(process.cwd(), "package.json"));
-  // If the user passed flag --only-fnpm, we only run the fnpm tests
-  const onlyfnpm = args.includes("--only-fnpm");
+  // If the user passed flag --only-ultra, we only run the ultra tests
+  const onlyultra = args.includes("--only-ultra");
   const ignoreBun = args.includes("--ignore-bun");
   const ignorePnpm = args.includes("--ignore-pnpm");
+  const genjson = args.includes("--json");
 
-  if (onlyfnpm) ora(chalk.yellow("Only running fnpm tests")).warn();
+  if (onlyultra) ora(chalk.yellow("Only running ultra tests")).warn();
 
   const selectedGroup = args
     .find((arg) => arg.startsWith("--group="))
     ?.replace("--group=", "");
 
   const testsToRun = !selectedGroup
-    ? onlyfnpm
-      ? tests.filter((test) => test.name.includes("FNPM"))
+    ? onlyultra
+      ? tests.filter((test) => test.name.includes("ULTRA"))
       : tests
     : tests.filter((test) => test.group === parseInt(selectedGroup));
 
@@ -338,7 +339,7 @@ export async function benchmark(args: string[]) {
     chalk.green(`
   Node.js: ${process.version}
   OS: ${process.platform}
-  FNPM version: ${pkg.version}
+  ULTRA version: ${pkg.version}
   Current project: ${currentPkg.name} (${currentPkg.version || "no version"})
   \n`)
   );
@@ -359,6 +360,23 @@ export async function benchmark(args: string[]) {
   );
 
   await writeFile(path.join(process.cwd(), "results.md"), md);
+
+  if (genjson) {
+    await writeFile(
+      path.join(process.cwd(), "results.json"),
+      JSON.stringify(
+        results.map((result) => {
+          return {
+            name: result.name,
+            value: result.time,
+            group: result.group,
+          };
+        }),
+        null,
+        2
+      )
+    );
+  }
 }
 
 async function sleep(ms: number) {

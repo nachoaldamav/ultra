@@ -4,7 +4,7 @@ import path from "path";
 
 const BASIC_CONFIG = {
   registry: "https://registry.npmjs.org/",
-  cache: path.join(os.homedir(), ".fnpm-cache"),
+  cache: path.join(os.homedir(), ".ultra-cache"),
 };
 
 type CONFIG = {
@@ -14,8 +14,8 @@ type CONFIG = {
 };
 
 export default function readConfig(): CONFIG {
-  const configPath = `${os.homedir()}/.fnpm/.fnpmrc`;
-  const workspaceConfigPath = `${process.cwd()}/.fnpmrc`;
+  const configPath = `${os.homedir()}/.ultra/.ultrarc`;
+  const workspaceConfigPath = `${process.cwd()}/.ultrarc`;
 
   if (existsSync(workspaceConfigPath)) {
     return JSON.parse(readFileSync(workspaceConfigPath, "utf8"));
@@ -23,7 +23,7 @@ export default function readConfig(): CONFIG {
 
   if (!existsSync(configPath)) {
     // Create directory recursively
-    mkdirSync(`${os.homedir()}/.fnpm`, { recursive: true });
+    mkdirSync(`${os.homedir()}/.ultra`, { recursive: true });
     writeFileSync(configPath, JSON.stringify(BASIC_CONFIG, null, 2));
     return JSON.parse(readFileSync(configPath, "utf-8"));
   } else {
@@ -32,7 +32,7 @@ export default function readConfig(): CONFIG {
 }
 
 export function update(params: string[]) {
-  const configPath = `${os.homedir()}/.fnpm/.fnpmrc`;
+  const configPath = `${os.homedir()}/.ultra/.ultrarc`;
   const config = JSON.parse(readFileSync(configPath, "utf8"));
 
   const [key, value] = params;

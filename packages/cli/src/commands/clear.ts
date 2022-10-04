@@ -6,14 +6,14 @@ import glob from "glob";
 import readPackage from "../utils/readPackage.js";
 
 export async function clear() {
-  const cacheFolder = `${os.homedir()}/.fnpm-cache`;
+  const cacheFolder = `${os.homedir()}/.ultra-cache`;
   const packageJson = `${process.cwd()}/package.json`;
   const pkg = readPackage(packageJson);
   const workspaces = pkg.workspaces || null;
 
   const __clear = ora("Clearing cache...").start();
   await rm(cacheFolder, { recursive: true, force: true });
-  await rm(`${process.cwd()}/fnpm.lock`, { force: true }).catch(() => {});
+  await rm(`${process.cwd()}/ultra.lock`, { force: true }).catch(() => {});
   __clear.succeed("Cleared cache!");
 
   await mkdir(cacheFolder, { recursive: true });

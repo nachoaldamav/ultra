@@ -7,6 +7,7 @@ import {
   writeFileSync,
   readFileSync,
   readdirSync,
+  symlinkSync,
 } from "node:fs";
 import { exec } from "child_process";
 import path from "path";
@@ -14,7 +15,7 @@ import semver from "semver";
 import binLinks from "bin-links";
 import { getDeps } from "./getDeps.js";
 import {
-  userFnpmCache,
+  userUltraCache,
   __DOWNLOADED,
   REGISTRY,
   __DOWNLOADING,
@@ -24,7 +25,7 @@ import {
 } from "../commands/install.js";
 import manifestFetcher from "./manifestFetcher.js";
 import { hardLinkSync } from "./hardLinkSync.js";
-import { fnpmExtract } from "./pkgDownloader.js";
+import { ultraExtract } from "./pkgDownloader.js";
 
 type Return = {
   name: string;
@@ -70,8 +71,8 @@ export async function installPkg(
 
   let cacheFolder;
 
-  const installedVersions = existsSync(path.join(userFnpmCache, manifest.name))
-    ? readdirSync(path.join(userFnpmCache, manifest.name))
+  const installedVersions = existsSync(path.join(userUltraCache, manifest.name))
+    ? readdirSync(path.join(userUltraCache, manifest.name))
     : [];
 
   const suitableVersion = installedVersions.find((version) =>
@@ -79,7 +80,7 @@ export async function installPkg(
   );
 
   if (suitableVersion) {
-    cacheFolder = path.join(userFnpmCache, manifest.name, suitableVersion);
+    cacheFolder = path.join(userUltraCache, manifest.name, suitableVersion);
   }
 
   function getDir() {
@@ -124,13 +125,15 @@ export async function installPkg(
 
   const pkgProjectDir = getDir();
 
-  if (existsSync(pkgProjectDir)) return null;
+  if (existsSync(pkgProjectDir)) {
+    return null;
+  }
 
   const isSatisfied = cacheFolder
     ? existsSync(path.join(cacheFolder, downloadFile))
     : false;
 
-  if (isSatisfied && cacheFolder) {
+  if (isSatisfied && cacheFolder && manifest.version !== "latest") {
     // Push to downloaded package info
     __DOWNLOADED.push({
       name: manifest.name,
@@ -138,7 +141,7 @@ export async function installPkg(
       // Remove cwd from path
       path: pkgProjectDir.replace(process.cwd(), ""),
       // Remove homeDir from path
-      cache: cacheFolder.replace(userFnpmCache, ""),
+      cache: cacheFolder.replace(userUltraCache, ""),
     });
 
     if (spinner) {
@@ -153,7 +156,7 @@ export async function installPkg(
     hardLinkSync(cacheFolder, pkgProjectDir);
 
     try {
-      const pkgjson = readPackage(path.join(cacheFolder, "package.json"));
+      const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
 
       // Get deps from file
       const cachedDeps = JSON.parse(
@@ -163,7 +166,7 @@ export async function installPkg(
       // Symlink bin files
       await binLinks({
         path: pkgProjectDir,
-        pkg: pkgjson,
+        pkg: pkgJson,
         global: false,
         force: true,
       });
@@ -188,6 +191,24 @@ export async function installPkg(
         version: manifest.version,
       });
 
+      if (manifest.fromMonorepo !== undefined) {
+        try {
+          // Symlink pkgProjectDir to "fromMonorepo" folder
+          mkdirSync(
+            path.dirname(
+              path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+            ),
+            {
+              recursive: true,
+            }
+          );
+          symlinkSync(
+            pkgProjectDir,
+            path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+          );
+        } catch (e) {}
+      }
+
       return null;
     } catch (e: any) {
       ora(
@@ -204,7 +225,7 @@ export async function installPkg(
     registry: REGISTRY,
   });
 
-  cacheFolder = path.join(userFnpmCache, pkg.name, pkg.version);
+  cacheFolder = path.join(userUltraCache, pkg.name, pkg.version);
 
   if (
     __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
@@ -226,7 +247,9 @@ export async function installPkg(
     );
   }
 
-  const status = await fnpmExtract(cacheFolder, pkg.dist.tarball);
+  const status = await ultraExtract(cacheFolder, pkg.dist.tarball);
+
+  const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
 
   if (status.res === "skipped") {
     return null;
@@ -236,6 +259,24 @@ export async function installPkg(
   mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
 
   hardLinkSync(cacheFolder, pkgProjectDir);
+
+  if (manifest.fromMonorepo !== undefined) {
+    try {
+      // Symlink pkgProjectDir to "fromMonorepo" folder
+      mkdirSync(
+        path.dirname(
+          path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+        ),
+        {
+          recursive: true,
+        }
+      );
+      symlinkSync(
+        pkgProjectDir,
+        path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+      );
+    } catch (e) {}
+  }
 
   // Get production deps
   try {
@@ -261,7 +302,7 @@ export async function installPkg(
           name: dep.name,
           version: data.version,
           tarball: data.tarball,
-          path: path.join(userFnpmCache, dep.name, data.version),
+          path: path.join(userUltraCache, dep.name, data.version),
         };
       })
     );
@@ -269,7 +310,7 @@ export async function installPkg(
     // Remove null values
     const filtered = installed.filter((i) => i);
 
-    // Save installed deps with its path in .fnpm file as objects
+    // Save installed deps with its path in .ultra file as objects
     let object: { [key: string]: any } = {};
 
     filtered.forEach((dep) => {
@@ -304,7 +345,7 @@ export async function installPkg(
     // Symlink bin files
     await binLinks({
       path: pkgProjectDir,
-      pkg,
+      pkg: pkgJson,
       global: false,
       force: true,
     });
