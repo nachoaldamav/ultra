@@ -28,12 +28,14 @@ jobs:
         run: npm install ./packages/cli -g
       - name: Run benchmark
       # Copy examples/alotta to parent root
-        run: cp -r ./examples/alotta ../alotta && cd ../alotta && ultra benchmark --ignore-bun
+        run: cp -r ./examples/alotta ../alotta && cd ../alotta && ultra benchmark --ignore-bun --json
+      - name: Show JSON
+        run: cat ../alotta/results.json
       - name: Read results
         id: read_file
         uses: andstor/file-reader-action@v1
         with:
-          path: "./examples/alotta/results.md"
+          path: "../alotta/benchmark-results.json"
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
