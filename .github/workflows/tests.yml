@@ -21,13 +21,14 @@ jobs:
         with:
           version: 7.11.0
       - name: Install dependencies
-        run: pnpm install --filter=ultrapkg
+        run: pnpm install
       - name: Build CLI
         run: pnpm run build --filter=ultrapkg
       - name: Install CLI
         run: npm install ./packages/cli -g
       - name: Run benchmark
-        run: cd examples/alotta && ultra benchmark --ignore-bun
+      # Copy examples/alotta to parent root
+        run: cp -r ./examples/alotta ../alotta && cd ../alotta && ultra benchmark --ignore-bun
       - name: Read results
         id: read_file
         uses: andstor/file-reader-action@v1
