@@ -25,7 +25,7 @@ jobs:
       - name: Build CLI
         run: pnpm run build --filter=ultrapkg
       - name: Setup Bun Runtime
-        uses: antongolub/action-setup-bun@v1.x.x
+        uses: antongolub/action-setup-bun@v1.12.8
       - name: Install CLI
         run: npm install ./packages/cli -g
       - name: Run benchmark
