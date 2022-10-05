@@ -37,7 +37,7 @@ jobs:
         id: read_file
         uses: andstor/file-reader-action@v1
         with:
-          path: "../alotta/benchmark-results.json"
+          path: "../alotta/results.md"
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
