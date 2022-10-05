@@ -21,9 +21,9 @@ jobs:
         with:
           version: 7.11.0
       - name: Install dependencies
-        run: cd packages/cli && pnpm install
+        run: cd packages/cli && npm install
       - name: Build CLI
-        run: cd packages/cli && pnpm run build
+        run: cd packages/cli && npm run build
       - name: Install CLI
         run: cd packages/cli && npm install . -g && cd ../../
       - name: Run benchmark
