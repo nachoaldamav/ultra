@@ -12,6 +12,7 @@ import autocompletion from "./autocompletion.js";
 import { performance } from "perf_hooks";
 import ora from "ora";
 import test from "./test.js";
+import init from "./init.js";
 
 const comms = [
   {
@@ -82,6 +83,13 @@ const comms = [
     description: "Run a tests",
     command: test,
     abr: "t",
+    params: true,
+  },
+  {
+    name: "init",
+    description: "Initialize a package.json file",
+    command: init,
+    abr: "init",
     params: true,
   },
 ];
