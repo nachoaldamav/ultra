@@ -24,7 +24,7 @@ You will need:
 ### **Install:**
 
 ```bash
-npm i @ultra-io/cli -g
+npm i ultrapkg -g
 ```
 
 ## 🔭 Commands
