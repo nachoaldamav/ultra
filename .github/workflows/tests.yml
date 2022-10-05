@@ -24,11 +24,8 @@ jobs:
         run: pnpm install
       - name: Build CLI
         run: pnpm run build --filter=ultrapkg
-      - name: Install Bun
-        run: curl https://bun.sh/install | bash
-      - name: Add Bun to path
-        # Add  to ~/.bashrc
-        run: echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.bashrc && echo 'export PATH="$BUN_INSTALL/bin:$PATH" ' >> ~/.bashrc
+      - name: Setup Bun Runtime
+        uses: antongolub/action-setup-bun@v1.x.x
       - name: Install CLI
         run: npm install ./packages/cli -g
       - name: Run benchmark
