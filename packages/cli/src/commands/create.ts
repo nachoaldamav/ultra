@@ -8,6 +8,7 @@ import { existsSync, rm, rmSync, symlinkSync } from "node:fs";
 import { spawn } from "child_process";
 import { getDeps } from "../utils/getDeps.js";
 import readPackage from "../utils/readPackage.js";
+import manifestFetcher from "../utils/manifestFetcher.js";
 
 export default async function create(args: string[]) {
   if (args.length === 0) {
@@ -34,7 +35,9 @@ export default async function create(args: string[]) {
   args.shift();
 
   const spinner = ora(`Searching ${command} in NPM Registry...`).start();
-  const manifest = await pacote.manifest(command);
+  const manifest = await manifestFetcher(command, {
+    registry: "https://registry.npmjs.org/",
+  });
   spinner.succeed();
   spinner.text = `Found ${command} in NPM Registry`;
 
@@ -71,9 +74,8 @@ export default async function create(args: string[]) {
     __installing.succeed();
 
     // Get bin path
-    const bin = readPackage(globalPath + "/package.json").then(
-      (res: any) => res.bin
-    );
+    const bin = readPackage(path.join(globalPath, "package.json"))
+      .bin as string;
 
     const isObject = bin && typeof bin === "object";
     const binName = isObject ? Object.keys(bin)[0] : bin;
