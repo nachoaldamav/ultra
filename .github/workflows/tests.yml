@@ -27,7 +27,7 @@ jobs:
       - name: Install CLI
         run: cd packages/cli && npm install . -g && cd ../../
       - name: Run benchmark
-        run: cd examples/alotta && fnpm benchmark --ignore-bun
+        run: cd examples/alotta && ultra benchmark --ignore-bun
       - name: Read results
         id: read_file
         uses: andstor/file-reader-action@v1
