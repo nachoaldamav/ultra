@@ -21,11 +21,11 @@ jobs:
         with:
           version: 7.11.0
       - name: Install dependencies
-        run: cd packages/cli && npm install -w=ultrapkg
+        run: pnpm install --filter=ultrapkg
       - name: Build CLI
-        run: cd packages/cli && npm run build
+        run: pnpm run build --filter=ultrapkg
       - name: Install CLI
-        run: cd packages/cli && npm install . -g && cd ../../
+        run: npm install ./packages/cli -g
       - name: Run benchmark
         run: cd examples/alotta && ultra benchmark --ignore-bun
       - name: Read results
