@@ -14,6 +14,7 @@ module.exports = {
       fontFamily: {
         mono: ["JetBrains Mono", "monospace"],
         styled: ["Buhkari", "cursive"],
+        azonix: ["Azonix", "sans-serif"],
       },
       animation: {
         "gradient-x": "gradient-x 7s ease infinite",

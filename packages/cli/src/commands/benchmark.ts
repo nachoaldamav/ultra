@@ -129,14 +129,16 @@ const tests = [
   }, */
   {
     name: "PNPM install (no cache / no lockfile)",
-    command: "pnpm install --force",
-    pre: `npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml ${homeDir}.local/share/pnpm/store/v3`,
+    command:
+      "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store --no-strict-peer-dependencies",
+    pre: `npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml ${homeDir}.local/share/pnpm/store/v3 cache/`,
     spinner: ora(chalk.green(`Running "PNPM install (no cache)"...`)).stop(),
     group: 1,
   },
   {
     name: "PNPM install (with cache / no lockfile)",
-    command: "pnpm install --force",
+    command:
+      "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store --no-strict-peer-dependencies",
     pre: `rm -rf node_modules pnpm-lock.yaml`,
     spinner: ora(
       chalk.green(`Running "PNPM install (with cache / no lockfile)"...`)
@@ -145,7 +147,8 @@ const tests = [
   },
   {
     name: "PNPM install (with cache / with lockfile)",
-    command: "pnpm install",
+    command:
+      "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store --no-strict-peer-dependencies",
     pre: "rm -rf node_modules",
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,

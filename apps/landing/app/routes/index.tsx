@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Feature from "~/components/featureCard";
 import Graph from "~/components/graph";
 import Snippet from "~/components/snippet";
@@ -14,14 +14,18 @@ const GROUPS: {
 
 export default function Index() {
   const [group, setGroup] = useState(3);
+
   return (
     <div className="flex h-fit w-full flex-col bg-primary">
       <section
         id="hero"
         className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center"
       >
-        <img className="w-64 h-64" src="/images/fnpm@3x.png" alt="logo" />
-        <p className="text-xl text-white">A really fast package manager.</p>
+        {/* <img className="w-64 h-64" src="/images/fnpm@3x.png" alt="logo" /> */}
+        <h1 className="text-8xl font-bold text-center text-white font-azonix mb-5">
+          VLTRA
+        </h1>
+        <p className="text-xl text-white">A really fast package manager</p>
         <Snippet />
       </section>
       <section
@@ -32,7 +36,7 @@ export default function Index() {
         <div className="mt-6 flex w-full flex-col md:flex-row flex-wrap justify-center gap-4 px-4">
           <Feature
             title="Fast"
-            description="ULTRA is built with speed in mind. It's blazing fast."
+            description="ULTRA is built with speed in mind."
           />
           <Feature
             title="Lightweight"
@@ -40,7 +44,7 @@ export default function Index() {
           />
           <Feature
             title="Edge caching"
-            description="ULTRA uses edge caching to make your packages even faster."
+            description="ULTRA registry uses edge caching thanks to Cloudflare."
           />
           <Feature
             title="Open Source"

@@ -146,7 +146,7 @@ export default async function installBeta(opts: string[]) {
   // Get all dependencies with version
   const deps = getDeps(pkg).concat(wsDeps).concat(addDeps);
 
-  const __fetch = ora(chalk.green("Fetching packages...")).start();
+  const __fetch = ora(chalk.green("Installing local packages...")).start();
   const __fetch_start = performance.now();
 
   await Promise.all(
@@ -174,7 +174,9 @@ export default async function installBeta(opts: string[]) {
   const __fetch_end = performance.now();
 
   __fetch.text = chalk.green(
-    `Fetched packages in ${chalk.gray(parseTime(__fetch_start, __fetch_end))}`
+    `Installed local packages in ${chalk.gray(
+      parseTime(__fetch_start, __fetch_end)
+    )}`
   );
 
   __fetch.stopAndPersist({

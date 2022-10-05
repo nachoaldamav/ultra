@@ -5,7 +5,7 @@ import { mkdir } from "node:fs/promises";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import readConfig from "./readConfig.js";
 
-const cacheFolder = path.join(os.homedir(), ".fnpm", "__manifests__");
+const cacheFolder = path.join(os.homedir(), ".ultra", "__manifests__");
 
 const token = readConfig().token;
 

@@ -15,7 +15,7 @@ export function links() {
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "FNPM",
+  title: "Ultra",
   viewport: "width=device-width,initial-scale=1",
 });
 

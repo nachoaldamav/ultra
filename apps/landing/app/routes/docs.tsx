@@ -38,11 +38,7 @@ export default function Docs() {
       <nav className=" px-2 sm:px-4 py-2.5 bg-secondary fixed w-full z-20 top-0 left-0 border-b border-gray-600">
         <div className="container flex flex-wrap justify-between items-center mx-auto">
           <a href="/" className="flex items-center">
-            <img
-              className="w-auto h-10"
-              src="/images/navbar-ultra.png"
-              alt="ULTRA"
-            />
+            <h1 className="text-2xl font-bold text-white font-azonix">VLTRA</h1>
           </a>
           <div className="flex md:order-2">
             <a
