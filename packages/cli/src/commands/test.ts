@@ -18,11 +18,11 @@ export default async function test(args: string[]) {
   let params;
 
   if (type === "clean") {
-    params = `fnpm clear && fnpm i && fnpm run ${build}`;
+    params = `ultra clear && ultra i && ultra run ${build}`;
   } else if (type === "no-lock") {
-    params = `rm -rf node_modules fnpm.lock && fnpm i && fnpm run ${build}`;
+    params = `rm -rf node_modules ultra.lock && ultra i && ultra run ${build}`;
   } else if (type === "cached") {
-    params = `fnpm i && fnpm run ${build}`;
+    params = `ultra i && ultra run ${build}`;
   } else {
     ora(
       chalk.red(
