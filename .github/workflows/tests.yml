@@ -1,4 +1,4 @@
-name: SNPM CLI Benchmark
+name: Ultra CLI Benchmark
 
 on:
   workflow_dispatch:

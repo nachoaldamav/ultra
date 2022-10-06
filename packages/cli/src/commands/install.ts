@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora from "ora";
-import { writeFile, readFile, unlink } from "node:fs/promises";
+import { writeFile, readFile, unlink, rm } from "node:fs/promises";
 import path from "path";
 import { performance } from "perf_hooks";
 import binLinks from "bin-links";
@@ -55,6 +55,12 @@ export default async function installBeta(opts: string[]) {
   ).catch(() => null);
 
   const lock = lockFile ? JSON.parse(lockFile) : null;
+
+  // Remove node_modules folder
+  await rm(path.join(process.cwd(), "node_modules"), {
+    recursive: true,
+    force: true,
+  });
 
   if (lock && !newDeps) {
     try {
@@ -113,7 +119,7 @@ export default async function installBeta(opts: string[]) {
       );
 
       __install.stopAndPersist({
-        symbol: chalk.green("✅"),
+        symbol: chalk.green("⚡"),
       });
 
       await basePostInstall();
@@ -180,7 +186,7 @@ export default async function installBeta(opts: string[]) {
   );
 
   __fetch.stopAndPersist({
-    symbol: chalk.green("✅"),
+    symbol: chalk.green("⚡"),
   });
 
   const __install = spinnerGradient(chalk.green("Installing packages..."));
@@ -227,7 +233,7 @@ export default async function installBeta(opts: string[]) {
   );
 
   __install.stopAndPersist({
-    symbol: chalk.green("✅"),
+    symbol: chalk.green("⚡"),
   });
 
   // If addDeps is not empty, add them to package.json using flag
@@ -316,9 +322,13 @@ export default async function installBeta(opts: string[]) {
 
   await basePostInstall();
 
-  ora(
+  const __done = ora(
     chalk.green(`Done in ${chalk.gray(parseTime(start, performance.now()))}`)
-  ).succeed();
+  ).start();
+
+  __done.stopAndPersist({
+    symbol: chalk.green("⚡"),
+  });
 
   process.exit(0);
 }

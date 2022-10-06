@@ -10,6 +10,8 @@ import {
   __SKIPPED,
   downloadFile,
 } from "../commands/install.js";
+import ora from "ora";
+import chalk from "chalk";
 
 // Get system temp directory
 const tmpDir = os.tmpdir();
@@ -33,8 +35,14 @@ export async function ultraExtract(target: string, tarball: string) {
 
   __DOWNLOADING.push(tarball);
 
-  // @ts-ignore-next-line
-  const file = path.join(cacheBasePath, tarball.split("/").pop());
+  let file = path.join(
+    cacheBasePath,
+    // @ts-ignore-next-line
+    tarball
+      .split("/")
+      .pop()
+      .replace(/[^a-zA-Z0-9.]/g, "")
+  );
 
   if (!existsSync(cacheBasePath)) {
     mkdirSync(cacheBasePath);
@@ -57,11 +65,19 @@ export async function ultraExtract(target: string, tarball: string) {
 
   // Extract "package" directory from tarball to "target" directory
   mkdirSync(target, { recursive: true });
-  await tar.extract({
-    file,
-    cwd: target,
-    strip: 1,
-  });
+  await tar
+    .extract({
+      file,
+      cwd: target,
+      strip: 1,
+    })
+    .catch((err) => {
+      ora(
+        chalk.red(
+          `Error extracting ${file} to ${target}: ${err.message || err}`
+        )
+      ).fail();
+    });
 
   // Create .ultra file
   writeFileSync(ultraFile, "{}");
