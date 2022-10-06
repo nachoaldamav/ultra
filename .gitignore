@@ -35,10 +35,5 @@ yarn-error.log*
 tmp
 deps.json
 
-# Lock files
-yarn.lock
-bun.lockb
-fnpm.lock
-
 results.md
 apps/landing/app/styles/app.css

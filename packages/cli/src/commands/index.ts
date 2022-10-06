@@ -13,6 +13,7 @@ import { performance } from "perf_hooks";
 import ora from "ora";
 import test from "./test.js";
 import init from "./init.js";
+import continuousInstall from "./ci.js";
 
 const comms = [
   {
@@ -91,6 +92,13 @@ const comms = [
     command: init,
     abr: "init",
     params: true,
+  },
+  {
+    name: "ci",
+    description: "Run a continuous install",
+    command: continuousInstall,
+    abr: "ci",
+    params: false,
   },
 ];
 
