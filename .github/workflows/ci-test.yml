@@ -28,9 +28,9 @@ jobs:
         uses: antongolub/action-setup-bun@v1.12.8
       - name: Install CLI
         run: npm install ./packages/cli -g
-      - name: Run benchmark
+      - name: Run CI Test
         # Copy examples/ci-test to parent root
-        run: cp -r ./examples/ci-test ../ci-test && cd ../ci-test && time ultra ci
+        run: cp -r ./examples/ci-test ../ci-test && cd ../ci-test && ultra ci && ultra run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
