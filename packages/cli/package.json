@@ -1,6 +1,6 @@
 {
   "name": "ultrapkg",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Ultrapkg CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
