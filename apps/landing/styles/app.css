@@ -1,3 +1,5 @@
+@import url("../public/fonts/stylesheet.css");
+
 @tailwind base;
 @tailwind components;
 
@@ -51,13 +53,6 @@
   font-weight: 500;
   src: url("/fonts/styled/styled_font.ttf") format("ttf"),
     url("/fonts/styled/styled_font.ttf") format("ttf");
-}
-
-@font-face {
-  font-family: "Azonix";
-  font-style: normal;
-  font-weight: 400;
-  src: url("/fonts/azonix/Azonix.otf") format("otf");
 }
 
 .glow {
