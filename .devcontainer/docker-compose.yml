@@ -1,0 +1,30 @@
+version: "2.1"
+
+services:
+  ultra:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VARIANT: 16-bullseye
+
+    security_opt:
+      - seccomp:unconfined
+
+    environment:
+      - PUID=1000
+      - PGID=1000
+
+    working_dir: /workspace
+
+    volumes:
+      - ..:/workspace:cached
+      - ultra_node_modules:/workspace/node_modules
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+    user: node
+
+volumes:
+  ultra_node_modules:

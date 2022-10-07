@@ -1,0 +1,12 @@
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+.pnpm-store/
+**/.pnpm-store/
+out/
+**/out/
+build/
+**/build/
+.turbo/
+**/.turbo/

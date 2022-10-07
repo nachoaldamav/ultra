@@ -1,0 +1,16 @@
+{
+  "name": "ultra",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "ultra",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "mkdir -p node_modules && sudo chown -R node:node node_modules && pnpm install --frozen-lockfile",
+  "remoteUser": "node",
+  "settings": {},
+  "extensions": [
+    "bradlc.vscode-tailwindcss",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "esbenp.prettier-vscode"
+  ],
+  "forwardPorts": [3000, 3001, 8002]
+}
