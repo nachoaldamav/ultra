@@ -4,7 +4,6 @@ import { join } from "node:path";
 import chalk from "chalk";
 import { __dirname } from "../utils/__dirname.js";
 import samplePkg from "../utils/sample/package.js";
-import { execa } from "execa";
 
 export default async function init(args: string[]) {
   let sampleJson = samplePkg;

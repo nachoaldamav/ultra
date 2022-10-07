@@ -128,5 +128,6 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
       });
     }
   }
-  execa;
+
+  return;
 }
