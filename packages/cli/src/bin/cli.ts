@@ -10,9 +10,15 @@ function main() {
   const { version } = readPackage(
     path.join(__dirname, "..", "..", "package.json")
   );
-  console.log(chalk.grey(`[Ultra] v${version}`));
+
+  console.log(
+    chalk.grey(
+      `[Ultra] v${version} (${(process.uptime() * 1000).toFixed(2)}ms)`
+    )
+  );
 
   const argv = args();
+
   commands(argv);
 }
 

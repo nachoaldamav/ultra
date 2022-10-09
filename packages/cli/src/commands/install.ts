@@ -51,16 +51,10 @@ export default async function installBeta(opts: string[]) {
   // Read ultra.lock file as JSON
   const lockFile: string | null = await readFile(
     path.join(process.cwd(), "ultra.lock"),
-    "utf-8"
+    "utf8"
   ).catch(() => null);
 
   const lock = lockFile ? JSON.parse(lockFile) : null;
-
-  // Remove node_modules folder
-  await rm(path.join(process.cwd(), "node_modules"), {
-    recursive: true,
-    force: true,
-  });
 
   if (lock && !newDeps) {
     try {
@@ -68,14 +62,16 @@ export default async function installBeta(opts: string[]) {
         text: chalk.green("Installing dependencies..."),
         discardStdin: false,
       }).start();
-
       const start = performance.now();
+
       // Hardlink all the packages in ultra.lock to each path from cache
       await Promise.all(
         Object.keys(lock).map(async (pkg) => {
-          // Install depenedencies in parallel using forks
           await Promise.all(
             Object.keys(lock[pkg]).map(async (version) => {
+              __install.prefixText = "🔗";
+              __install.text = chalk.green(`${pkg}@${version}`);
+
               const pathname = path.join(
                 process.cwd(),
                 lock[pkg][version].path
@@ -111,6 +107,7 @@ export default async function installBeta(opts: string[]) {
         })
       );
 
+      __install.prefixText = "";
       const end = performance.now();
       __install.text = chalk.green(
         `Installed dependencies in ${chalk.grey(
@@ -134,6 +131,12 @@ export default async function installBeta(opts: string[]) {
       return;
     }
   }
+
+  // Remove node_modules folder
+  await rm(path.join(process.cwd(), "node_modules"), {
+    recursive: true,
+    force: true,
+  });
 
   const addDeps = await getParamsDeps(opts);
 

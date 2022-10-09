@@ -4,7 +4,6 @@
  * @param opts Type of dependencies to get, use true to ignore false to add.
  * @returns Array of dependencies with name and version
  */
-
 export const getDeps = (
   pkg: any,
   opts?: options

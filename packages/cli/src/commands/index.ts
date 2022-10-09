@@ -1,19 +1,17 @@
+import path from "node:path";
 import { clear } from "./clear.js";
 import install from "./install.js";
 import { benchmark } from "./benchmark.js";
 import upgrade from "./upgrade.js";
 import list from "./list.js";
-import checkVersion from "../utils/checkVersion.js";
 import run from "./run.js";
 import { update } from "../utils/readConfig.js";
 import create from "./create.js";
 import remove from "./remove.js";
-import autocompletion from "./autocompletion.js";
-import { performance } from "perf_hooks";
-import ora from "ora";
 import test from "./test.js";
 import init from "./init.js";
 import continuousInstall from "./ci.js";
+import readPackage from "../utils/readPackage.js";
 
 const comms = [
   {
@@ -105,11 +103,21 @@ const comms = [
 export async function commands(args: string[]) {
   const [command, ...rest] = args;
 
+  if (command === "version" || command === "-v") {
+    process.exit(0);
+  }
+
   const comm = comms.find((c) => c.name === command || c.abr === command);
 
   if (comm) {
     // @ts-ignore-next-line
     return comm.command(rest);
+  }
+
+  const pkg = readPackage(path.join(process.cwd(), "package.json"));
+
+  if (pkg && pkg.scripts && pkg.scripts[command]) {
+    return run([command, ...rest]);
   }
 
   console.log("Unknown command");

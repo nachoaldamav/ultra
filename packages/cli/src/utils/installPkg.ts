@@ -17,10 +17,10 @@ import { getDeps } from "./getDeps.js";
 import {
   userUltraCache,
   __DOWNLOADED,
-  REGISTRY,
   __DOWNLOADING,
   __INSTALLED,
   __SKIPPED,
+  REGISTRY,
   downloadFile,
 } from "../commands/install.js";
 import manifestFetcher from "./manifestFetcher.js";
@@ -116,7 +116,15 @@ export async function installPkg(
       }
 
       return path.join(parent, "node_modules", manifest.name);
-    } catch (e) {
+    } catch (e: any) {
+      ora(
+        chalk.red(
+          `Error while installing ${manifest.name}@${
+            manifest.version
+          } - ${e.toString()}`
+        )
+      ).fail();
+
       return parent
         ? path.join(parent, "node_modules", manifest.name)
         : path.join(process.cwd(), "node_modules", manifest.name);
@@ -233,6 +241,16 @@ export async function installPkg(
     return null;
   }
 
+  // Push to downloaded package info
+  __DOWNLOADED.push({
+    name: manifest.name,
+    version: pkg.version,
+    // Remove cwd from path
+    path: pkgProjectDir.replace(process.cwd(), ""),
+    // Remove homeDir from path
+    cache: cacheFolder.replace(userUltraCache, ""),
+  });
+
   if (!islocalInstalled) {
     __INSTALLED.push({
       name: manifest.name,
@@ -249,11 +267,11 @@ export async function installPkg(
 
   const status = await ultraExtract(cacheFolder, pkg.dist.tarball);
 
-  const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
-
   if (status.res === "skipped") {
     return null;
   }
+
+  const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
 
   // Create directory for package without the last folder
   mkdirSync(path.dirname(pkgProjectDir), { recursive: true });

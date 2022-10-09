@@ -27,7 +27,7 @@ export async function ultraExtract(target: string, tarball: string) {
   const ultraFile = path.join(target, downloadFile);
   const ultraFileExists = existsSync(ultraFile);
 
-  if (ultraFileExists) {
+  if (ultraFileExists || __DOWNLOADING.includes(tarball)) {
     return {
       res: "skipped",
     };
@@ -38,10 +38,7 @@ export async function ultraExtract(target: string, tarball: string) {
   let file = path.join(
     cacheBasePath,
     // @ts-ignore-next-line
-    tarball
-      .split("/")
-      .pop()
-      .replace(/[^a-zA-Z0-9.]/g, "")
+    tarball.split("/").pop()
   );
 
   if (!existsSync(cacheBasePath)) {
@@ -65,6 +62,7 @@ export async function ultraExtract(target: string, tarball: string) {
 
   // Extract "package" directory from tarball to "target" directory
   mkdirSync(target, { recursive: true });
+
   await tar
     .extract({
       file,
