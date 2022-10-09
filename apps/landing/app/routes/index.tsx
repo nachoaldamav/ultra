@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Feature from "~/components/featureCard";
 import Graph from "~/components/graph";
@@ -21,10 +22,21 @@ export default function Index() {
         id="hero"
         className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center"
       >
-        {/* <img className="w-64 h-64" src="/images/fnpm@3x.png" alt="logo" /> */}
-        <h1 className="text-8xl font-bold text-center text-white font-azonix mb-5">
-          VLTRA
-        </h1>
+        <div className="flex flex-col relative h-28 w-full">
+          <AnimatePresence>
+            <motion.h1
+              className="text-8xl font-bold text-center text-white font-azonix mb-5 w-full"
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.75, delay: 0.25 }}
+              id="ultra-pkg"
+              layoutId="ultra-pkg"
+            >
+              VLTRA
+            </motion.h1>
+          </AnimatePresence>
+        </div>
         <p className="text-xl text-white">A really fast package manager</p>
         <Snippet />
       </section>
