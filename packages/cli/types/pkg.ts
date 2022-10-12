@@ -7,3 +7,10 @@ export type ultra_lock = {
     };
   };
 };
+
+export type pkg = {
+  name: string;
+  version: string;
+  parent?: string;
+  fromMonorepo?: string;
+};

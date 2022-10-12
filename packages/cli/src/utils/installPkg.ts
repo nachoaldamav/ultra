@@ -17,16 +17,7 @@ import { getDeps } from "./getDeps.js";
 import manifestFetcher from "./manifestFetcher.js";
 import { hardLinkSync } from "./hardLinkSync.js";
 import { ultraExtract } from "./extract.js";
-import {
-  userUltraCache,
-  __DOWNLOADED,
-  __DOWNLOADING,
-  __INSTALLED,
-  __SKIPPED,
-  REGISTRY,
-  downloadFile,
-} from "../commands/install.js";
-import { hardLink } from "./hardLink.js";
+import { execa } from "execa";
 
 type Return = {
   name: string;
@@ -275,11 +266,6 @@ export async function installPkg(
   }
 
   if (existsSync(pkgProjectDir)) {
-    ora(
-      chalk.red(
-        `Error while installing ${manifest.name}@${manifest.version} - ${pkgProjectDir} already exists`
-      )
-    ).fail();
     return null;
   }
 
@@ -373,8 +359,16 @@ export async function installPkg(
       const postinstallScript = path.join(postinstallPath, postinstall);
 
       if (existsSync(postinstallScript)) {
-        exec(`${postinstallScript}`, {
+        if (spinner) {
+          spinner.prefixText = "🚀";
+          spinner.text = chalk.green(
+            `${manifest.name}@${manifest.version}` +
+              chalk.gray(" (postinstall)")
+          );
+        }
+        await execa(postinstallScript, {
           cwd: postinstallPath,
+          stdio: "pipe",
         });
       }
     }

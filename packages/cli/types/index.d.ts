@@ -1,16 +1,27 @@
-declare module "npm-pick-manifest";
-declare module "@npmcli/arborist";
-declare module "bin-links" {
-  /**
-   * @param path Where the package is installed
-   * @param pkg The package.json of the package
-   * @param global Install globally
-   * @param force Rewrite existing symlinks
-   */
-  export default function binLinks(opts: {
-    path: string;
-    pkg: any;
-    global?: boolean;
-    force?: boolean;
-  }): Promise<void>;
+import type { pkg } from "./pkg";
+
+type __INSTALLED_TYPE = {
+  name: string;
+  version: string;
+}[];
+
+type __EXTRACTED_TYPE = {
+  [key: string]: {
+    name: string;
+    version: string;
+  };
+};
+
+declare global {
+  var downloadFile: string;
+  var __DOWNLOADING: string[];
+  var __DOWNLOADED: any[];
+  var __SKIPPED: string[];
+  var __INSTALLED: __INSTALLED_TYPE;
+  var __EXTRACTED: __EXTRACTED_TYPE;
+  var pkgs: pkg[];
+  var userUltraCache: string;
+  var REGISTRY: string;
 }
+
+export {};

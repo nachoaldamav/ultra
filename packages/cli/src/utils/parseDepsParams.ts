@@ -1,5 +1,4 @@
 import manifestFetcher from "./manifestFetcher.js";
-import { REGISTRY } from "../commands/install.js";
 
 export default async function getParamsDeps(opts: string[]) {
   const instalableDeps = opts.filter((opt) => !opt.startsWith("-"));

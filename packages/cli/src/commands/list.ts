@@ -8,20 +8,20 @@ import path from "path";
 export default async function list(pkgs: string[]) {
   if (!pkgs) {
     ora(chalk.red("Missing package name")).fail();
-    const packages = await readdir(path.join(os.homedir(), ".fnpm-cache"));
+    const packages = await readdir(path.join(os.homedir(), ".ultra-cache"));
     console.log(
       chalk.green(
-        `${chalk.blue(packages.length)} packages installed with FNPM.`
+        `${chalk.blue(packages.length)} packages installed with ULTR.`
       )
     );
     return;
   }
 
   pkgs.forEach(async (pkg) => {
-    const pathName = path.join(os.homedir(), ".fnpm-cache", pkg);
+    const pathName = path.join(os.homedir(), ".ultra-cache", pkg);
 
     if (!existsSync(pathName)) {
-      ora(chalk(`${pkg} is not installed with FNPM!`)).fail();
+      ora(chalk(`${pkg} is not installed with ULTRA!`)).fail();
       return;
     }
 

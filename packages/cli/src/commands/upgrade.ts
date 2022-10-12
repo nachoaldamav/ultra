@@ -6,10 +6,10 @@ import chalk from "chalk";
 export default async function upgrade() {
   const spinner = ora("Upgrading to latest version...").start();
 
-  await execa("npm", ["install", "-g", "@fnpm-io/cli@latest"]);
+  await execa("npm", ["install", "-g", "ultrapkg@latest"]);
 
   // Get the latest version of fnpm
-  const { version } = await pacote.manifest("@fnpm-io/cli");
+  const { version } = await pacote.manifest("ultrapkg");
 
   spinner.succeed(chalk.green(`FNPM upgraded to v`) + chalk.blue(version));
 }

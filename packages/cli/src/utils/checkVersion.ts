@@ -11,7 +11,7 @@ export default async function checkVersion() {
   ).then((data) => JSON.parse(data).version);
 
   // Get latest version of FNPM
-  const { version } = await pacote.manifest("@fnpm-io/cli");
+  const { version } = await pacote.manifest("ultrapkg");
 
   // If installed version is not the same as latest version, print a warning
   if (installedVersion !== version) {

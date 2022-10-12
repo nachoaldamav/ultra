@@ -1,13 +1,6 @@
 import { existsSync, writeFileSync } from "node:fs";
 import path from "path";
 import pacote from "pacote";
-import {
-  __DOWNLOADED,
-  __DOWNLOADING,
-  __INSTALLED,
-  __SKIPPED,
-  downloadFile,
-} from "../commands/install.js";
 
 export async function extract(
   cacheFolder: string,

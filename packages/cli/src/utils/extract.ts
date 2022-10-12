@@ -3,13 +3,6 @@ import axios from "axios";
 import { createWriteStream, mkdirSync, existsSync, writeFileSync } from "fs";
 import os from "os";
 import path from "path";
-import {
-  __DOWNLOADED,
-  __DOWNLOADING,
-  __INSTALLED,
-  __SKIPPED,
-  downloadFile,
-} from "../commands/install.js";
 import ora from "ora";
 import chalk from "chalk";
 

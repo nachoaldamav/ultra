@@ -9,7 +9,6 @@ import { getDeps } from "../utils/getDeps.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
-import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
 import { installPkg } from "../utils/installPkg.js";
@@ -19,31 +18,6 @@ import basePostInstall from "../utils/basePostInstall.js";
 import { __dirname } from "../utils/__dirname.js";
 import { hardLinkSync } from "../utils/hardLinkSync.js";
 import checkLock from "../utils/checkLock.js";
-
-type pkg = {
-  name: string;
-  version: string;
-  parent?: string;
-  fromMonorepo?: string;
-};
-
-let pkgs: pkg[] = [];
-
-export const __INSTALLED: {
-  name: string;
-  version: string;
-}[] = [];
-
-export const __DOWNLOADING: string[] = [];
-export const __DOWNLOADED: any = [];
-export const __SKIPPED: string[] = [];
-
-export const downloadFile = ".ultra";
-
-const config = readConfig();
-
-export const userUltraCache = config.cache;
-export const REGISTRY = config.registry;
 
 export default async function installBeta(opts: string[]) {
   const start = performance.now();

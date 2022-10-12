@@ -5,6 +5,9 @@ import chalk from "chalk";
 import path from "node:path";
 import readPackage from "../utils/readPackage.js";
 import { __dirname } from "../utils/__dirname.js";
+import { globals } from "../utils/globals.js";
+
+globals();
 
 function main() {
   const { version } = readPackage(
