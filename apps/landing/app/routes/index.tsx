@@ -66,16 +66,47 @@ export default function Index() {
         </div>
       </section>
       <section
+        id="demo"
+        className="flex h-full w-full flex-1 flex-col items-center justify-start mt-10"
+      >
+        <h2 className="text-4xl font-bold text-white mb-5">How it works</h2>
+        <p className="text-lg text-white mb-5">
+          In this demo, we installed Next.js in 2 different projects to see how
+          shared dependencies are handled.
+        </p>
+        <div style={{ paddingTop: "35%", position: "relative", width: "65%" }}>
+          <iframe
+            src="https://player.vimeo.com/video/759589352?h=1ac1372daa&title=0&byline=0&portrait=0"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+            }}
+            frameBorder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen={true}
+          ></iframe>
+        </div>
+        <script src="https://player.vimeo.com/api/player.js"></script>
+        <p>
+          <a href="https://vimeo.com/759589352">ultra-demo</a> from{" "}
+          <a href="https://vimeo.com/user121655165">Nacho Aldama</a> on{" "}
+          <a href="https://vimeo.com">Vimeo</a>.
+        </p>
+      </section>
+      <section
         id="comparison"
-        className="flex h-full my-20 w-full flex-1 flex-col items-center justify-start gap-2 p-10"
+        className="flex h-full my-10 w-full flex-1 flex-col items-center justify-start gap-2 p-10"
       >
         <h1 className="text-4xl font-bold text-white">Comparison</h1>
-        <p className="text-xl text-white">
+        <p className="text-xl text-white text-center">
           Here&apos;s a comparison between ULTRA and other package managers in a
           project with many dependencies.
         </p>
         <Graph group={group} />
-        <div className="flex flex-row gap-2 mt-10">
+        <div className="flex flex-col md:flex-row gap-2 mt-10">
           {[3, 2, 1].map((i) => (
             <button
               key={i}
@@ -94,7 +125,7 @@ export default function Index() {
         className="flex w-full flex-1 flex-col items-center justify-center gap-2 p-10 bg-gradient-to-t from-gray-700 via-gray-900 to-black bg-opacity-25"
       >
         <div className="flex flex-col items-center justify-center gap-10 py-24">
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-4xl font-bold text-white text-center">
             Do you want to know more?
           </h1>
           <Link
