@@ -9,7 +9,7 @@ import basePostInstall from "../utils/basePostInstall.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 import parseTime from "../utils/parseTime.js";
-import { ultraExtract } from "../utils/pkgDownloader.js";
+import { ultraExtract } from "../utils/extract.js";
 import readPackage from "../utils/readPackage.js";
 
 export default async function continuousInstall() {

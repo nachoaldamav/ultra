@@ -9,7 +9,9 @@ import readPackage from "../utils/readPackage.js";
 
 export default async function run(args: Array<string>) {
   const pkg = readPackage(path.join(process.cwd(), "package.json"));
+
   await checkNodeVersion(pkg.engines);
+
   const { scripts } = pkg;
   const script = scripts[args[0]];
 

@@ -1,3 +1,4 @@
+import type { ultra_lock } from "../../types/pkg";
 import chalk from "chalk";
 import ora from "ora";
 import { writeFile, readFile, unlink, rm } from "node:fs/promises";
@@ -12,12 +13,12 @@ import readConfig from "../utils/readConfig.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
 import { installPkg } from "../utils/installPkg.js";
-import { ultra_lock } from "../../types/pkg.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
 import { __dirname } from "../utils/__dirname.js";
 import { hardLinkSync } from "../utils/hardLinkSync.js";
+import checkLock from "../utils/checkLock.js";
 
 type pkg = {
   name: string;
@@ -63,6 +64,8 @@ export default async function installBeta(opts: string[]) {
         discardStdin: false,
       }).start();
       const start = performance.now();
+
+      checkLock(lock);
 
       // Hardlink all the packages in ultra.lock to each path from cache
       await Promise.all(
@@ -122,7 +125,7 @@ export default async function installBeta(opts: string[]) {
       await basePostInstall();
       return;
     } catch (e) {
-      ora(chalk.red(`Error: ${e}`)).fail();
+      ora(chalk.red(`${e}`)).fail();
       ora(
         chalk.yellow("Lockfile is outdated, installing from cache...")
       ).warn();
