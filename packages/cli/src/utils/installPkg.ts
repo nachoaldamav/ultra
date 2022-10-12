@@ -139,16 +139,6 @@ export async function installPkg(
     : false;
 
   if (isSatisfied && cacheFolder && manifest.version !== "latest") {
-    // Push to downloaded package info
-    __DOWNLOADED.push({
-      name: manifest.name,
-      version: suitableVersion,
-      // Remove cwd from path
-      path: pkgProjectDir.replace(process.cwd(), ""),
-      // Remove homeDir from path
-      cache: cacheFolder.replace(userUltraCache, ""),
-    });
-
     if (spinner) {
       spinner.prefixText = "📦";
       spinner.text = chalk.green(
@@ -163,6 +153,16 @@ export async function installPkg(
         manifest.name
       );
     }
+
+    // Push to downloaded package info
+    __DOWNLOADED.push({
+      name: manifest.name,
+      version: suitableVersion,
+      // Remove cwd from path
+      path: pkgProjectDir.replace(process.cwd(), ""),
+      // Remove homeDir from path
+      cache: cacheFolder.replace(userUltraCache, ""),
+    });
 
     // Create directory for package without the last folder
     mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
@@ -246,16 +246,6 @@ export async function installPkg(
     return null;
   }
 
-  // Push to downloaded package info
-  __DOWNLOADED.push({
-    name: manifest.name,
-    version: pkg.version,
-    // Remove cwd from path
-    path: pkgProjectDir.replace(process.cwd(), ""),
-    // Remove homeDir from path
-    cache: cacheFolder.replace(userUltraCache, ""),
-  });
-
   if (!islocalInstalled) {
     __INSTALLED.push({
       name: manifest.name,
@@ -292,6 +282,16 @@ export async function installPkg(
     ).fail();
     return null;
   }
+
+  // Push to downloaded package info
+  __DOWNLOADED.push({
+    name: manifest.name,
+    version: pkg.version,
+    // Remove cwd from path
+    path: pkgProjectDir.replace(process.cwd(), ""),
+    // Remove homeDir from path
+    cache: cacheFolder.replace(userUltraCache, ""),
+  });
 
   mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
 
