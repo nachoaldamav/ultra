@@ -17,10 +17,11 @@ export default function Index() {
   const [group, setGroup] = useState(3);
 
   return (
-    <div className="flex h-fit w-full flex-col bg-primary">
+    <div className="flex h-fit w-full flex-col bg-black">
+      <span className="absolute inset-0 bg-gradient-to-b from-gray-700 via-gray-900 to-black bg-opacity-25 z-[1]" />
       <section
         id="hero"
-        className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center"
+        className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center z-[2]"
       >
         <div className="flex flex-col relative h-28 w-full">
           <AnimatePresence>
@@ -90,7 +91,7 @@ export default function Index() {
       </section>
       <section
         id="get-started"
-        className="flex w-full flex-1 flex-col items-center justify-center gap-2 p-10 bg-secondary"
+        className="flex w-full flex-1 flex-col items-center justify-center gap-2 p-10 bg-gradient-to-t from-gray-700 via-gray-900 to-black bg-opacity-25"
       >
         <div className="flex flex-col items-center justify-center gap-10 py-24">
           <h1 className="text-4xl font-bold text-white">
