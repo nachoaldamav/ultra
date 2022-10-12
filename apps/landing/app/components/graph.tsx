@@ -6,79 +6,79 @@ const normalClassname = "h-8 rounded rounded-l-none bg-[#40916c]";
 const ultraClassname = "fnpm-gradient h-8 rounded rounded-l-none";
 
 const data = [
-  /* {
+  {
     name: "Bun install (with cache / with lockfile)",
-    value: 688.4288120000856,
+    value: 513.2528640000382,
     group: 3,
   },
   {
-    name: "Bun install (with cache / no lockfile)",
-    value: 2281.2707470000023,
-    group: 2,
-  }, */
-  {
     name: "⚡ ULTRA install (with cache / with lockfile)",
-    value: 2402.843654999975,
+    value: 1805.003108999983,
     group: 3,
   },
   {
     name: "⚡ ULTRA install (with cache / no lockfile)",
-    value: 4423.114569999976,
+    value: 2087.2459210000234,
     group: 2,
   },
-  /* {
-    name: "Bun install (no cache / no lockfile)",
-    value: 4622.910152000026,
-    group: 1,
-  }, */
+  {
+    name: "Bun install (with cache / no lockfile)",
+    value: 4031.210407000035,
+    group: 2,
+  },
   {
     name: "PNPM install (with cache / with lockfile)",
-    value: 5465.357799999998,
+    value: 5278.861431999947,
     group: 3,
+  },
+  {
+    name: "Bun install (no cache / no lockfile)",
+    value: 7681.229542999994,
+    group: 1,
   },
   {
     name: "PNPM install (with cache / no lockfile)",
-    value: 10481.620923000039,
+    value: 8998.579411000013,
     group: 2,
   },
   {
-    name: "NPM install (with cache / with lockfile)",
-    value: 15833.186898999993,
+    name: "YARN install (with cache / with lockfile)",
+    value: 10119.531701,
     group: 3,
   },
   {
-    name: "YARN install (with cache / with lockfile)",
-    value: 17594.394268999982,
+    name: "NPM install (with cache / with lockfile)",
+    value: 14017.806435999984,
     group: 3,
   },
   {
     name: "NPM install (with cache / no lockfile)",
-    value: 22135.885549999977,
+    value: 20109.939749000012,
     group: 2,
   },
   {
     name: "PNPM install (no cache / no lockfile)",
-    value: 28532.370993000106,
+    value: 24090.706487999996,
     group: 1,
   },
   {
     name: "YARN install (with cache / no lockfile)",
-    value: 35836.50378800003,
+    value: 25640.13218299998,
     group: 2,
   },
   {
     name: "⚡ ULTRA install (no cache / no lockfile)",
-    value: 36274.968543000025,
-    group: 1,
-  },
-  {
-    name: "NPM install (no cache / no lockfile)",
-    value: 54253.61719300001,
+    value: 32699.450969999947,
     group: 1,
   },
   {
     name: "YARN install (no cache / no lockfile)",
-    value: 56616.93625500001,
+    value: 45361.97289099998,
+    group: 1,
+  },
+  {
+    name: "NPM install (no cache / no lockfile)",
+    value: 46014.098880000005,
     group: 1,
   },
 ];
