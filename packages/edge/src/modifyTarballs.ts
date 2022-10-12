@@ -4,7 +4,7 @@ export function modifyTarballs(data: Package) {
     const tarball = data.versions[version].dist.tarball;
     data.versions[version].dist.tarball = tarball.replace(
       "https://registry.npmjs.org",
-      "https://snpm-edge.snpm.workers.dev/download"
+      "https://registry.ultrapkg.dev/download"
     );
   }
 

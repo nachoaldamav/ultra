@@ -153,7 +153,10 @@ export default async function installBeta(opts: string[]) {
   // Read "workspaces" field
   const workspaces = pkg.workspaces || null;
 
-  const wsDeps = workspaces ? await getDepsWorkspaces(workspaces) : [];
+  const ws = await getDepsWorkspaces(workspaces);
+
+  const wsDeps = ws && ws.deps.length > 0 ? ws.deps : [];
+  const wsPkgs = ws && ws.pkgs.length > 0 ? ws.pkgs : [];
 
   // Get all dependencies with version
   const deps = getDeps(pkg).concat(wsDeps).concat(addDeps);
@@ -174,6 +177,23 @@ export default async function installBeta(opts: string[]) {
         await installLocalDep(dep);
         return;
       }
+
+      // If dependency is inside wsPkgs, it's a local dependency
+      const localAvailable = wsPkgs.find((wsPkg) => wsPkg.name === dep.name);
+
+      if (localAvailable) {
+        __DOWNLOADED.push({
+          name: dep.name,
+          version: "local",
+          path: localAvailable.version,
+        });
+        await installLocalDep({
+          name: dep.name,
+          version: localAvailable.version,
+        });
+        return;
+      }
+
       pkgs.push({
         name: dep.name,
         version: dep.version,
