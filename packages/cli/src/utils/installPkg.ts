@@ -14,6 +14,9 @@ import path from "path";
 import semver from "semver";
 import binLinks from "bin-links";
 import { getDeps } from "./getDeps.js";
+import manifestFetcher from "./manifestFetcher.js";
+import { hardLinkSync } from "./hardLinkSync.js";
+import { ultraExtract } from "./extract.js";
 import {
   userUltraCache,
   __DOWNLOADED,
@@ -23,9 +26,7 @@ import {
   REGISTRY,
   downloadFile,
 } from "../commands/install.js";
-import manifestFetcher from "./manifestFetcher.js";
-import { hardLinkSync } from "./hardLinkSync.js";
-import { ultraExtract } from "./pkgDownloader.js";
+import { hardLink } from "./hardLink.js";
 
 type Return = {
   name: string;
@@ -131,11 +132,7 @@ export async function installPkg(
     }
   }
 
-  const pkgProjectDir = getDir();
-
-  if (existsSync(pkgProjectDir)) {
-    return null;
-  }
+  let pkgProjectDir = getDir();
 
   const isSatisfied = cacheFolder
     ? existsSync(path.join(cacheFolder, downloadFile))
@@ -156,6 +153,14 @@ export async function installPkg(
       spinner.prefixText = "📦";
       spinner.text = chalk.green(
         `${manifest.name}@${manifest.version}` + chalk.gray(" (cached)")
+      );
+    }
+
+    if (existsSync(pkgProjectDir)) {
+      pkgProjectDir = path.join(
+        parent || process.cwd(),
+        "node_modules",
+        manifest.name
       );
     }
 
@@ -273,7 +278,21 @@ export async function installPkg(
 
   const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
 
-  // Create directory for package without the last folder
+  if (existsSync(pkgProjectDir)) {
+    // If exists, retry
+    const parentDir = parent ? parent : process.cwd();
+    pkgProjectDir = path.join(parentDir, "node_modules", manifest.name);
+  }
+
+  if (existsSync(pkgProjectDir)) {
+    ora(
+      chalk.red(
+        `Error while installing ${manifest.name}@${manifest.version} - ${pkgProjectDir} already exists`
+      )
+    ).fail();
+    return null;
+  }
+
   mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
 
   hardLinkSync(cacheFolder, pkgProjectDir);
