@@ -2,7 +2,7 @@
   <a href="https://ultra.vercel.app/">
   <img src="https://i.imgur.com/hhX5nO1.png" />
   </a>
-  <p><h3><strong>⚡ <strong>ultra</strong> is an alternative for NPM, it is faster and saves more space</strong></h3></p>
+  <p><h3><strong>⚡ <strong>Ultra</strong> is a faster and lightweight alternative for NPM</strong></h3></p>
   <a href="https://ultra.vercel.app/docs/get-started">📚 Documentation</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="https://github.com/nachoaldamav/ultra/tree/main/examples">📦 Examples</a>
