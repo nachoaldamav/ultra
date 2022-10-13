@@ -8,7 +8,7 @@ import readPackage from "../utils/readPackage.js";
 export async function clear() {
   const cacheFolder = `${os.homedir()}/.ultra-cache`;
   const packageJson = `${process.cwd()}/package.json`;
-  const tmpCacheFolder = path.join(os.tmpdir(), "ultra-cache");
+  const tmpCacheFolder = path.join(os.tmpdir(), "ultra_tmp");
   const manifestsFolder = path.join(os.homedir(), ".ultra", "__manifests__");
   const pkg = readPackage(packageJson);
   const workspaces = pkg.workspaces || null;
