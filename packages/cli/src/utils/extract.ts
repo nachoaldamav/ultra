@@ -1,17 +1,24 @@
 import tar from "tar";
 import axios from "axios";
-import { createWriteStream, mkdirSync, existsSync, writeFileSync } from "fs";
+import {
+  createWriteStream,
+  mkdirSync,
+  existsSync,
+  writeFileSync,
+  rmSync,
+} from "fs";
 import os from "os";
 import path from "path";
-import ora from "ora";
-import chalk from "chalk";
 
 // Get system temp directory
 const tmpDir = os.tmpdir();
 
 const cacheBasePath = path.join(tmpDir, "ultra_tmp");
 
-export async function ultraExtract(target: string, tarball: string) {
+export async function ultraExtract(
+  target: string,
+  tarball: string
+): Promise<void | { res: string }> {
   if (!tarball) {
     throw new Error("No tarball provided");
   }
@@ -38,45 +45,42 @@ export async function ultraExtract(target: string, tarball: string) {
     mkdirSync(cacheBasePath);
   }
 
-  if (!existsSync(file)) {
-    const writer = createWriteStream(file);
-    const response = await axios({
-      url: tarball,
-      method: "GET",
-      responseType: "stream",
-    });
+  try {
+    if (!existsSync(file)) {
+      const writer = createWriteStream(file);
+      const response = await axios({
+        url: tarball,
+        method: "GET",
+        responseType: "stream",
+      });
 
-    response.data.pipe(writer);
+      response.data.pipe(writer);
 
-    await new Promise((resolve, reject) => {
-      writer.on("finish", resolve);
-      writer.on("error", reject);
-    });
-  }
+      await new Promise((resolve, reject) => {
+        writer.on("finish", resolve);
+        writer.on("error", reject);
+      });
+    }
 
-  // Extract "package" directory from tarball to "target" directory
-  mkdirSync(target, { recursive: true });
+    // Extract "package" directory from tarball to "target" directory
+    mkdirSync(target, { recursive: true });
 
-  await tar
-    .extract({
+    await tar.extract({
       file,
       cwd: target,
       strip: 1,
-    })
-    .catch((err) => {
-      ora(
-        chalk.red(
-          `Error extracting ${file} to ${target}: ${err.message || err}`
-        )
-      ).fail();
     });
 
-  // Create .ultra file
-  writeFileSync(ultraFile, "{}");
+    __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
+    // Create .ultra file
+    writeFileSync(ultraFile, "{}");
 
-  __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
-
-  return {
-    res: "extracted",
-  };
+    return {
+      res: "extracted",
+    };
+  } catch (e) {
+    __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
+    rmSync(file, { recursive: true, force: true });
+    return ultraExtract(target, tarball);
+  }
 }
