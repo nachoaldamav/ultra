@@ -76,8 +76,8 @@ This example is generated using `npx create-next-app --use-npm --ts`
 │ (index) │                      name                       │   time   │ group │
 ├─────────┼─────────────────────────────────────────────────┼──────────┼───────┤
 │    0    │   'Bun install (with cache / with lockfile)'    │ '0.17s'  │   3   │
-│    1    │ '⚡ ULTRA install (with cache / with lockfile)'  │ '0.92s'  │   3   │
-│    2    │  '⚡ ULTRA install (with cache / no lockfile)'   │ '1.12s'  │   2   │
+│    1    │   'ULTRA install (with cache / with lockfile)'  │ '0.92s'  │   3   │
+│    2    │    'ULTRA install (with cache / no lockfile)'   │ '1.12s'  │   2   │
 │    3    │   'PNPM install (with cache / with lockfile)'   │ '3.34s'  │   3   │
 │    4    │    'PNPM install (with cache / no lockfile)'    │ '4.58s'  │   2   │
 │    5    │   'YARN install (with cache / with lockfile)'   │ '5.12s'  │   3   │
@@ -85,7 +85,7 @@ This example is generated using `npx create-next-app --use-npm --ts`
 │    7    │    'Bun install (with cache / no lockfile)'     │ '6.74s'  │   2   │
 │    8    │    'NPM install (with cache / no lockfile)'     │ '7.81s'  │   2   │
 │    9    │     'Bun install (no cache / no lockfile)'      │ '17.12s' │   1   │
-│   10    │   '⚡ ULTRA install (no cache / no lockfile)'    │ '17.83s' │   1   │
+│   10    │     'ULTRA install (no cache / no lockfile)'    │ '17.83s' │   1   │
 │   11    │     'PNPM install (no cache / no lockfile)'     │ '18.45s' │   1   │
 │   12    │    'YARN install (with cache / no lockfile)'    │ '21.30s' │   2   │
 │   13    │     'NPM install (no cache / no lockfile)'      │ '24.26s' │   1   │
@@ -93,7 +93,7 @@ This example is generated using `npx create-next-app --use-npm --ts`
 └─────────┴─────────────────────────────────────────────────┴──────────┴───────┘
 ```
 
-- **▲ [Vite](https://vitejs.dev/) with Typescript:**
+- **[Vite](https://vitejs.dev/) with Typescript:**
 
 This example is generated using `npx create-vite-app --template react-ts`
 
@@ -107,8 +107,8 @@ Current project: fnpm-vite-demo (0.0.0)
 │ (index) │                      name                       │   time   │ group │
 ├─────────┼─────────────────────────────────────────────────┼──────────┼───────┤
 │    0    │   'Bun install (with cache / with lockfile)'    │ '0.05s'  │   3   │
-│    1    │  '⚡ ULTRA install (with cache / no lockfile)'   │ '0.52s'  │   2   │
-│    2    │ '⚡ ULTRA install (with cache / with lockfile)'  │ '0.56s'  │   3   │
+│    1    │    'ULTRA install (with cache / no lockfile)'   │ '0.52s'  │   2   │
+│    2    │   'ULTRA install (with cache / with lockfile)'  │ '0.56s'  │   3   │
 │    3    │   'YARN install (with cache / with lockfile)'   │ '1.35s'  │   3   │
 │    4    │   'PNPM install (with cache / with lockfile)'   │ '1.43s'  │   3   │
 │    5    │   'NPM install (with cache / with lockfile)'    │ '2.24s'  │   3   │
@@ -118,7 +118,7 @@ Current project: fnpm-vite-demo (0.0.0)
 │    9    │    'Bun install (with cache / no lockfile)'     │ '3.62s'  │   2   │
 │   10    │    'YARN install (with cache / no lockfile)'    │ '6.35s'  │   2   │
 │   11    │     'PNPM install (no cache / no lockfile)'     │ '6.58s'  │   1   │
-│   12    │   '⚡ ULTRA install (no cache / no lockfile)'    │ '7.75s'  │   1   │
+│   12    │     'ULTRA install (no cache / no lockfile)'    │ '7.75s'  │   1   │
 │   13    │     'YARN install (no cache / no lockfile)'     │ '11.51s' │   1   │
 │   14    │     'NPM install (no cache / no lockfile)'      │ '16.38s' │   1   │
 └─────────┴─────────────────────────────────────────────────┴──────────┴───────┘
