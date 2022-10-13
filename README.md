@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://ultra.vercel.app/">
-  <img src="apps/landing/public/images/banner_gh.jpg" />
+  <img src="https://i.imgur.com/hhX5nO1.png" />
   </a>
   <p><h3><strong>⚡ <strong>ultra</strong> is an alternative for NPM, it is faster and saves more space</strong></h3></p>
   <a href="https://ultra.vercel.app/docs/get-started">📚 Documentation</a>
