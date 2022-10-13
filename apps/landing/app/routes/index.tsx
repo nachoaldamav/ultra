@@ -1,6 +1,7 @@
+import { Media, Video } from "@vidstack/player-react";
 import { Link } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Feature from "~/components/featureCard";
 import Graph from "~/components/graph";
 import Snippet from "~/components/snippet";
@@ -76,7 +77,7 @@ export default function Index() {
         </p>
         <div style={{ paddingTop: "35%", position: "relative", width: "65%" }}>
           <iframe
-            src="https://player.vimeo.com/video/759589352?h=1ac1372daa&title=0&byline=0&portrait=0"
+            src="https://player.vimeo.com/video/759983180?h=1ac1372daa&title=0&byline=0&portrait=0"
             style={{
               position: "absolute",
               top: 0,

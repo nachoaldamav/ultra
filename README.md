@@ -9,12 +9,11 @@
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="#-benchmarks">⚡ Benchmarks</a>
   <br /><br />
-
 </div>
 
 ## 🚀 Getting Started
 
-> 🚧 This project was made to learn more about Package Managers, for now you should only use it to play with it.
+> 🚧 This project still in an early stage of development, for now you should only use it to test it.
 
 You will need:
 
@@ -55,11 +54,9 @@ Each dependency is a hard link to a common store inside `.ultra-cache`, so all y
 
 - **It works?**
 
-Short answer, probably no, but in some cases it works. (For now)
-
 I've selected some quickstart templates to test ULTRA, and I'm working on make it work in all of them.
 
-If you want to test a template, you can use Next or Vite, I've already tested them and it should work.
+If you want to test a template, you can use Next or Vite for example, I've already tested them and it should work.
 
 (If you want to test a template and it doesn't work, please open an issue)
 
