@@ -28,14 +28,14 @@ npm i ultrapkg -g
 
 ## 🔭 Commands
 
-| Command                                | Description                                             |
-| -------------------------------------- | ------------------------------------------------------- |
-| `ultra install [pkg (optional), flags]` | Install packages.                                       |
-| `ultra run <script> <params>`           | Run script from package.json                            |
-| `ultra create <template> <arguments>`   | Create a project from a template (Similar to npm init). |
-| `ultra benchmark`                       | Tests ULTRA against NPM and PNPM.                        |
-| `ultra clear`                           | Remove .ultra-cache folder.                              |
-| `ultra ls <pkg>`                        | Show versions installed by ULTRA.                        |
+| Command                                 | Description                                               |
+| --------------------------------------- | --------------------------------------------------------- |
+| `ultra install [pkg (optional), flags]` | Install packages.                                         |
+| `ultra run <script> <params>`           | Run script from package.json                              |
+| `ultra create <template> <arguments>`   | Create a project from a template (Similar to npm create). |
+| `ultra benchmark`                       | Tests ULTRA against NPM and PNPM.                         |
+| `ultra clear`                           | Remove .ultra-cache folder.                               |
+| `ultra ls <pkg>`                        | Show versions installed by ULTRA.                         |
 
 ## 🗒️ Todo
 
@@ -66,31 +66,62 @@ If you want to test a template, you can use Next or Vite for example, I've alrea
 
 This example is generated using `npx create-next-app --use-npm --ts`
 
-WARNING: It works now, but some errors may appear.
+```bash
+  Node.js: v18.10.0
+  OS: linux
+  ULTRA version: 0.6.9
+  Current project: next-ultra (0.1.0)
+
+┌─────────┬─────────────────────────────────────────────────┬──────────┬───────┐
+│ (index) │                      name                       │   time   │ group │
+├─────────┼─────────────────────────────────────────────────┼──────────┼───────┤
+│    0    │   'Bun install (with cache / with lockfile)'    │ '0.17s'  │   3   │
+│    1    │ '⚡ ULTRA install (with cache / with lockfile)'  │ '0.92s'  │   3   │
+│    2    │  '⚡ ULTRA install (with cache / no lockfile)'   │ '1.12s'  │   2   │
+│    3    │   'PNPM install (with cache / with lockfile)'   │ '3.34s'  │   3   │
+│    4    │    'PNPM install (with cache / no lockfile)'    │ '4.58s'  │   2   │
+│    5    │   'YARN install (with cache / with lockfile)'   │ '5.12s'  │   3   │
+│    6    │   'NPM install (with cache / with lockfile)'    │ '6.02s'  │   3   │
+│    7    │    'Bun install (with cache / no lockfile)'     │ '6.74s'  │   2   │
+│    8    │    'NPM install (with cache / no lockfile)'     │ '7.81s'  │   2   │
+│    9    │     'Bun install (no cache / no lockfile)'      │ '17.12s' │   1   │
+│   10    │   '⚡ ULTRA install (no cache / no lockfile)'    │ '17.83s' │   1   │
+│   11    │     'PNPM install (no cache / no lockfile)'     │ '18.45s' │   1   │
+│   12    │    'YARN install (with cache / no lockfile)'    │ '21.30s' │   2   │
+│   13    │     'NPM install (no cache / no lockfile)'      │ '24.26s' │   1   │
+│   14    │     'YARN install (no cache / no lockfile)'     │ '49.79s' │   1   │
+└─────────┴─────────────────────────────────────────────────┴──────────┴───────┘
+```
+
+- **▲ [Vite](https://vitejs.dev/) with Typescript:**
+
+This example is generated using `npx create-vite-app --template react-ts`
 
 ```bash
-  Node.js: v18.4.0
-  OS: linux
-  ULTRA version: 0.4.0
-  Current project: ultra-next-test (0.1.0)
+Node.js: v18.10.0
+OS: linux
+ULTRA version: 0.6.9
+Current project: fnpm-vite-demo (0.0.0)
 
-┌─────────┬────────────────────────────────────────────┬──────────┬───────┐
-│ (index) │                    name                    │   time   │ group │
-├─────────┼────────────────────────────────────────────┼──────────┼───────┤
-│    0    │ 'Bun install (with cache / with lockfile)' │ '0.17s'  │   3   │
-│    1    │  'Bun install (with cache / no lockfile)'  │ '3.83s'  │   2   │
-│    2    │        'ULTRA install (with cache)'        │ '4.41s'  │   3   │
-│    3    │        'PNPM install (with cache)'         │ '4.66s'  │   3   │
-│    4    │        'YARN install (with cache)'         │ '5.56s'  │   3   │
-│    5    │ 'NPM install (with cache / with lockfile)' │ '7.01s'  │   3   │
-│    6    │  'NPM install (with cache / no lockfile)'  │ '8.30s'  │   2   │
-│    7    │   'Bun install (no cache / no lockfile)'   │ '8.85s'  │   1   │
-│    8    │    'YARN install (with cache, no lock)'    │ '10.57s' │   2   │
-│    9    │         'ULTRA install (no cache)'         │ '19.59s' │   1   │
-│   10    │   'NPM install (no cache / no lockfile)'   │ '25.20s' │   1   │
-│   11    │   'YARN install (no cache, no lockfile)'   │ '30.00s' │   1   │
-│   12    │         'PNPM install (no cache)'          │ '45.77s' │   1   │
-└─────────┴────────────────────────────────────────────┴──────────┴───────┘
+┌─────────┬─────────────────────────────────────────────────┬──────────┬───────┐
+│ (index) │                      name                       │   time   │ group │
+├─────────┼─────────────────────────────────────────────────┼──────────┼───────┤
+│    0    │   'Bun install (with cache / with lockfile)'    │ '0.05s'  │   3   │
+│    1    │  '⚡ ULTRA install (with cache / no lockfile)'   │ '0.52s'  │   2   │
+│    2    │ '⚡ ULTRA install (with cache / with lockfile)'  │ '0.56s'  │   3   │
+│    3    │   'YARN install (with cache / with lockfile)'   │ '1.35s'  │   3   │
+│    4    │   'PNPM install (with cache / with lockfile)'   │ '1.43s'  │   3   │
+│    5    │   'NPM install (with cache / with lockfile)'    │ '2.24s'  │   3   │
+│    6    │    'NPM install (with cache / no lockfile)'     │ '2.88s'  │   2   │
+│    7    │     'Bun install (no cache / no lockfile)'      │ '3.23s'  │   1   │
+│    8    │    'PNPM install (with cache / no lockfile)'    │ '3.60s'  │   2   │
+│    9    │    'Bun install (with cache / no lockfile)'     │ '3.62s'  │   2   │
+│   10    │    'YARN install (with cache / no lockfile)'    │ '6.35s'  │   2   │
+│   11    │     'PNPM install (no cache / no lockfile)'     │ '6.58s'  │   1   │
+│   12    │   '⚡ ULTRA install (no cache / no lockfile)'    │ '7.75s'  │   1   │
+│   13    │     'YARN install (no cache / no lockfile)'     │ '11.51s' │   1   │
+│   14    │     'NPM install (no cache / no lockfile)'      │ '16.38s' │   1   │
+└─────────┴─────────────────────────────────────────────────┴──────────┴───────┘
 ```
 
 > The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (ULTRA uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for ULTRA.
