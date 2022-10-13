@@ -124,4 +124,4 @@ Current project: fnpm-vite-demo (0.0.0)
 └─────────┴─────────────────────────────────────────────────┴──────────┴───────┘
 ```
 
-> The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files (ULTRA uses them too [npm/pacote](https://github.com/npm/pacote)) and also deletes the store folder for ULTRA.
+> The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files and runs `ultra clear` to remove Ultra cache folders.
