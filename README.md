@@ -23,7 +23,7 @@ You will need:
 ### **Install:**
 
 ```bash
-npm i ultrapkg -g
+npm i ultra-pkg -g
 ```
 
 ## 🔭 Commands
