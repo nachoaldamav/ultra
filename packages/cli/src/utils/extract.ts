@@ -1,8 +1,15 @@
 import tar from "tar";
+import {
+  createWriteStream,
+  mkdirSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import axios from "axios";
-import { createWriteStream, mkdirSync, existsSync, writeFileSync } from "fs";
-import os from "os";
-import path from "path";
+import { createHash } from "node:crypto";
+import os from "node:os";
+import path from "node:path";
 import ora from "ora";
 import chalk from "chalk";
 
@@ -11,7 +18,11 @@ const tmpDir = os.tmpdir();
 
 const cacheBasePath = path.join(tmpDir, "ultra_tmp");
 
-export async function ultraExtract(target: string, tarball: string) {
+export async function ultraExtract(
+  target: string,
+  tarball: string,
+  sha: string
+) {
   if (!tarball) {
     throw new Error("No tarball provided");
   }
@@ -52,6 +63,19 @@ export async function ultraExtract(target: string, tarball: string) {
       writer.on("finish", resolve);
       writer.on("error", reject);
     });
+
+    const fileBuffer = readFileSync(file);
+    const hashSum = createHash("sha512");
+
+    hashSum.update(fileBuffer);
+    const hash = "sha512-" + hashSum.digest("base64");
+
+    if (hash !== sha) {
+      ora().fail(chalk.red(`SHA512 mismatch for ${tarball}`));
+      ora().fail(chalk.red(`Expected ${sha} but got ${hash}`));
+    }
+
+    __VERIFIED.push(tarball);
   }
 
   // Extract "package" directory from tarball to "target" directory

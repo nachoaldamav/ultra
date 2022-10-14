@@ -18,7 +18,11 @@ export default function readConfig(): CONFIG {
   const workspaceConfigPath = `${process.cwd()}/.ultrarc`;
 
   if (existsSync(workspaceConfigPath)) {
-    return JSON.parse(readFileSync(workspaceConfigPath, "utf8"));
+    // Replace basic config with workspace config
+    const workspaceConfig = JSON.parse(
+      readFileSync(workspaceConfigPath, "utf8")
+    );
+    return { ...BASIC_CONFIG, ...workspaceConfig };
   }
 
   if (!existsSync(configPath)) {
