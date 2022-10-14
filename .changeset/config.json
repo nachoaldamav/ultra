@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@snpm-io/web", "@fnpm-io/landing"]
+  "ignore": ["@fnpm-io/landing"]
 }

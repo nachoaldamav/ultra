@@ -39,7 +39,6 @@ jobs:
           body: "This release was created by the GitHub Release Action."
           name: ${{ steps.update-version.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "packages/cli/build/**, packages/cli/package.json, packages/cli/readme.md"
           prerelease: true
           tag: ${{ steps.update-version.outputs.version }}
           target: "development"
@@ -50,6 +49,6 @@ jobs:
           body: |
             Published alpha release:
             - Version: ${{ steps.update-version.outputs.version }}
-            - NPM URL: https://www.npmjs.com/package/@ultra-cli/cli/v/${{ steps.update-version.outputs.version }}
+            - NPM URL: https://www.npmjs.com/package/ultrapkg/v/${{ steps.update-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
