@@ -3,7 +3,7 @@ name: Update Version
 on:
   pull_request:
     branches:
-      - main
+      - development
     types: [closed]
 
 jobs:
