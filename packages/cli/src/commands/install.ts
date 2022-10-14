@@ -322,6 +322,16 @@ export default async function installBeta(opts: string[]) {
 
   await basePostInstall();
 
+  if (__VERIFIED.length > 0) {
+    const verify = ora(
+      chalk.green(`${chalk.gray(__VERIFIED.length)} packages verified`)
+    ).start();
+
+    verify.stopAndPersist({
+      symbol: chalk.green("⚡"),
+    });
+  }
+
   const __done = ora(
     chalk.green(`Done in ${chalk.gray(parseTime(start, performance.now()))}`)
   ).start();
