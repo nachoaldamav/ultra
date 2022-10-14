@@ -15,7 +15,6 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "publish-pkg": "turbo run publish-pkg",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build --filter=apps^... --filter=examples && changeset publish"
