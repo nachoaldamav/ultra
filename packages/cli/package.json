@@ -12,8 +12,7 @@
   "type": "module",
   "scripts": {
     "dev": "swc ./src -d ./build --watch",
-    "build": "swc ./src -d ./build",
-    "publish-pkg": "pnpm run build && npm publish"
+    "build": "swc ./src -d ./build"
   },
   "files": [
     "build"
