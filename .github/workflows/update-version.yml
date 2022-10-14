@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish release
-      - uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1
         with:
           body: "This release was created by the GitHub Release Action."
           name: ${{ steps.update-version.outputs.version }}
