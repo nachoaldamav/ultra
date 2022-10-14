@@ -1,4 +1,3 @@
-import { Media, Video } from "@vidstack/player-react";
 import { Link } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
@@ -41,6 +40,25 @@ export default function Index() {
         </div>
         <p className="text-xl text-white">A really fast package manager</p>
         <Snippet />
+        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-center mb-10">
+          <div className="flex flex-col items-center justify-center">
+            <a
+              href="https://www.producthunt.com/posts/ultra-241a7c40-a06f-450e-abac-321f614e6bee?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ultra&#0045;241a7c40&#0045;a06f&#0045;450e&#0045;abac&#0045;321f614e6bee"
+              target="_blank"
+            >
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=363463&theme=light"
+                alt="Ultra - Fast&#0032;JavaScript&#0032;package&#0032;manager&#0046; | Product Hunt"
+                style={{
+                  width: "250px",
+                  height: "54px",
+                }}
+                width="250"
+                height="54"
+              />
+            </a>
+          </div>
+        </div>
       </section>
       <section
         id="features"
