@@ -5,7 +5,7 @@ import CopyIcon from "./icons/copy";
 
 export default function Snippet() {
   const [isCopied, setIsCopied] = useState(false);
-  const [text, setText] = useState("npm install ultrapkg -g");
+  const [text, setText] = useState("npm install ultra-pkg -g");
 
   useEffect(() => {
     // After 2 seconds, reset the isCopied state and set text to "snpm install"
