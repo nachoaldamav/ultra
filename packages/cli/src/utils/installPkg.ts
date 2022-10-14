@@ -229,6 +229,14 @@ export async function installPkg(
     registry: REGISTRY,
   });
 
+  if (pkg.deprecated) {
+    ora(
+      `${chalk.bgYellow.black("[DEPR]")} ${chalk.yellow(
+        `${manifest.name}@${manifest.version}`
+      )} - ${pkg.deprecated}`
+    ).warn();
+  }
+
   cacheFolder = path.join(userUltraCache, pkg.name, pkg.version);
 
   if (
@@ -251,7 +259,11 @@ export async function installPkg(
     );
   }
 
-  const status = await ultraExtract(cacheFolder, pkg.dist.tarball);
+  const status = await ultraExtract(
+    cacheFolder,
+    pkg.dist.tarball,
+    pkg.dist.integrity
+  );
 
   if (status.res === "skipped") {
     return null;

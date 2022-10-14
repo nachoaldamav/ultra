@@ -17,7 +17,7 @@ export default async function manifestFetcher(spec: string, props: any) {
   try {
     await mkdir(cacheFolder, { recursive: true }).catch((e) => {});
 
-    const isExact = !specialChars.some((char) => spec.includes(char));
+    const isExact = !specialChars.some((char) => spec.includes(char) || spec === "latest");
 
     // Check if cache file exists
     const cacheExists = readFileSync(cacheFile, "utf-8");
