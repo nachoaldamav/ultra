@@ -7,7 +7,7 @@ import { execa } from "execa";
 import checkNodeVersion from "../utils/checkNodeVersion.js";
 import readPackage from "../utils/readPackage.js";
 
-export default async function run(args: Array<string>) {
+export async function run(args: Array<string>) {
   const pkg = readPackage(path.join(process.cwd(), "package.json"));
 
   await checkNodeVersion(pkg.engines);

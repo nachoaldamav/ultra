@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build CLI
-        run: pnpm run build --filter=ultrapkg
+        run: pnpm run build --filter=ultra-pkg
       - name: Setup Bun Runtime
         uses: antongolub/action-setup-bun@v1.12.8
       - name: Install CLI

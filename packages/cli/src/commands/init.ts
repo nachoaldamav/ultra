@@ -5,7 +5,7 @@ import chalk from "chalk";
 import { __dirname } from "../utils/__dirname.js";
 import samplePkg from "../utils/sample/package.js";
 
-export default async function init(args: string[]) {
+export async function init(args: string[]) {
   let sampleJson = samplePkg;
   if (existsSync("package.json")) {
     console.log(

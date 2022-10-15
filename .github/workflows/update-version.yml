@@ -23,7 +23,7 @@ jobs:
         run: echo "::set-output name=version::$(node update-beta-version.mjs)"
         id: update-version
       - name: Build CLI
-        run: pnpm run build --filter ultrapkg
+        run: pnpm run build --filter ultra-pkg
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1

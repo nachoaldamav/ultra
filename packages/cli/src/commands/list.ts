@@ -5,7 +5,7 @@ import ora from "ora";
 import os from "os";
 import path from "path";
 
-export default async function list(pkgs: string[]) {
+export async function list(pkgs: string[]) {
   if (!pkgs) {
     ora(chalk.red("Missing package name")).fail();
     const packages = await readdir(path.join(os.homedir(), ".ultra-cache"));
