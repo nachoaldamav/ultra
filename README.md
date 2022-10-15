@@ -17,7 +17,7 @@
 
 You will need:
 
-- 🍃 [Nodejs v16](https://nodejs.org/en/) or higher.
+- 🍃 [Nodejs v14](https://nodejs.org/en/) or higher.
 - 💻 Linux or Mac OS (Partial support for Windows).
 
 ### **Install:**
