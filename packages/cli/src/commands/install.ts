@@ -11,7 +11,6 @@ import { installLocalDep } from "../utils/installLocalDep.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
-import { installPkg } from "../utils/installPkg.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
@@ -192,9 +191,11 @@ export async function install(opts: string[]) {
   const __install = spinnerGradient(chalk.green("Installing packages..."));
   const __install_start = performance.now();
 
+  const { installPkg } = await import("../utils/installPkg.js");
+
   await Promise.all(
     pkgs.map(async (pkg) => {
-      return await installPkg(pkg, pkg.parent, __install);
+      return installPkg(pkg, pkg.parent, __install);
     })
   );
 

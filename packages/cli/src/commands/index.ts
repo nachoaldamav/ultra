@@ -1,16 +1,4 @@
 import path from "node:path";
-/* import { clear } from "./clear.js";
-import install from "./install.js";
-import { benchmark } from "./benchmark.js";
-import upgrade from "./upgrade.js";
-import list from "./list.js";
-import run from "./run.js";
-import { update } from "../utils/readConfig.js";
-import create from "./create.js";
-import remove from "./remove.js";
-import test from "./test.js";
-import init from "./init.js";
-import continuousInstall from "./ci.js"; */
 import readPackage from "../utils/readPackage.js";
 
 const comms = [
