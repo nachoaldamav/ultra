@@ -12,12 +12,16 @@ const token = readConfig().token;
 const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
 
 export default async function manifestFetcher(spec: string, props: any) {
-  const cacheFile = path.join(cacheFolder, `${spec}.json`);
+  // Remove spaces from spec
+  const sanitizedSpec = spec.replace(/\s/g, "");
+  const cacheFile = path.join(cacheFolder, `${sanitizedSpec}.json`);
   const now = Date.now();
   try {
     await mkdir(cacheFolder, { recursive: true }).catch((e) => {});
 
-    const isExact = !specialChars.some((char) => spec.includes(char) || spec === "latest");
+    const isExact = !specialChars.some(
+      (char) => sanitizedSpec.includes(char) || sanitizedSpec === "latest"
+    );
 
     // Check if cache file exists
     const cacheExists = readFileSync(cacheFile, "utf-8");
