@@ -18,7 +18,7 @@
 You will need:
 
 - 🍃 [Nodejs v16](https://nodejs.org/en/) or higher.
-- 💻 Linux or Mac OS (Working on Windows support [issue](https://github.com/nachoaldamav/ultra/issues/40)).
+- 💻 Linux or Mac OS (Partial support for Windows).
 
 ### **Install:**
 
