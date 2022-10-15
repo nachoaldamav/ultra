@@ -11,6 +11,8 @@ import { execa } from "execa";
 import { fileURLToPath } from "url";
 import readPackage from "../utils/readPackage.js";
 
+const delCommand = os.platform() === "win32" ? "del /s /q" : "rm -rf";
+
 const homeDir = os.homedir();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +23,7 @@ const tests = [
   {
     name: "NPM install (no cache / no lockfile)",
     command: "npm install --force",
-    pre: "npm cache clean -f && rm -rf node_modules package-lock.json",
+    pre: `npm cache clean -f && ${delCommand} node_modules package-lock.json`,
     spinner: ora(
       chalk.green(`Running "NPM install (no cache / no lockfile)"...`)
     ).stop(),
@@ -30,7 +32,7 @@ const tests = [
   {
     name: "NPM install (with cache / no lockfile)",
     command: "npm install --force",
-    pre: "rm -rf node_modules package-lock.json",
+    pre: `${delCommand} node_modules package-lock.json`,
     spinner: ora(
       chalk.green(`Running "NPM install (with cache / no lockfile)"...`)
     ).stop(),
@@ -39,7 +41,7 @@ const tests = [
   {
     name: "NPM install (with cache / with lockfile)",
     command: "npm install --force",
-    pre: "rm -rf node_modules/",
+    pre: `${delCommand} node_modules`,
     spinner: ora(
       chalk.green(`Running "NPM install (with cache / with lockfile)"...`)
     ).stop(),
@@ -48,7 +50,7 @@ const tests = [
   {
     name: "YARN install (no cache / no lockfile)",
     command: "yarn install --force",
-    pre: "yarn cache clean && rm -rf node_modules yarn.lock",
+    pre: `yarn cache clean && ${delCommand} node_modules yarn.lock`,
     spinner: ora(
       chalk.green(`Running "YARN install (no cache / no lockfile)"...`)
     ).stop(),
@@ -57,7 +59,7 @@ const tests = [
   {
     name: "YARN install (with cache / no lockfile)",
     command: "yarn install --force",
-    pre: "rm -rf node_modules yarn.lock",
+    pre: `${delCommand} node_modules yarn.lock`,
     spinner: ora(
       chalk.green(`Running "YARN install (with cache / no lockfile)"...`)
     ).stop(),
@@ -66,7 +68,7 @@ const tests = [
   {
     name: "YARN install (with cache / with lockfile)",
     command: "yarn install --force",
-    pre: "rm -rf node_modules",
+    pre: `${delCommand} node_modules`,
     spinner: ora(
       chalk.green(`Running "YARN install (with cache / with lockfile)"...`)
     ).stop(),
@@ -76,7 +78,7 @@ const tests = [
   {
     name: "⚡ ULTRA install (no cache / no lockfile)",
     command: "ultra install",
-    pre: "npm cache clean -f && ultra clear",
+    pre: "ultra clear",
     spinner: ora(
       chalk.green(`Running "ULTRA install (no cache / no lockfile)"...`)
     ).stop(),
@@ -85,7 +87,8 @@ const tests = [
   {
     name: "⚡ ULTRA install (with cache / no lockfile)",
     command: "ultra install",
-    pre: "rm -rf node_modules ultra.lock",
+    /*  pre: "rm -rf node_modules ultra.lock", */
+    pre: `${delCommand} node_modules ultra.lock`,
     spinner: ora(
       chalk.green(`Running "ULTRA install (with cache / no lockfile)"...`)
     ).stop(),
@@ -94,7 +97,7 @@ const tests = [
   {
     name: "⚡ ULTRA install (with cache / with lockfile)",
     command: "ultra install",
-    pre: "rm -rf node_modules",
+    pre: `${delCommand} node_modules`,
     spinner: ora(
       chalk.green(`Running "ULTRA install (with cache / with lockfile)"...`)
     ).stop(),
@@ -131,7 +134,7 @@ const tests = [
     name: "PNPM install (no cache / no lockfile)",
     command:
       "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store --no-strict-peer-dependencies",
-    pre: `npm cache clean -f && pnpm store prune && rm -rf node_modules pnpm-lock.yaml ${homeDir}.local/share/pnpm/store/v3 cache/`,
+    pre: `npm cache clean -f && pnpm store prune && ${delCommand} node_modules pnpm-lock.yaml ${homeDir}.local/share/pnpm/store/v3 cache/`,
     spinner: ora(chalk.green(`Running "PNPM install (no cache)"...`)).stop(),
     group: 1,
   },
@@ -139,7 +142,7 @@ const tests = [
     name: "PNPM install (with cache / no lockfile)",
     command:
       "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store --no-strict-peer-dependencies",
-    pre: `rm -rf node_modules pnpm-lock.yaml`,
+    pre: `${delCommand} node_modules pnpm-lock.yaml`,
     spinner: ora(
       chalk.green(`Running "PNPM install (with cache / no lockfile)"...`)
     ).stop(),
@@ -149,7 +152,7 @@ const tests = [
     name: "PNPM install (with cache / with lockfile)",
     command:
       "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store --no-strict-peer-dependencies",
-    pre: "rm -rf node_modules",
+    pre: `${delCommand} node_modules`,
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
   },
@@ -157,7 +160,7 @@ const tests = [
   {
     name: "Bun install (no cache / no lockfile)",
     command: "bun install",
-    pre: `npm cache clean -f && rm -rf ${homeDir}.bun bun.lockb node_modules package-lock.json yarn.lock`,
+    pre: `npm cache clean -f && ${delCommand} ${homeDir}.bun bun.lockb node_modules package-lock.json yarn.lock`,
     spinner: ora(
       chalk.green(`Running "Bun install (no cache / no lockfile)"...`)
     ).stop(),
@@ -166,7 +169,7 @@ const tests = [
   {
     name: "Bun install (with cache / no lockfile)",
     command: "bun install",
-    pre: "rm -rf node_modules bun.lockb package-lock.json yarn.lock",
+    pre: `${delCommand} node_modules bun.lockb package-lock.json yarn.lock`,
     spinner: ora(
       chalk.green(`Running "Bun install (with cache / no lockfile)"...`)
     ).stop(),
@@ -175,7 +178,7 @@ const tests = [
   {
     name: "Bun install (with cache / with lockfile)",
     command: "bun install",
-    pre: "rm -rf node_modules",
+    pre: `${delCommand} node_modules`,
     spinner: ora(
       chalk.green(`Running "Bun install (with cache / with lockfile)"...`)
     ).stop(),

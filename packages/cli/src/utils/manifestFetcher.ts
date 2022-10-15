@@ -4,6 +4,8 @@ import pacote from "pacote";
 import { mkdir } from "node:fs/promises";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import readConfig from "./readConfig.js";
+import ora from "ora";
+import chalk from "chalk";
 
 const cacheFolder = path.join(os.homedir(), ".ultra", "__manifests__");
 
@@ -14,10 +16,9 @@ const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
 export default async function manifestFetcher(spec: string, props: any) {
   // Remove spaces "|", ">" and "<" from the spec
   const sanitizedSpec = spec
-    .replace(/ /g, "")
-    .replace(/\|/g, "")
-    .replace(/>/g, "")
-    .replace(/</g, "");
+    .replace(/\|/g, "7C")
+    .replace(/>/g, "3E")
+    .replace(/</g, "3C");
 
   const cacheFile = path.join(cacheFolder, `${sanitizedSpec}.json`);
   const now = Date.now();
@@ -25,7 +26,7 @@ export default async function manifestFetcher(spec: string, props: any) {
     await mkdir(cacheFolder, { recursive: true }).catch((e) => {});
 
     const isExact = !specialChars.some(
-      (char) => sanitizedSpec.includes(char) || sanitizedSpec === "latest"
+      (char) => sanitizedSpec.includes(char) || sanitizedSpec.includes("latest")
     );
 
     // Check if cache file exists
