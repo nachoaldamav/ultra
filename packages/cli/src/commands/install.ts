@@ -11,7 +11,6 @@ import { installLocalDep } from "../utils/installLocalDep.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
-import { installPkg } from "../utils/installPkg.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
@@ -19,7 +18,7 @@ import { __dirname } from "../utils/__dirname.js";
 import { hardLinkSync } from "../utils/hardLinkSync.js";
 import checkLock from "../utils/checkLock.js";
 
-export default async function installBeta(opts: string[]) {
+export async function install(opts: string[]) {
   const start = performance.now();
   const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
 
@@ -104,7 +103,7 @@ export default async function installBeta(opts: string[]) {
         chalk.yellow("Lockfile is outdated, installing from cache...")
       ).warn();
       await unlink(path.join(process.cwd(), "ultra.lock"));
-      await installBeta(opts);
+      await install(opts);
       return;
     }
   }
@@ -192,9 +191,11 @@ export default async function installBeta(opts: string[]) {
   const __install = spinnerGradient(chalk.green("Installing packages..."));
   const __install_start = performance.now();
 
+  const { installPkg } = await import("../utils/installPkg.js");
+
   await Promise.all(
     pkgs.map(async (pkg) => {
-      return await installPkg(pkg, pkg.parent, __install);
+      return installPkg(pkg, pkg.parent, __install);
     })
   );
 

@@ -167,6 +167,10 @@ export async function installPkg(
         readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
       );
 
+      const deps = getDeps(pkgJson, {
+        dev: true,
+      });
+
       // Symlink bin files
       await binLinks({
         path: pkgProjectDir,
@@ -188,6 +192,12 @@ export async function installPkg(
           pkgProjectDir,
           spinner
         );
+      }
+
+      for (const dep of deps) {
+        if (!cachedDeps[dep.name]) {
+          await installPkg(dep, pkgProjectDir, spinner);
+        }
       }
 
       __INSTALLED.push({
@@ -265,7 +275,7 @@ export async function installPkg(
     pkg.dist.integrity
   );
 
-  if (status.res === "skipped") {
+  if (status && status.res === "skipped") {
     return null;
   }
 

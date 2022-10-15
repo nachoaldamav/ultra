@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { writeFile } from "node:fs/promises";
 import readPackage from "../utils/readPackage.js";
 
-export default async function remove(args: string[]) {
+export async function remove(args: string[]) {
   if (args.length === 0) {
     console.log(
       chalk.red("Please provide packages to remove, e.g. fnpm remove react")
