@@ -19,7 +19,7 @@ import { __dirname } from "../utils/__dirname.js";
 import { hardLinkSync } from "../utils/hardLinkSync.js";
 import checkLock from "../utils/checkLock.js";
 
-export default async function installBeta(opts: string[]) {
+export async function install(opts: string[]) {
   const start = performance.now();
   const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
 
@@ -104,7 +104,7 @@ export default async function installBeta(opts: string[]) {
         chalk.yellow("Lockfile is outdated, installing from cache...")
       ).warn();
       await unlink(path.join(process.cwd(), "ultra.lock"));
-      await installBeta(opts);
+      await install(opts);
       return;
     }
   }

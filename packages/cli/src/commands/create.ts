@@ -10,7 +10,7 @@ import { getDeps } from "../utils/getDeps.js";
 import readPackage from "../utils/readPackage.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
 
-export default async function create(args: string[]) {
+export async function create(args: string[]) {
   if (args.length === 0) {
     console.log(
       chalk.red(

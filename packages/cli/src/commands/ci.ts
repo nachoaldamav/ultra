@@ -12,7 +12,7 @@ import parseTime from "../utils/parseTime.js";
 import { ultraExtract } from "../utils/extract.js";
 import readPackage from "../utils/readPackage.js";
 
-export default async function continuousInstall() {
+export async function continuousInstall() {
   try {
     const lockFile: string | null = readFileSync(
       join(process.cwd(), "ultra.lock"),
@@ -90,6 +90,7 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
   });
 
   const tarball = manifest.dist.tarball;
+  const integrity = manifest.dist.integrity;
 
   if (!existsSync(pathname)) {
     mkdirSync(pathname, { recursive: true });
@@ -97,7 +98,7 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
 
   spinner.text = chalk.green(`${spec}`);
   spinner.prefixText = "📦";
-  await ultraExtract(pathname, tarball);
+  await ultraExtract(pathname, tarball, integrity);
 
   spinner.prefixText = "🔗";
   const pkg = readPackage(join(pathname, "package.json"));

@@ -4,7 +4,7 @@ import { performance } from "perf_hooks";
 import ora from "ora";
 import parseTime from "../utils/parseTime.js";
 
-export default async function test(args: string[]) {
+export async function test(args: string[]) {
   const typeArg =
     args.find((arg) => arg.startsWith("--type=")) || "--type=clean";
   const runsArg = args.find((arg) => arg.startsWith("--runs=")) || "--runs=1";
