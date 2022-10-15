@@ -12,8 +12,13 @@ const token = readConfig().token;
 const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
 
 export default async function manifestFetcher(spec: string, props: any) {
-  // Remove spaces from spec
-  const sanitizedSpec = spec.replace(/\s/g, "");
+  // Remove spaces "|", ">" and "<" from the spec
+  const sanitizedSpec = spec
+    .replace(/ /g, "")
+    .replace(/\|/g, "")
+    .replace(/>/g, "")
+    .replace(/</g, "");
+
   const cacheFile = path.join(cacheFolder, `${sanitizedSpec}.json`);
   const now = Date.now();
   try {
