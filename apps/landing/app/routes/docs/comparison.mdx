@@ -8,6 +8,8 @@ meta:
 
 # ULTRA vs NPM / Yarn
 
+> Yarn is Yarn Classic.
+
 ## What's the difference between ULTRA and NPM / Yarn?
 
 The main difference between ULTRA and NPM / Yarn is the dependency resolution algorithm. NPM / Yarn gets all the dependencies first and then installs them. ULTRA gets one dependency at a time and installs it. This means that ULTRA can install dependencies faster than NPM / Yarn.
@@ -20,22 +22,33 @@ It depends. ULTRA is still in development and it's not ready for production yet.
 
 You can test for example, with a Next or a Vite project and it should work.
 
-## ULTRA doesn't verify the integrity of the packages?
-
-Yes, it doesn't. That's because how ULTRA works, I didn't think it was necessary to verify the integrity of the packages.
-
-It's because the lockfile created by ULTRA only uses paths. 
-
-I've created a "Discussion" in the Github repository to talk about this [here](https://github.com/nachoaldamav/ultra/discussions/44)
-
-## How much faster is ULTRA than NPM?
+## How much faster is ULTRA than NPM / Yarn?
 
 Varies depending on the number of project dependencies.
 
-If you have a project with many dependencies ULTRA will be faster than NPM / Yarn. If you have a project with few dependencies, NPM / Yarn will probably be faster than ULTRA.
+If the proyect has a few dependencies, for example Vite quickstart, clean installs are almost the same. Installs with cache are much faster with ULTRA.
 
-With a clean installation, ULTRA should be faster than NPM / Yarn, 2x faster in some cases.
+If the project has a lot of dependencies, for example Next.js, ULTRA is much faster.
+
+You can check the benchmarks in the closed PR's comments.
+[Closed PR's](https://github.com/nachoaldamav/ultra/pulls?q=is%3Apr+is%3Aclosed)
+
+## What's the difference between ULTRA and PNPM?
+
+Although similar, Ultra and PNPM have some differences.
+
+Both use a shared store to store dependencies and reuse them in different projects on your computer.
+
+The most visible difference is the structure of the Node Modules, PNPM creates a folder inside that is called `.pnpm`, there it stores the dependencies that later creates symbolic links to the parent folder.
+
+Ultra creates a structure similar to the one created in NPM, Yarn or Bun.
+
+To better understand how PNPM works, we recommend to take a look at its [documentation](https://pnpm.io/motivation#creating-a-non-flat-node_modules-directory)
+
+In terms of speed, PNPM is faster than Ultra in clean installations, but Ultra is faster in installations with Cache or lockfile.
+
+If you are working on a production project, we recommend you to use PNPM, in fact, until Ultra is stable, we use PNPM to manage our repository.
 
 ## Does it work in Monorepos?
 
-Currently, it doesn't. I'm working on it. [#45](https://github.com/nachoaldamav/ultra/issues/45)
+Monorepos support is still in development and may not work as expected. [#45](https://github.com/nachoaldamav/ultra/issues/45)

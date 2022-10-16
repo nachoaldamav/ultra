@@ -76,7 +76,7 @@ export default function Index() {
           />
           <Feature
             title="Edge caching"
-            description="ULTRA registry uses edge caching thanks to Cloudflare."
+            description="ULTRA registry uses edge caching thanks to Cloudflare. (WIP)"
           />
           <Feature
             title="Open Source"
