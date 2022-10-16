@@ -31,6 +31,12 @@ export function hardLinkSync(dir: string, targetDir: string) {
             linkSync(filePath, targetPath);
           } catch (e: any) {
             if (e.code === "EEXIST") return;
+            if (e.code === "EXDEV")
+              return copyFileSync(
+                filePath,
+                targetPath,
+                constants.COPYFILE_FICLONE
+              );
             ora(
               chalk.red(
                 `Error: ${e.message} (file: ${filePath}, target: ${targetPath})`
