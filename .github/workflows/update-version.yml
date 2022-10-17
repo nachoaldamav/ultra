@@ -49,6 +49,6 @@ jobs:
           body: |
             Published alpha release:
             - Version: ${{ steps.update-version.outputs.version }}
-            - NPM URL: https://www.npmjs.com/package/ultrapkg/v/${{ steps.update-version.outputs.version }}
+            - NPM URL: https://www.npmjs.com/package/ultra-pkg/v/${{ steps.update-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
