@@ -4,12 +4,15 @@ import pacote from "pacote";
 import { mkdir } from "node:fs/promises";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import readConfig from "./readConfig.js";
+import { readNpmConfig } from "./npmConfig.js";
 import ora from "ora";
 import chalk from "chalk";
 
 const cacheFolder = path.join(os.homedir(), ".ultra", "__manifests__");
 
 const token = readConfig().token;
+const registry = readConfig().registry || "https://registry.npmjs.org";
+const npmrc = readNpmConfig();
 
 const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
 
@@ -41,10 +44,24 @@ export default async function manifestFetcher(spec: string, props: any) {
       }
     }
 
+    const org = spec.startsWith("@") ? spec.split("/")[0] : null;
+
+    const npmRegistry =
+      (org ? npmrc[`${org}:registry`] : npmrc.registry) || registry;
+
+    const parseRegistry = npmRegistry
+      ? npmRegistry.replace(/https?:\/\//, "")
+      : "";
+
+    const npmToken = org
+      ? npmrc[`//${parseRegistry}:_authToken`]
+      : npmrc._authToken || token;
+
     // Fetch manifest
     const manifest = await pacote.manifest(spec, {
       ...props,
-      _authToken: token ? token : null,
+      registry: npmRegistry,
+      token: npmToken,
     });
 
     mkdirSync(path.dirname(cacheFile), { recursive: true });
@@ -62,9 +79,24 @@ export default async function manifestFetcher(spec: string, props: any) {
 
     return manifest;
   } catch (e) {
+    const org = spec.startsWith("@") ? spec.split("/")[0] : null;
+
+    const npmRegistry =
+      (org ? npmrc[`${org}:registry`] : npmrc.registry) || registry;
+
+    const parseRegistry = npmRegistry
+      ? npmRegistry.replace(/https?:\/\//, "")
+      : "";
+
+    const npmToken = org
+      ? npmrc[`//${parseRegistry}:_authToken`]
+      : npmrc._authToken || token;
+
+    // Fetch manifest
     const manifest = await pacote.manifest(spec, {
       ...props,
-      _authToken: token ? token : null,
+      registry: npmRegistry,
+      token: npmToken,
     });
 
     mkdirSync(path.dirname(cacheFile), { recursive: true });
