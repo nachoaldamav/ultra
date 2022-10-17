@@ -44,25 +44,15 @@ export default async function manifestFetcher(spec: string, props: any) {
       }
     }
 
-    const org = spec.startsWith("@") ? spec.split("/")[0] : null;
-
-    const npmRegistry =
-      (org ? npmrc[`${org}:registry`] : npmrc.registry) || registry;
-
-    const parseRegistry = npmRegistry
-      ? npmRegistry.replace(/https?:\/\//, "")
-      : "";
-
-    const npmToken = org
-      ? npmrc[`//${parseRegistry}:_authToken`]
-      : npmrc._authToken || token;
-
     // Fetch manifest
     const manifest = await pacote.manifest(spec, {
       ...props,
-      registry: npmRegistry,
-      token: npmToken,
+      ...npmrc,
     });
+
+    if (spec.includes("nachoaldamav")) {
+      ora(chalk.blueBright(JSON.stringify(manifest))).info();
+    }
 
     mkdirSync(path.dirname(cacheFile), { recursive: true });
 
@@ -79,24 +69,10 @@ export default async function manifestFetcher(spec: string, props: any) {
 
     return manifest;
   } catch (e) {
-    const org = spec.startsWith("@") ? spec.split("/")[0] : null;
-
-    const npmRegistry =
-      (org ? npmrc[`${org}:registry`] : npmrc.registry) || registry;
-
-    const parseRegistry = npmRegistry
-      ? npmRegistry.replace(/https?:\/\//, "")
-      : "";
-
-    const npmToken = org
-      ? npmrc[`//${parseRegistry}:_authToken`]
-      : npmrc._authToken || token;
-
     // Fetch manifest
     const manifest = await pacote.manifest(spec, {
       ...props,
-      registry: npmRegistry,
-      token: npmToken,
+      ...npmrc,
     });
 
     mkdirSync(path.dirname(cacheFile), { recursive: true });

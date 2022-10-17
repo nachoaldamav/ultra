@@ -13,6 +13,11 @@ import os from "node:os";
 import path from "node:path";
 import ora from "ora";
 import chalk from "chalk";
+import { readNpmConfig } from "./npmConfig.js";
+import readConfig from "./readConfig.js";
+
+const npmrc = readNpmConfig();
+const { token, registry } = readConfig();
 
 // Get system temp directory
 const tmpDir = os.tmpdir();
@@ -22,7 +27,8 @@ const cacheBasePath = path.join(tmpDir, "ultra_tmp");
 export async function ultraExtract(
   target: string,
   tarball: string,
-  sha: string
+  sha: string,
+  name: string
 ): Promise<void | { res: string }> {
   if (!tarball) {
     throw new Error("No tarball provided");
@@ -52,11 +58,27 @@ export async function ultraExtract(
 
   try {
     if (!existsSync(file)) {
+      const org = name.startsWith("@") ? name.split("/")[0] : null;
+
+      const npmRegistry =
+        (org ? npmrc[`${org}:registry`] : npmrc.registry) || registry;
+
+      const parseRegistry = npmRegistry
+        ? npmRegistry.replace(/https?:\/\//, "")
+        : "";
+
+      const npmToken = org
+        ? npmrc[`//${parseRegistry}:_authToken`]
+        : npmrc._authToken || token;
+
       const writer = createWriteStream(file);
       const response = await axios({
         url: tarball,
         method: "GET",
         responseType: "stream",
+        headers: {
+          Authorization: `Bearer ${npmToken}`,
+        },
       });
 
       response.data.pipe(writer);
@@ -111,6 +133,6 @@ export async function ultraExtract(
       unlinkSync(file);
     }
 
-    return ultraExtract(target, tarball, sha);
+    return ultraExtract(target, tarball, sha, name);
   }
 }
