@@ -3,7 +3,7 @@
   <img src="https://i.imgur.com/hhX5nO1.png" />
   </a>
   <p><h3><strong>⚡ <strong>Ultra</strong> is a faster and lightweight alternative for NPM</strong></h3></p>
-  <a href="https://ultra.vercel.app/docs/get-started">📚 Documentation</a>
+  <a href="https://ultrapkg.dev/docs/get-started">📚 Documentation</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="https://github.com/nachoaldamav/ultra/tree/main/examples">📦 Examples</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -17,7 +17,7 @@
 
 You will need:
 
-- 🍃 [Nodejs v14](https://nodejs.org/en/) or higher.
+- 🍃 [Node.js v14](https://nodejs.org/en/) or higher.
 - 💻 Linux or Mac OS (Partial support for Windows).
 
 ### **Install:**
@@ -62,7 +62,7 @@ If you want to test a template, you can use Next or Vite for example, I've alrea
 
 ## ⚡ Benchmarks
 
-- **▲ [Nextjs](https://nextjs.org/) with Typescript:**
+- **▲ [Next.js](https://nextjs.org/) with TypeScript:**
 
 This example is generated using `npx create-next-app --use-npm --ts`
 
@@ -93,7 +93,7 @@ This example is generated using `npx create-next-app --use-npm --ts`
 └─────────┴─────────────────────────────────────────────────┴──────────┴───────┘
 ```
 
-- **[Vite](https://vitejs.dev/) with Typescript:**
+- **[Vite](https://vitejs.dev/) with TypeScript:**
 
 This example is generated using `npx create-vite-app --template react-ts`
 
