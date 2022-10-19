@@ -1,12 +1,13 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import os from "node:os";
 
 type Return = {
   [key: string]: string;
 };
 
 export function readNpmConfig(): Return {
-  const npmConfig = resolve(process.cwd(), ".npmrc");
+  const npmConfig = getUsableFile();
   try {
     const data = readFileSync(npmConfig, "utf8");
     return parseNpmrc(data);
@@ -24,4 +25,14 @@ function parseNpmrc(data: string) {
   }, {});
 
   return config;
+}
+
+function getUsableFile() {
+  const userPath = resolve(os.homedir(), ".npmrc");
+
+  if (existsSync(resolve(process.cwd(), ".npmrc"))) {
+    return resolve(process.cwd(), ".npmrc");
+  } else {
+    return userPath;
+  }
 }

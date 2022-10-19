@@ -9,7 +9,6 @@ import {
   readdirSync,
   symlinkSync,
 } from "node:fs";
-import { exec } from "child_process";
 import path from "path";
 import semver from "semver";
 import binLinks from "bin-links";
