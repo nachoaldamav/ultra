@@ -18,6 +18,8 @@ jobs:
       name: Integrate Pull Request
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v3
         with:
           node-version: "18"
