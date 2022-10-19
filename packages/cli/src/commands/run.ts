@@ -17,7 +17,7 @@ export async function run(args: Array<string>) {
 
   // Get binaries from node_modules/.bin
   const binPath = path.join(process.cwd(), "node_modules", ".bin");
-  const binaries = readdirSync(binPath);
+  const binaries = getBinaries(binPath);
 
   if (!script) {
     ora().fail(chalk.red(`No script found for ${args[0]}`));
@@ -83,4 +83,12 @@ export async function run(args: Array<string>) {
       });
     }
   });
+}
+
+function getBinaries(binPath: string) {
+  try {
+    return readdirSync(binPath);
+  } catch (e) {
+    return [];
+  }
 }
