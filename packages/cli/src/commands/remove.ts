@@ -15,10 +15,10 @@ export async function remove(args: string[]) {
 
   // Remove packages from dependencies
   for (const arg of args) {
-    delete pkg.dependencies[arg];
-    delete pkg.devDependencies[arg];
-    delete pkg.peerDependencies[arg];
-    delete pkg.optionalDependencies[arg];
+    delete pkg.dependencies?.[arg];
+    delete pkg.devDependencies?.[arg];
+    delete pkg.peerDependencies?.[arg];
+    delete pkg.optionalDependencies?.[arg];
   }
 
   // Write CWD package.json
