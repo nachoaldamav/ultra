@@ -9,7 +9,6 @@ import {
   readdirSync,
   symlinkSync,
 } from "node:fs";
-import { exec } from "child_process";
 import path from "path";
 import semver from "semver";
 import binLinks from "bin-links";
@@ -18,6 +17,7 @@ import manifestFetcher from "./manifestFetcher.js";
 import { hardLinkSync } from "./hardLinkSync.js";
 import { ultraExtract } from "./extract.js";
 import { execa } from "execa";
+import { gitInstall } from "./gitInstaller.js";
 
 type Return = {
   name: string;
@@ -31,11 +31,15 @@ export async function installPkg(
   manifest: any,
   parent?: string,
   spinner?: Ora
-): Promise<Return | null> {
+): Promise<Return | null | void> {
   // Skip * versions
   if (manifest.version === "*") {
     __SKIPPED.push(manifest.name);
     return null;
+  }
+
+  if (manifest.version.startsWith("git")) {
+    return gitInstall(manifest, parent, spinner);
   }
 
   // Check if package is already installed in node_modules
@@ -272,7 +276,8 @@ export async function installPkg(
   const status = await ultraExtract(
     cacheFolder,
     pkg.dist.tarball,
-    pkg.dist.integrity
+    pkg.dist.integrity,
+    pkg.name
   );
 
   if (status && status.res === "skipped") {
