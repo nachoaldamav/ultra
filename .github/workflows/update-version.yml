@@ -1,14 +1,19 @@
 name: Update Version
 
 on:
-  pull_request:
-    branches:
-      - development
-    types: [closed]
+  pull_request_target:
+    branches: [ development ]
 
 jobs:
+  approve:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Approve
+      run: echo For security reasons, all pull requests need to be approved first before running any automated CI.
+      
   publish:
     runs-on: ubuntu-latest
+    needs: [approve]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
