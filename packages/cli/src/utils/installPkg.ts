@@ -183,7 +183,7 @@ export async function installPkg(
       });
 
       // Push post install script
-      if (pkgJson.scripts && pkgJson.scripts.postinstall) {
+      if (pkgJson.scripts && pkgJson.scripts.postinstall && !__NOPOSTSCRIPTS) {
         __POSTSCRIPTS.push({
           package: pkgJson.name,
           script: pkgJson.scripts.postinstall,
@@ -389,7 +389,7 @@ export async function installPkg(
 
     // Execute postinstall script if exists
     const postinstall = pkgJson?.scripts?.postinstall || null;
-    if (postinstall) {
+    if (postinstall && !__NOPOSTSCRIPTS) {
       __POSTSCRIPTS.push({
         package: pkg.name,
         scriptPath: pkgProjectDir,

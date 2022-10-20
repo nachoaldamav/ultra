@@ -76,7 +76,7 @@ export async function install(opts: string[]) {
               const manifest = readPackage(path.join(pathname, "package.json"));
 
               // If the package has a postinstall script, run it
-              if (manifest.scripts?.postinstall) {
+              if (manifest.scripts?.postinstall && !__NOPOSTSCRIPTS) {
                 await executePost(manifest.scripts.postinstall, pathname);
               }
 
