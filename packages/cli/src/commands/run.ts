@@ -50,12 +50,6 @@ export async function run(args: Array<string>) {
   // Extract env variabled at the start of the script VARIABLE=ENV
   const envVariables = getEnvVariables(script);
 
-  ora(
-    chalk.blue(
-      `Running ${args[0]} script with ${envVariables.length} env variables`
-    )
-  ).info();
-
   // Extract the script without the env variables
   const scriptToRun = script.replace(envVariables.join(" "), "");
 
