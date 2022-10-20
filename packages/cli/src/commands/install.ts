@@ -17,6 +17,9 @@ import basePostInstall from "../utils/basePostInstall.js";
 import { __dirname } from "../utils/__dirname.js";
 import { hardLinkSync } from "../utils/hardLinkSync.js";
 import checkLock from "../utils/checkLock.js";
+import { executePost } from "../utils/postInstall.js";
+
+__NOPOSTSCRIPTS = process.argv.includes("--no-scripts");
 
 export async function install(opts: string[]) {
   const start = performance.now();
@@ -71,6 +74,11 @@ export async function install(opts: string[]) {
               hardLinkSync(cache, pathname);
 
               const manifest = readPackage(path.join(pathname, "package.json"));
+
+              // If the package has a postinstall script, run it
+              if (manifest.scripts?.postinstall) {
+                await executePost(manifest.scripts.postinstall, pathname);
+              }
 
               await binLinks({
                 path: pathname,
@@ -237,6 +245,39 @@ export async function install(opts: string[]) {
     symbol: chalk.green("⚡"),
   });
 
+  const __postinstall = ora(
+    chalk.gray("Running postinstall scripts...")
+  ).start();
+  const __postinstall_start = performance.now();
+
+  await Promise.all(
+    __POSTSCRIPTS.map(async (script) => {
+      __postinstall.text = chalk.gray(`Running ${script.package}...`);
+      try {
+        await executePost(script.script, script.scriptPath);
+      } catch (e) {
+        ora(
+          chalk.red(`Error with ${script.package} postinstall script - ${e}`)
+        ).fail();
+        return;
+      }
+    })
+  );
+
+  await basePostInstall();
+
+  const __postinstall_end = performance.now();
+
+  __postinstall.text = chalk.green(
+    `${__POSTSCRIPTS.length} Post Install scripts completed in ${chalk.gray(
+      parseTime(__postinstall_start, __postinstall_end)
+    )}`
+  );
+
+  __postinstall.stopAndPersist({
+    symbol: chalk.green("⚡"),
+  });
+
   // If addDeps is not empty, add them to package.json using flag
   if (addDeps.length > 0) {
     pkg.dependencies = pkg.dependencies || {};
@@ -320,8 +361,6 @@ export async function install(opts: string[]) {
   } else {
     ora(chalk.red("No packages were downloaded.")).warn();
   }
-
-  await basePostInstall();
 
   if (__VERIFIED.length > 0) {
     const verify = ora(

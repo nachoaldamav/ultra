@@ -11,6 +11,8 @@ const Config = readConfig();
   global.pkgs = [];
   global.__EXTRACTED = {};
   global.__VERIFIED = [];
+  global.__POSTSCRIPTS = [];
+  global.__NOPOSTSCRIPTS = false;
   global.userUltraCache = Config.cache;
   global.REGISTRY = Config.registry;
   return;
