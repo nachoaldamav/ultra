@@ -17,6 +17,7 @@ import manifestFetcher from "./manifestFetcher.js";
 import { hardLinkSync } from "./hardLinkSync.js";
 import { ultraExtract } from "./extract.js";
 import { gitInstall } from "./gitInstaller.js";
+import { execa } from "execa";
 
 type Return = {
   name: string;
@@ -183,10 +184,11 @@ export async function installPkg(
       });
 
       // Push post install script
-      if (pkgJson.scripts && pkgJson.scripts.postinstall && !__NOPOSTSCRIPTS) {
+      const postinstall = pkgJson.scripts?.postinstall;
+      if (postinstall && !__NOPOSTSCRIPTS) {
         __POSTSCRIPTS.push({
           package: pkgJson.name,
-          script: pkgJson.scripts.postinstall,
+          script: postinstall,
           scriptPath: pkgProjectDir,
         });
       }
@@ -251,14 +253,6 @@ export async function installPkg(
     registry: REGISTRY,
   });
 
-  if (pkg.deprecated) {
-    ora(
-      `${chalk.bgYellow.black("[DEPR]")} ${chalk.yellow(
-        `${manifest.name}@${manifest.version}`
-      )} - ${pkg.deprecated}`
-    ).warn();
-  }
-
   cacheFolder = path.join(userUltraCache, pkg.name, pkg.version);
 
   if (
@@ -289,7 +283,15 @@ export async function installPkg(
   );
 
   if (status && status.res === "skipped") {
-    return installPkg(manifest, parent, spinner);
+    return;
+  }
+
+  if (pkg.deprecated) {
+    ora(
+      `${chalk.bgYellow.black("[DEPR]")} ${chalk.yellow(
+        `${manifest.name}@${manifest.version}`
+      )} - ${pkg.deprecated}`
+    ).warn();
   }
 
   const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
