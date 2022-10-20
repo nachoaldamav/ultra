@@ -16,7 +16,6 @@ import { getDeps } from "./getDeps.js";
 import manifestFetcher from "./manifestFetcher.js";
 import { hardLinkSync } from "./hardLinkSync.js";
 import { ultraExtract } from "./extract.js";
-import { execa } from "execa";
 import { gitInstall } from "./gitInstaller.js";
 
 type Return = {
@@ -183,6 +182,15 @@ export async function installPkg(
         force: true,
       });
 
+      // Push post install script
+      if (pkgJson.scripts && pkgJson.scripts.postinstall) {
+        __POSTSCRIPTS.push({
+          package: pkgJson.name,
+          script: pkgJson.scripts.postinstall,
+          scriptPath: pkgProjectDir,
+        });
+      }
+
       // Install deps
       for (const dep of Object.keys(cachedDeps)) {
         const name = dep;
@@ -256,7 +264,7 @@ export async function installPkg(
   if (
     __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
   ) {
-    return null;
+    return installPkg(manifest, parent, spinner);
   }
 
   if (!islocalInstalled) {
@@ -281,7 +289,7 @@ export async function installPkg(
   );
 
   if (status && status.res === "skipped") {
-    return null;
+    return installPkg(manifest, parent, spinner);
   }
 
   const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
@@ -293,7 +301,7 @@ export async function installPkg(
   }
 
   if (existsSync(pkgProjectDir)) {
-    return null;
+    return installPkg(manifest, parent, spinner);
   }
 
   // Push to downloaded package info
@@ -380,24 +388,13 @@ export async function installPkg(
     );
 
     // Execute postinstall script if exists
-    const postinstall = pkg?.scripts?.postinstall || null;
+    const postinstall = pkgJson?.scripts?.postinstall || null;
     if (postinstall) {
-      const postinstallPath = path.join(cacheFolder, "node_modules", ".");
-      const postinstallScript = path.join(postinstallPath, postinstall);
-
-      if (existsSync(postinstallScript)) {
-        if (spinner) {
-          spinner.prefixText = "🚀";
-          spinner.text = chalk.green(
-            `${manifest.name}@${manifest.version}` +
-              chalk.gray(" (postinstall)")
-          );
-        }
-        await execa(postinstallScript, {
-          cwd: postinstallPath,
-          stdio: "pipe",
-        });
-      }
+      __POSTSCRIPTS.push({
+        package: pkg.name,
+        scriptPath: pkgProjectDir,
+        script: postinstall,
+      });
     }
 
     // Symlink bin files

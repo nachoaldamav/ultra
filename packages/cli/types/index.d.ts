@@ -12,6 +12,12 @@ type __EXTRACTED_TYPE = {
   };
 };
 
+type __POSTSCRIPTS_TYPE = {
+  package: string;
+  script: string;
+  scriptPath: string;
+};
+
 declare global {
   var downloadFile: string;
   var __DOWNLOADING: string[];
@@ -20,6 +26,8 @@ declare global {
   var __INSTALLED: __INSTALLED_TYPE;
   var __EXTRACTED: __EXTRACTED_TYPE;
   var __VERIFIED: string[];
+  var __POSTSCRIPTS: __POSTSCRIPTS_TYPE[];
+  var __NOPOSTSCRIPTS: boolean;
   var pkgs: pkg[];
   var userUltraCache: string;
   var REGISTRY: string;
