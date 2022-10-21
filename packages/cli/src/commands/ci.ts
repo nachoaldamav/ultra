@@ -11,6 +11,7 @@ import manifestFetcher from "../utils/manifestFetcher.js";
 import parseTime from "../utils/parseTime.js";
 import { ultraExtract } from "../utils/extract.js";
 import readPackage from "../utils/readPackage.js";
+import { executePost } from "../utils/postInstall.js";
 
 export async function continuousInstall() {
   try {
@@ -98,7 +99,7 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
 
   spinner.text = chalk.green(`${spec}`);
   spinner.prefixText = "📦";
-  await ultraExtract(pathname, tarball, integrity);
+  await ultraExtract(pathname, tarball, integrity, manifest.name);
 
   spinner.prefixText = "🔗";
   const pkg = readPackage(join(pathname, "package.json"));
@@ -114,20 +115,7 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
   spinner.prefixText = "📄";
   const postinstall = pkg?.scripts?.postinstall || null;
   if (postinstall) {
-    const postinstallPath = join(process.cwd(), "node_modules", ".");
-    const postinstallScript = join(postinstallPath, postinstall);
-
-    if (existsSync(postinstallScript)) {
-      await execa(`${postinstallScript}`, {
-        cwd: postinstallPath,
-      }).catch((err) => {
-        ora(
-          chalk.red(
-            `Error running postinstall script for ${spec} - ${err.message}`
-          )
-        ).fail();
-      });
-    }
+    await executePost(postinstall, pathname);
   }
 
   return;

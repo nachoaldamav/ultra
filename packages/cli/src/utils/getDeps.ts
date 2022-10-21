@@ -1,3 +1,5 @@
+import { checkDist } from "./checkDist.js";
+
 /**
  *
  * @param pkg package.json content in json
@@ -32,13 +34,23 @@ export const getDeps = (
     : [];
 
   const peerDeps = !opts?.peer
-    ? Object.keys(pkg.peerDependencies || {}).map((dep) => {
-        return {
-          name: dep,
-          version: pkg.peerDependencies[dep],
-          parent: undefined,
-        };
-      }) || []
+    ? Object.keys(pkg.peerDependencies || {})
+        .filter((dep) => {
+          // Remove peer dependencies that are optional in pkg.peerDependenciesMeta
+          if (pkg.peerDependenciesMeta) {
+            return !pkg.peerDependenciesMeta[dep]?.optional;
+          } else {
+            return true;
+          }
+        })
+        .map((dep) => {
+          return {
+            name: dep,
+            version: pkg.peerDependencies[dep],
+            parent: undefined,
+          };
+        })
+        .filter((dep) => dep) || []
     : [];
 
   const optDeps = !opts?.opts
@@ -51,7 +63,9 @@ export const getDeps = (
       }) || []
     : [];
 
-  return [...deps, ...devDeps, ...peerDeps, ...optDeps];
+  return [...deps, ...devDeps, ...peerDeps, ...optDeps].filter((dep) => {
+    return checkDist(dep.name);
+  });
 };
 
 type options = {

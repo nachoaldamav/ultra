@@ -97,6 +97,7 @@ importers:
       bin-links: 3.0.3
       chalk: 5.1.0
       chokidar: 3.5.3
+      detect-libc: ^2.0.1
       execa: 6.1.0
       glob: 8.0.3
       markdown-table: 3.0.2
@@ -111,6 +112,7 @@ importers:
       axios: 1.1.2
       bin-links: 3.0.3
       chalk: 5.1.0
+      detect-libc: 2.0.1
       execa: 6.1.0
       glob: 8.0.3
       markdown-table: 3.0.2
@@ -4398,6 +4400,11 @@ packages:
   /detect-indent/6.1.0:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
+
+  /detect-libc/2.0.1:
+    resolution: {integrity: sha512-463v3ZeIrcWtdgIg6vI6XUncguvr2TnGl4SzDXinkt9mSLpBJKXT3mW6xT3VQdDN11+WVs29pgvivTc4Lp8v+w==}
+    engines: {node: '>=8'}
+    dev: false
 
   /detect-newline/3.1.0:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}

@@ -1,6 +1,6 @@
 {
   "name": "ultra-pkg",
-  "version": "0.7.1",
+  "version": "0.7.3",
   "description": "Ultrapkg CLI Tool.",
   "private": false,
   "main": "build/bin/cli.js",
@@ -27,6 +27,7 @@
     "axios": "1.1.2",
     "bin-links": "3.0.3",
     "chalk": "5.1.0",
+    "detect-libc": "^2.0.1",
     "execa": "6.1.0",
     "glob": "8.0.3",
     "markdown-table": "3.0.2",

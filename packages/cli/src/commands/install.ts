@@ -2,6 +2,7 @@ import type { ultra_lock } from "../../types/pkg";
 import chalk from "chalk";
 import ora from "ora";
 import { writeFile, readFile, unlink, rm } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "path";
 import { performance } from "perf_hooks";
 import binLinks from "bin-links";
@@ -71,12 +72,18 @@ export async function install(opts: string[]) {
 
               const cache = path.join(userUltraCache, lock[pkg][version].cache);
 
+              if (existsSync(pathname)) {
+                await rm(pathname, { recursive: true, force: true }).catch(
+                  () => {}
+                );
+              }
+
               hardLinkSync(cache, pathname);
 
               const manifest = readPackage(path.join(pathname, "package.json"));
 
               // If the package has a postinstall script, run it
-              if (manifest.scripts?.postinstall) {
+              if (manifest.scripts?.postinstall && !__NOPOSTSCRIPTS) {
                 await executePost(manifest.scripts.postinstall, pathname);
               }
 
@@ -120,7 +127,7 @@ export async function install(opts: string[]) {
   await rm(path.join(process.cwd(), "node_modules"), {
     recursive: true,
     force: true,
-  });
+  }).catch(() => {});
 
   const addDeps = await getParamsDeps(opts);
 
@@ -245,38 +252,41 @@ export async function install(opts: string[]) {
     symbol: chalk.green("⚡"),
   });
 
-  const __postinstall = ora(
-    chalk.gray("Running postinstall scripts...")
-  ).start();
-  const __postinstall_start = performance.now();
+  if (__POSTSCRIPTS.length > 0) {
+    const __postinstall = ora(
+      chalk.gray("Running postinstall scripts...")
+    ).start();
+    const __postinstall_start = performance.now();
 
-  await Promise.all(
-    __POSTSCRIPTS.map(async (script) => {
-      __postinstall.text = chalk.gray(`Running ${script.package}...`);
-      try {
-        await executePost(script.script, script.scriptPath);
-      } catch (e) {
-        ora(
-          chalk.red(`Error with ${script.package} postinstall script - ${e}`)
-        ).fail();
-        return;
-      }
-    })
-  );
+    await Promise.all(
+      __POSTSCRIPTS.map(async (script) => {
+        __postinstall.text = chalk.gray(
+          `Running ${chalk.blueBright(script.package)}...`
+        );
+        try {
+          await executePost(script.script, script.scriptPath, script.cachePath);
+        } catch (e) {
+          ora(
+            chalk.red(`Error with ${script.package} postinstall script - ${e}`)
+          ).fail();
+          return;
+        }
+      })
+    );
+
+    const __postinstall_end = performance.now();
+    __postinstall.text = chalk.green(
+      `${__POSTSCRIPTS.length} Post Install scripts completed in ${chalk.gray(
+        parseTime(__postinstall_start, __postinstall_end)
+      )}`
+    );
+
+    __postinstall.stopAndPersist({
+      symbol: chalk.green("⚡"),
+    });
+  }
 
   await basePostInstall();
-
-  const __postinstall_end = performance.now();
-
-  __postinstall.text = chalk.green(
-    `${__POSTSCRIPTS.length} Post Install scripts completed in ${chalk.gray(
-      parseTime(__postinstall_start, __postinstall_end)
-    )}`
-  );
-
-  __postinstall.stopAndPersist({
-    symbol: chalk.green("⚡"),
-  });
 
   // If addDeps is not empty, add them to package.json using flag
   if (addDeps.length > 0) {
