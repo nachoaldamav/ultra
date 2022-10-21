@@ -17,7 +17,7 @@ import manifestFetcher from "./manifestFetcher.js";
 import { hardLinkSync } from "./hardLinkSync.js";
 import { ultraExtract } from "./extract.js";
 import { gitInstall } from "./gitInstaller.js";
-import { execa } from "execa";
+import { getDir } from "./getInstallableDir.js";
 
 type Return = {
   name: string;
@@ -79,55 +79,11 @@ export async function installPkg(
     cacheFolder = path.join(userUltraCache, manifest.name, suitableVersion);
   }
 
-  function getDir() {
-    try {
-      if (!islocalInstalled || !parent) {
-        return path.join(process.cwd(), "node_modules", manifest.name);
-      }
+  let pkgProjectDir = getDir(manifest, parent, islocalInstalled);
 
-      // Check how many node_modules are in the path
-      const count = parent.split("node_modules").length - 1;
-      if (count === 1) {
-        return path.join(parent, "node_modules", manifest.name);
-      }
-
-      // Check if the dir exists in previous node_modules
-      const dir = path.join(
-        process.cwd(),
-        "node_modules",
-        parent.split("node_modules")[1],
-        "node_modules",
-        manifest.name
-      );
-
-      if (!existsSync(dir)) {
-        return dir;
-      }
-
-      // If it exists, check if the version is suitable with manifest.spec
-      const pkg = readPackage(path.join(dir, "package.json"));
-
-      if (semver.satisfies(pkg.version, manifest.spec)) {
-        return dir;
-      }
-
-      return path.join(parent, "node_modules", manifest.name);
-    } catch (e: any) {
-      ora(
-        chalk.red(
-          `Error while installing ${manifest.name}@${
-            manifest.version
-          } - ${e.toString()}`
-        )
-      ).fail();
-
-      return parent
-        ? path.join(parent, "node_modules", manifest.name)
-        : path.join(process.cwd(), "node_modules", manifest.name);
-    }
+  if (!pkgProjectDir) {
+    return null;
   }
-
-  let pkgProjectDir = getDir();
 
   const isSatisfied = cacheFolder
     ? existsSync(path.join(cacheFolder, downloadFile))
@@ -190,6 +146,7 @@ export async function installPkg(
           package: pkgJson.name,
           script: postinstall,
           scriptPath: pkgProjectDir,
+          cachePath: cacheFolder,
         });
       }
 
@@ -258,7 +215,7 @@ export async function installPkg(
   if (
     __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
   ) {
-    return installPkg(manifest, parent, spinner);
+    return;
   }
 
   if (!islocalInstalled) {
@@ -283,7 +240,7 @@ export async function installPkg(
   );
 
   if (status && status.res === "skipped") {
-    return;
+    return installPkg(manifest, parent, spinner);
   }
 
   if (pkg.deprecated) {
@@ -352,7 +309,7 @@ export async function installPkg(
             name: dep.name,
             version: dep.version,
           },
-          pkgProjectDir,
+          pkgProjectDir as string,
           spinner
         );
 
@@ -391,10 +348,11 @@ export async function installPkg(
 
     // Execute postinstall script if exists
     const postinstall = pkgJson?.scripts?.postinstall || null;
-    if (postinstall && !__NOPOSTSCRIPTS) {
+    if (postinstall) {
       __POSTSCRIPTS.push({
         package: pkg.name,
         scriptPath: pkgProjectDir,
+        cachePath: cacheFolder,
         script: postinstall,
       });
     }
