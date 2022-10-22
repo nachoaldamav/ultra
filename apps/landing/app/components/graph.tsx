@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useAnimation, motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
-const normalClassname = "h-8 rounded rounded-l-none bg-[#40916c]";
-const ultraClassname = "fnpm-gradient h-8 rounded rounded-l-none";
+const normalClassname = "h-7 rounded rounded-l-none bg-[#27272A]";
+const ultraClassname = "graph-gradient h-8 rounded rounded-l-none";
 
 const data = [
   {
@@ -12,12 +12,12 @@ const data = [
     group: 3,
   },
   {
-    name: "⚡ ULTRA install (with cache / with lockfile)",
+    name: "ULTRA install (with cache / with lockfile)",
     value: 1805.003108999983,
     group: 3,
   },
   {
-    name: "⚡ ULTRA install (with cache / no lockfile)",
+    name: "ULTRA install (with cache / no lockfile)",
     value: 2087.2459210000234,
     group: 2,
   },
@@ -67,7 +67,7 @@ const data = [
     group: 2,
   },
   {
-    name: "⚡ ULTRA install (no cache / no lockfile)",
+    name: "ULTRA install (no cache / no lockfile)",
     value: 32699.450969999947,
     group: 1,
   },
@@ -84,9 +84,9 @@ const data = [
 ];
 
 export default function Graph({ group }: { group: number }) {
-  const max = Math.max(
-    ...data.filter((i) => i.group === group).map((i) => i.value)
-  );
+  const max =
+    Math.max(...data.filter((i) => i.group === group).map((i) => i.value)) *
+    1.6;
   const controls = useAnimation();
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export default function Graph({ group }: { group: number }) {
   }, [group]);
 
   return (
-    <div className="mt-10 flex w-full max-w-2xl flex-col gap-2">
+    <div className="mt-10 flex w-full max-w-2xl flex-col gap-2 relative">
       {data
         .filter((d) => d.group === group)
         .sort((a, b) => a.value - b.value)
@@ -141,18 +141,39 @@ function Progress({
   }, [controls, inView]);
 
   return (
-    <div className="h-8 w-full rounded-xl rounded-l-none bg-transparent">
-      <span className="absolute ml-4 text-xl font-semibold text-white inline-flex">
-        {name.split(" i")[0]} {parseTime(time)}
+    <div className="h-8 w-full rounded-xl rounded-l-none bg-transparent flex flex-row items-center gap-1">
+      <span className="text-sm font-semibold text-[#A1A1AA] w-14 lowercase">
+        {name.split(" i")[0]}
       </span>
-      <motion.div
-        className={className}
-        ref={ref}
-        animate={controls}
-        initial="hidden"
-        variants={graphAnimation}
-        id={name}
-      />
+      {name.includes("ULTRA") ? (
+        <motion.div
+          className="relative h-7 rounded rounded-l-none"
+          animate={controls}
+          initial="hidden"
+          variants={graphAnimation}
+        >
+          <div className="absolute rounded rounded-l-none ultra-graph-bg z-20" />
+          <div className="absolute top-0 left-0 h-full w-full rounded rounded-l-none ultra-graph-border z-10" />
+        </motion.div>
+      ) : (
+        <motion.div
+          className={className}
+          ref={ref}
+          animate={controls}
+          initial="hidden"
+          variants={graphAnimation}
+          id={name}
+        />
+      )}
+      <span
+        className={
+          !name.includes("ULTRA")
+            ? "text-sm font-semibold text-[#A1A1AA]"
+            : "text-sm font-semibold text-[#F44369]"
+        }
+      >
+        {parseTime(time)}
+      </span>
     </div>
   );
 }

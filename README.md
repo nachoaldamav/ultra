@@ -1,6 +1,6 @@
 <div align="center">
-  <a href="https://ultra.vercel.app/">
-  <img src="https://i.imgur.com/hhX5nO1.png" />
+  <a href="https://ultrapkg.dev">
+  <img width="480" src="https://ultrapkg.dev/images/banner_gh.svg" />
   </a>
   <p><h3><strong>⚡ <strong>Ultra</strong> is a faster and lightweight alternative for NPM</strong></h3></p>
   <a href="https://ultrapkg.dev/docs/get-started">📚 Documentation</a>

@@ -17,20 +17,30 @@ export default function Index() {
   const [group, setGroup] = useState(3);
 
   return (
-    <div className="flex h-fit w-full flex-col bg-black">
-      <span className="absolute inset-0 bg-gradient-to-b from-gray-700 via-gray-900 to-black bg-opacity-25 z-[1]" />
+    <div className="flex h-fit w-full flex-col bg-[#18181B]">
       <section
         id="hero"
         className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center z-[2]"
       >
-        <div className="flex flex-col relative h-28 w-full">
+        <div className="flex flex-col relative h-28 justify-center items-center">
           <AnimatePresence>
             <motion.h1
-              className="text-8xl font-bold text-center text-white font-azonix mb-5 w-full"
+              className="font-extrabold text-8xl title-gradient text-center font-azonix mb-5 w-fit absolute z-20"
               initial={{ opacity: 0, y: -50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.75, delay: 0.25 }}
+              transition={{ duration: 0.75 }}
+              id="ultra-pkg"
+              layoutId="ultra-pkg"
+            >
+              VLTRA
+            </motion.h1>
+            <motion.h1
+              className="font-extrabold text-8xl title-gradient-blurred text-center font-azonix mb-5 absolute z-10"
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.75 }}
               id="ultra-pkg"
               layoutId="ultra-pkg"
             >
@@ -38,7 +48,7 @@ export default function Index() {
             </motion.h1>
           </AnimatePresence>
         </div>
-        <p className="text-xl text-white">A really fast package manager</p>
+        <p className="text-xl text-[#A1A1AA]">A really fast package manager</p>
         <Snippet />
         <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-center mb-10">
           <div className="flex flex-col items-center justify-center">
@@ -47,12 +57,9 @@ export default function Index() {
               target="_blank"
             >
               <img
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=363463&theme=light"
-                alt="Ultra - Fast&#0032;JavaScript&#0032;package&#0032;manager&#0046; | Product Hunt"
-                style={{
-                  width: "250px",
-                  height: "54px",
-                }}
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=363463&theme=dark"
+                alt="Ultra - Fast&#0032;JavaScript&#0032;package&#0032;manager | Product Hunt"
+                style={{ width: "250px", height: "54px" }}
                 width="250"
                 height="54"
               />
@@ -64,23 +71,18 @@ export default function Index() {
         id="features"
         className="mb-10 flex h-full w-full flex-1 flex-col items-center justify-start"
       >
-        <h1 className="text-4xl font-bold text-white">Features</h1>
         <div className="mt-6 flex w-full flex-col md:flex-row flex-wrap justify-center gap-4 px-4">
           <Feature
             title="Fast"
-            description="ULTRA is built with speed in mind."
+            description="ULTRA is developed with speed in mind."
           />
           <Feature
             title="Lightweight"
             description="ULTRA uses hardlinks to install packages, saving a lot of your disk space."
           />
           <Feature
-            title="Edge caching"
-            description="ULTRA registry uses edge caching thanks to Cloudflare. (WIP)"
-          />
-          <Feature
             title="Open Source"
-            description="ULTRA is open source, so you can contribute to it."
+            description="ULTRA is open source, so you can contribute."
           />
         </div>
       </section>
@@ -88,11 +90,12 @@ export default function Index() {
         id="demo"
         className="flex h-full w-full flex-1 flex-col items-center justify-start mt-10"
       >
-        <h2 className="text-4xl font-bold text-white mb-5">How it works</h2>
-        <p className="text-lg text-white mb-5">
-          In this demo, we installed Next.js in 2 different projects to see how
-          shared dependencies are handled.
-        </p>
+        <div className="flex flex-col items-left justify-center mb-4">
+          <h2 className="text-xl font-bold text-white">How it works</h2>
+          <p className="text-lg text-[#A1A1AA] text-center">
+            This demo shows how shared dependencies are handled.
+          </p>
+        </div>
         <div style={{ paddingTop: "35%", position: "relative", width: "65%" }}>
           <iframe
             src="https://player.vimeo.com/video/759983180?h=1ac1372daa&title=0&byline=0&portrait=0"
@@ -102,6 +105,7 @@ export default function Index() {
               left: 0,
               width: "100%",
               height: "100%",
+              borderRadius: "10px",
             }}
             frameBorder="0"
             allow="autoplay; fullscreen; picture-in-picture"
@@ -109,49 +113,50 @@ export default function Index() {
           ></iframe>
         </div>
         <script src="https://player.vimeo.com/api/player.js"></script>
-        <p>
-          <a href="https://vimeo.com/759589352">ultra-demo</a> from{" "}
-          <a href="https://vimeo.com/user121655165">Nacho Aldama</a> on{" "}
-          <a href="https://vimeo.com">Vimeo</a>.
-        </p>
       </section>
       <section
         id="comparison"
         className="flex h-full my-10 w-full flex-1 flex-col items-center justify-start gap-2 p-10"
       >
-        <h1 className="text-4xl font-bold text-white">Comparison</h1>
-        <p className="text-xl text-white text-center">
-          Here&apos;s a comparison between ULTRA and other package managers in a
-          project with many dependencies.
-        </p>
-        <Graph group={group} />
-        <div className="flex flex-col md:flex-row gap-2 mt-10">
+        <div className="flex flex-col items-left justify-center">
+          <h2 className="text-xl font-bold text-white">Comparison</h2>
+          <p className="text-lg text-[#A1A1AA] text-center">
+            Here&apos;s a comparison between{" "}
+            <span className="text-[#FAFAFA] font-bold">ULTRA</span> and other
+            package managers in a project with many dependencies.
+          </p>
+        </div>
+        <div className="flex flex-col md:flex-row gap-2 mt-4">
           {[3, 2, 1].map((i) => (
             <button
               key={i}
               className={`${
-                group === i ? "bg-white text-primary" : "bg-primary text-white"
-              } px-4 py-2 rounded`}
+                group === i
+                  ? "text-white border border-transparent border-b-white"
+                  : "text-[#71717A] border border-transparent border-b-[#27272A]"
+              } px-4 py-2`}
               onClick={() => setGroup(i)}
             >
               {GROUPS[i]}
             </button>
           ))}
         </div>
+        <Graph group={group} />
       </section>
       <section
         id="get-started"
-        className="flex w-full flex-1 flex-col items-center justify-center gap-2 p-10 bg-gradient-to-t from-gray-700 via-gray-900 to-black bg-opacity-25"
+        className="flex h-full w-full flex-1 flex-col items-center justify-start mt-10 min-h-[20vh]"
       >
-        <div className="flex flex-col items-center justify-center gap-10 py-24">
-          <h1 className="text-4xl font-bold text-white text-center">
+        <div className="flex flex-col items-left justify-center mb-4 gap-6 w-1/2">
+          <h2 className="text-xl font-bold text-white">
             Do you want to know more?
-          </h1>
-          <Link
-            to="/docs/get-started"
-            className="text-2xl font-semibold text-white home-gradient px-6 py-3 rounded-lg transition duration-200 ease-in-out"
-          >
-            Get Started
+          </h2>
+          <Link to={"/docs/get-started"}>
+            <a className="get-started-button w-fit">
+              <span className="get-started-text text-lg font-semibold">
+                Get started
+              </span>
+            </a>
           </Link>
         </div>
       </section>

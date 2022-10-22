@@ -30,13 +30,13 @@ jobs:
       - name: Install CLI
         run: npm install ./packages/cli -g
       - name: Vite
-        run: cd ./examples/vite-demo && ultra test --runs=10
+        run: cd ./examples/vite-demo && ultra test --runs=1
       - name: Next
-        run: cd ./examples/next-demo && ultra test --runs=10
+        run: cd ./examples/next-demo && ultra test --runs=1
       - name: Remix
-        run: cd ./examples/remix-demo && ultra test --runs=10
+        run: cd ./examples/remix-demo && ultra test --runs=1
       - name: Turborepo
-        run: cd ./examples/monorepo-test && ultra test --runs=10
+        run: cd ./examples/monorepo-test && ultra test --runs=1
       
   
   

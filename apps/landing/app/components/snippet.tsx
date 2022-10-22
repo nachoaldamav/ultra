@@ -18,8 +18,8 @@ export default function Snippet() {
   }, [isCopied]);
 
   return (
-    <div className="mt-4 inline-flex items-center gap-3 rounded-lg border border-gray-500 bg-secondary p-2 text-white">
-      <span className="font-mono font-semibold">{text}</span>
+    <div className="mt-10 snippet">
+      <span className="font-mono font-semibold text-[#A1A1AA]">{text}</span>
       <button
         className={isCopied ? "ml-2 text-green-400" : "ml-2 text-gray-400"}
         onClick={() => {
@@ -36,7 +36,9 @@ export default function Snippet() {
           });
         }}
       >
-        {isCopied ? <CheckCopyIcon className="text-green-700" /> : <CopyIcon />}
+        <div className="items-center p-2 flex-none order-1 flex-grow-0 snippet-icon">
+          {isCopied ? <CheckCopyIcon /> : <CopyIcon />}
+        </div>
       </button>
     </div>
   );
