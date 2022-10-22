@@ -37,6 +37,107 @@
   );
 }
 
+.title-gradient {
+  background: linear-gradient(89.78deg, #3e3b92 0.19%, #f44369 99.84%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.graph-gradient {
+  background: linear-gradient(270deg, #43202b 0%, #252532 100%),
+    linear-gradient(
+      90deg,
+      rgba(62, 59, 146, 0.2) 0%,
+      rgba(244, 67, 105, 0.2) 100%
+    );
+  border-radius: 0px 3px 3px 0px;
+}
+
+.ultra-graph-bg {
+  background: linear-gradient(270deg, #43202b 0%, #252532 100%),
+    linear-gradient(
+      90deg,
+      rgba(62, 59, 146, 0.2) 0%,
+      rgba(244, 67, 105, 0.2) 100%
+    );
+  border-radius: 0px 3px 3px 0px;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  width: calc(100% - 3px);
+  height: calc(100% - 5px);
+}
+
+.ultra-graph-border {
+  background: linear-gradient(90deg, #3e3b92 0%, #f44369 100%);
+  border-radius: 0px 4px 4px 0px;
+}
+
+.title-gradient-blurred {
+  background: linear-gradient(
+    89.78deg,
+    rgba(62, 59, 146, 0.7) 0.19%,
+    rgba(244, 67, 105, 0.7) 99.84%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  filter: blur(48px);
+}
+
+.snippet {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 8px 8px 16px;
+  gap: 8px;
+
+  background: rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0px 12px 32px rgba(62, 59, 146, 0.14);
+  border-radius: 8px;
+}
+
+.snippet-icon {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.get-started-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 10px;
+
+  background: linear-gradient(
+    270deg,
+    rgba(67, 32, 43, 0.46) 0%,
+    rgba(37, 37, 50, 0.46) 100%
+  );
+  border-radius: 6px;
+}
+
+.get-started-text {
+  background: linear-gradient(270deg, #f7a7b8 0%, #aaa7f8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
 @tailwind utilities;
 
 @font-face {
