@@ -283,7 +283,7 @@ export async function installPkg(
   );
 
   if (status && status.res === "skipped") {
-    return;
+    return installPkg(manifest, parent, spinner);
   }
 
   if (pkg.deprecated) {
