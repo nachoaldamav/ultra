@@ -48,7 +48,7 @@ export default function Index() {
             </motion.h1>
           </AnimatePresence>
         </div>
-        <p className="text-xl text-white">A really fast package manager</p>
+        <p className="text-xl text-[#A1A1AA]">A really fast package manager</p>
         <Snippet />
         <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-center mb-10">
           <div className="flex flex-col items-center justify-center">

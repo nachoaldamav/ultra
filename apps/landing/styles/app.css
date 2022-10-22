@@ -66,7 +66,7 @@
   top: 0;
   bottom: 0;
   margin: auto 0;
-  width: calc(100% - 3px);
+  width: calc(100% - 4px);
   height: calc(100% - 5px);
 }
 
