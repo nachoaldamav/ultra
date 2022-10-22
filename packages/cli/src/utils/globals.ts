@@ -1,6 +1,8 @@
+import { familySync } from "detect-libc";
 import readConfig from "./readConfig.js";
 
 const Config = readConfig();
+const libc = familySync();
 
 (() => {
   global.downloadFile = ".ultra";
@@ -13,6 +15,7 @@ const Config = readConfig();
   global.__VERIFIED = [];
   global.__POSTSCRIPTS = [];
   global.__NOPOSTSCRIPTS = false;
+  global.libc = libc;
   global.userUltraCache = Config.cache;
   global.REGISTRY = Config.registry;
   return;

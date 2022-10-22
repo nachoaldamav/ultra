@@ -46,10 +46,11 @@ export async function ultraExtract(
 
   __DOWNLOADING.push(tarball);
 
-  let file = path.join(
+  const file = path.join(
     cacheBasePath,
-    // @ts-ignore-next-line
-    tarball.split("/").pop()
+    `${name.replaceAll("/", "-")}-${createHash("md5")
+      .update(tarball)
+      .digest("hex")}.${tarball.split(".").pop() || "tgz"}`
   );
 
   if (!existsSync(cacheBasePath)) {

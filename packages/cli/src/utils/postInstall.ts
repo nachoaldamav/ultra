@@ -1,9 +1,14 @@
 import path from "node:path";
 import { getBinaries } from "./getBinaries.js";
-import { execa } from "execa";
 import { spawn } from "child_process";
+import ora from "ora";
+import chalk from "chalk";
 
-export async function executePost(script: string, depPath?: string) {
+export async function executePost(
+  script: string,
+  depPath?: string,
+  cachePath?: string
+) {
   if (__NOPOSTSCRIPTS) {
     return;
   }
@@ -61,15 +66,25 @@ export async function executePost(script: string, depPath?: string) {
         );
       } else {
         // Run the script
-        await execa(script, {
+        const run = spawn(script, {
           stdio: "pipe",
+          cwd: depPath,
           shell: true,
-          cwd: depPath || process.cwd(),
-        }).catch((e) => {
-          throw e;
         });
 
-        return Promise.resolve(true);
+        // Handle errors from the script
+        run.on("error", function (err: any) {
+          throw err;
+        });
+
+        return Promise.resolve(
+          await new Promise((resolve) => {
+            // Success
+            run.on("exit", function () {
+              resolve(true);
+            });
+          })
+        );
       }
     })
   );

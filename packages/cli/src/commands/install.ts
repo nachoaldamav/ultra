@@ -264,7 +264,7 @@ export async function install(opts: string[]) {
           `Running ${chalk.blueBright(script.package)}...`
         );
         try {
-          await executePost(script.script, script.scriptPath);
+          await executePost(script.script, script.scriptPath, script.cachePath);
         } catch (e) {
           ora(
             chalk.red(`Error with ${script.package} postinstall script - ${e}`)
