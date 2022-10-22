@@ -20,7 +20,7 @@ import { hardLinkSync } from "../utils/hardLinkSync.js";
 import checkLock from "../utils/checkLock.js";
 import { executePost } from "../utils/postInstall.js";
 
-__NOPOSTSCRIPTS = process.argv.includes("--no-scripts");
+__NOPOSTSCRIPTS = process.argv.includes("--ignore-scripts");
 
 export async function install(opts: string[]) {
   const start = performance.now();

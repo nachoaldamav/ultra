@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 const tests = [
   {
     name: "NPM install (no cache / no lockfile)",
-    command: "npm install --force",
+    command: "npm install --force --ignore-scripts",
     pre: `npm cache clean -f && ${delCommand} node_modules package-lock.json`,
     spinner: ora(
       chalk.green(`Running "NPM install (no cache / no lockfile)"...`)
@@ -31,7 +31,7 @@ const tests = [
   },
   {
     name: "NPM install (with cache / no lockfile)",
-    command: "npm install --force",
+    command: "npm install --force --ignore-scripts",
     pre: `${delCommand} node_modules package-lock.json`,
     spinner: ora(
       chalk.green(`Running "NPM install (with cache / no lockfile)"...`)
@@ -40,7 +40,7 @@ const tests = [
   },
   {
     name: "NPM install (with cache / with lockfile)",
-    command: "npm install --force",
+    command: "npm install --force --ignore-scripts",
     pre: `${delCommand} node_modules`,
     spinner: ora(
       chalk.green(`Running "NPM install (with cache / with lockfile)"...`)
@@ -49,7 +49,7 @@ const tests = [
   },
   {
     name: "YARN install (no cache / no lockfile)",
-    command: "yarn install --force",
+    command: "yarn install --force --ignore-scripts",
     pre: `yarn cache clean && ${delCommand} node_modules yarn.lock`,
     spinner: ora(
       chalk.green(`Running "YARN install (no cache / no lockfile)"...`)
@@ -58,7 +58,7 @@ const tests = [
   },
   {
     name: "YARN install (with cache / no lockfile)",
-    command: "yarn install --force",
+    command: "yarn install --force --ignore-scripts",
     pre: `${delCommand} node_modules yarn.lock`,
     spinner: ora(
       chalk.green(`Running "YARN install (with cache / no lockfile)"...`)
@@ -67,7 +67,7 @@ const tests = [
   },
   {
     name: "YARN install (with cache / with lockfile)",
-    command: "yarn install --force",
+    command: "yarn install --force --ignore-scripts",
     pre: `${delCommand} node_modules`,
     spinner: ora(
       chalk.green(`Running "YARN install (with cache / with lockfile)"...`)
@@ -77,7 +77,7 @@ const tests = [
 
   {
     name: "⚡ ULTRA install (no cache / no lockfile)",
-    command: "ultra install",
+    command: "ultra install --ignore-scripts",
     pre: "ultra clear",
     spinner: ora(
       chalk.green(`Running "ULTRA install (no cache / no lockfile)"...`)
@@ -86,8 +86,7 @@ const tests = [
   },
   {
     name: "⚡ ULTRA install (with cache / no lockfile)",
-    command: "ultra install",
-    /*  pre: "rm -rf node_modules ultra.lock", */
+    command: "ultra install --ignore-scripts",
     pre: `${delCommand} node_modules ultra.lock`,
     spinner: ora(
       chalk.green(`Running "ULTRA install (with cache / no lockfile)"...`)
@@ -96,7 +95,7 @@ const tests = [
   },
   {
     name: "⚡ ULTRA install (with cache / with lockfile)",
-    command: "ultra install",
+    command: "ultra install --ignore-scripts",
     pre: `${delCommand} node_modules`,
     spinner: ora(
       chalk.green(`Running "ULTRA install (with cache / with lockfile)"...`)
@@ -133,15 +132,15 @@ const tests = [
   {
     name: "PNPM install (no cache / no lockfile)",
     command:
-      "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store",
+      "pnpm install --force --ignore-scripts --cache-dir=cache/cache --store-dir=cache/store",
     pre: `npm cache clean -f && pnpm store prune && ${delCommand} node_modules pnpm-lock.yaml ${homeDir}.local/share/pnpm/store/v3 cache/`,
-    spinner: ora(chalk.green(`Running "PNPM install (no cache)"...`)).stop(),
+    spinner: ora(chalk.green(`Running "PNPM install (no cache / no lockfile)"...`)).stop(),
     group: 1,
   },
   {
     name: "PNPM install (with cache / no lockfile)",
     command:
-      "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store",
+      "pnpm install --force --ignore-scripts --cache-dir=cache/cache --store-dir=cache/store",
     pre: `${delCommand} node_modules pnpm-lock.yaml`,
     spinner: ora(
       chalk.green(`Running "PNPM install (with cache / no lockfile)"...`)
@@ -151,7 +150,7 @@ const tests = [
   {
     name: "PNPM install (with cache / with lockfile)",
     command:
-      "pnpm install --force --cache-dir=cache/cache --store-dir=cache/store",
+      "pnpm install --force --ignore-scripts --cache-dir=cache/cache --store-dir=cache/store",
     pre: `${delCommand} node_modules`,
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
