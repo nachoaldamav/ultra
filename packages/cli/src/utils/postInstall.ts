@@ -1,6 +1,6 @@
 import path from "node:path";
 import { getBinaries } from "./getBinaries.js";
-import { spawn } from "child_process";
+import { spawn, execFileSync } from "child_process";
 import os from "node:os";
 
 const operatingSystem = os.platform();
@@ -47,24 +47,9 @@ export async function executePost(
         }) || [...binaryArgs];
 
         if (operatingSystem === "win32") {
-          const child = spawn(
-            "cmd",
-            ["/c", path.join(binPath, binary), ...parsedArgs],
-            {
-              cwd: depPath,
-              stdio: "inherit",
-              shell: true,
-            }
-          );
-
-          child.on("error", (err) => {
-            console.error(err);
-          });
-
-          return new Promise((resolve) => {
-            child.on("close", () => {
-              resolve(true);
-            });
+          return execFileSync(path.join(binPath, binary), parsedArgs, {
+            stdio: "inherit",
+            cwd: depPath,
           });
         }
 
