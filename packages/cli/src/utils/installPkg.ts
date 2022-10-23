@@ -210,13 +210,13 @@ export async function installPkg(
     registry: REGISTRY,
   });
 
-  cacheFolder = path.join(userUltraCache, pkg.name, pkg.version);
-
   if (
     __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
   ) {
-    return;
+    return null;
   }
+
+  cacheFolder = path.join(userUltraCache, pkg.name, pkg.version);
 
   if (!islocalInstalled) {
     __INSTALLED.push({
