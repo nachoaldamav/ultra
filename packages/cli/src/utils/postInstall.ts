@@ -1,8 +1,9 @@
 import path from "node:path";
 import { getBinaries } from "./getBinaries.js";
 import { spawn } from "child_process";
-import ora from "ora";
-import chalk from "chalk";
+import os from "node:os";
+
+const operatingSystem = os.platform();
 
 export async function executePost(
   script: string,
@@ -45,6 +46,28 @@ export async function executePost(
           return arg;
         }) || [...binaryArgs];
 
+        if (operatingSystem === "win32") {
+          const child = spawn(
+            "cmd",
+            ["/c", path.join(binPath, binary), ...parsedArgs],
+            {
+              cwd: depPath,
+              stdio: "inherit",
+              shell: true,
+            }
+          );
+
+          child.on("error", (err) => {
+            console.error(err);
+          });
+
+          return new Promise((resolve) => {
+            child.on("close", () => {
+              resolve(true);
+            });
+          });
+        }
+
         // Run the binary
         const run = spawn(path.join(binPath, binary), [...parsedArgs], {
           stdio: "pipe",
@@ -66,6 +89,27 @@ export async function executePost(
         );
       } else {
         // Run the script
+        if (operatingSystem === "win32") {
+          const run = spawn("cmd", ["/c", script], {
+            stdio: "pipe",
+            cwd: depPath,
+          });
+
+          // Handle errors from the script
+          run.on("error", function (err: any) {
+            throw err;
+          });
+
+          return Promise.resolve(
+            await new Promise((resolve) => {
+              // Success
+              run.on("exit", function () {
+                resolve(true);
+              });
+            })
+          );
+        }
+
         const run = spawn(script, {
           stdio: "pipe",
           cwd: depPath,
