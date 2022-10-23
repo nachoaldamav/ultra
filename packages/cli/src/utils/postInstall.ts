@@ -47,11 +47,15 @@ export async function executePost(
         }) || [...binaryArgs];
 
         if (operatingSystem === "win32") {
-          const child = spawn("cmd", ["/c", binary, ...parsedArgs], {
-            cwd: depPath,
-            stdio: "inherit",
-            shell: true,
-          });
+          const child = spawn(
+            "cmd",
+            ["/c", path.join(binPath, binary), ...parsedArgs],
+            {
+              cwd: depPath,
+              stdio: "inherit",
+              shell: true,
+            }
+          );
 
           child.on("error", (err) => {
             console.error(err);
