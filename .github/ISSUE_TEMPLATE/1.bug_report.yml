@@ -13,6 +13,12 @@ body:
       required: true
   - type: input
     attributes:
+      label: Provide Node.js version
+      description: Please provide the current version installed of Node.js by running `node -v`.
+    validations:
+      required: true
+  - type: input
+    attributes:
       label: Current platform
       description: 'For example: Mac OS, Ubuntu, Linux, Windows...'
   - type: textarea
