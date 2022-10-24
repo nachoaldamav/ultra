@@ -1,3 +1,4 @@
+import path from 'path';
 import prompts from "prompts";
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -17,7 +18,7 @@ export async function init(args: string[]) {
   }
 
   // Get current directory name
-  const currentDir = process.cwd().split("/").pop();
+  const currentDir = path.basename(process.cwd());
 
   // If has -y just use the default values
   if (args.includes("-y") && currentDir) {
