@@ -1,5 +1,5 @@
 name: Bug Report
-description: Create a bug report for SNPM CLI
+description: Create a bug report for Ultra CLI
 labels: 'template: bug'
 body:
   - type: markdown
@@ -8,7 +8,7 @@ body:
   - type: input
     attributes:
       label: Provide installed version
-      description: Please provide the current version installed of SNPM by running `npm ls @snpm-io/cli`.
+      description: Please provide the current version installed of Ultra by running `ultra -v`.
     validations:
       required: true
   - type: input
@@ -30,7 +30,7 @@ body:
   - type: input
     attributes:
       label: Template command (if applicable)
-      description: Provide the command to init the template (`snpm create create-next-app`)
+      description: Provide the command to init the template (`ultra create next-app`)
     validations:
       required: false
   - type: textarea
