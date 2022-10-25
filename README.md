@@ -125,3 +125,11 @@ Current project: fnpm-vite-demo (0.0.0)
 ```
 
 > The commands with no-cache executes `npm cache clean -f` to delete NPM Cache files and runs `ultra clear` to remove Ultra cache folders.
+
+## 🧑‍🤝‍🧑 Contributors
+
+<a href="https://github.com/nachoaldamav/ultra/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=nachoaldamav/ultra" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
