@@ -66,8 +66,8 @@
   top: 0;
   bottom: 0;
   margin: auto 0;
-  width: calc(100% - 4px);
-  height: calc(100% - 5px);
+  width: calc(100% - 2px);
+  height: calc(100% - 4px);
 }
 
 .ultra-graph-border {
@@ -99,9 +99,9 @@
   gap: 8px;
 
   background: rgba(0, 0, 0, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.05);
+  border: 1.25px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0px 12px 32px rgba(62, 59, 146, 0.14);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .snippet-icon {
@@ -115,7 +115,7 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 12px 16px;
+  padding: 12px 24px;
   gap: 10px;
 
   background: linear-gradient(
