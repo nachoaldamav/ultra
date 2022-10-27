@@ -28,14 +28,17 @@ npm i ultra-pkg -g
 
 ## 🔭 Commands
 
-| Command                                 | Description                                               |
-| --------------------------------------- | --------------------------------------------------------- |
-| `ultra install [pkg (optional), flags]` | Install packages.                                         |
-| `ultra run <script> <params>`           | Run script from package.json                              |
-| `ultra create <template> <arguments>`   | Create a project from a template (Similar to npm create). |
-| `ultra benchmark`                       | Tests ULTRA against NPM and PNPM.                         |
-| `ultra clear`                           | Remove .ultra-cache folder.                               |
-| `ultra ls <pkg>`                        | Show versions installed by ULTRA.                         |
+| Command                                 | Description                                                             |
+| --------------------------------------- | ------------------------------------------------------------------------|
+| `ultra install [pkg (optional), flags]` | Install packages.                                                       |
+| `ultra run <script> <params>`           | Run script from package.json                                            |
+| `ultra create <template> <arguments>`   | Create a project from a template (Similar to npm create).               |
+| `ultra benchmark`                       | Tests ULTRA against NPM and PNPM.                                       |
+| `ultra clear`                           | Remove .ultra-cache and manifests cache, node_modules and `ultra.lock`. |
+| `ultra ls <pkg>`                        | Show versions installed by ULTRA.                                       |
+| `ultra remove <pkg>`                    | Remove a dependency from the `package.json`                             |
+| `ultra set registry <url>`              | Set default registry                                                    |
+| `ultra ci`                              | Installs dependencies from `ultra.lock` without cache (WIP)             |
 
 ## 🗒️ Todo
 
