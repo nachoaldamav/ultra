@@ -1,10 +1,10 @@
 {
-  "name": "fnpm",
+  "name": "ultra",
   "version": "0.7.5",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/nachoaldamav/fnpm"
+    "url": "https://github.com/nachoaldamav/ultra"
   },
   "workspaces": [
     "apps/*",

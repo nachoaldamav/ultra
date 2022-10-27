@@ -16,7 +16,7 @@ const comms = [
   },
   {
     name: "upgrade",
-    description: "Upgrade FNPM",
+    description: "Upgrade ULTRA",
     abr: "u",
     params: false,
   },

@@ -3,7 +3,7 @@
 @tailwind base;
 @tailwind components;
 
-.fnpm-gradient {
+.ultra-gradient {
   @apply bg-gradient-to-r animate-gradient-x;
   background: linear-gradient(
     270deg,

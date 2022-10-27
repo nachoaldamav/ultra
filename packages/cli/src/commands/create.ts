@@ -4,17 +4,21 @@ import pacote from "pacote";
 import prompts from "prompts";
 import path from "path";
 import { execa } from "execa";
-import { existsSync, rm, rmSync, symlinkSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { spawn } from "child_process";
 import { getDeps } from "../utils/getDeps.js";
 import readPackage from "../utils/readPackage.js";
 import manifestFetcher from "../utils/manifestFetcher.js";
+import binLinks from "bin-links";
+import os from "node:os";
+
+const operatingSystem = os.platform();
 
 export async function create(args: string[]) {
   if (args.length === 0) {
     console.log(
       chalk.red(
-        "Please provide the script name, e.g. fnpm create create-next-app"
+        "Please provide the script name, e.g. ultra create create-next-app"
       )
     );
     return;
@@ -74,26 +78,17 @@ export async function create(args: string[]) {
     __installing.succeed();
 
     // Get bin path
-    const bin = readPackage(path.join(globalPath, "package.json"))
-      .bin as string;
+    const pkg = readPackage(path.join(globalPath, "package.json"));
 
-    const isObject = bin && typeof bin === "object";
-    const binName = isObject ? Object.keys(bin)[0] : bin;
-
-    const binPath = isObject ? bin[binName] : bin;
-
-    // Check if symlink exists
-    const symlinkPath = path.join(npmPath, "bin", binName);
-
-    if (existsSync(symlinkPath)) {
-      rmSync(symlinkPath);
-    }
+    const binName = Object.keys(pkg.bin)[0];
 
     // Create symlink
-    symlinkSync(
-      path.join(globalPath, binPath),
-      path.join(npmPath, "bin", binName)
-    );
+    await binLinks({
+      path: globalPath,
+      pkg,
+      global: true,
+      force: true,
+    });
 
     // Execute the script with spawn
     spawn(binName, args, {
@@ -124,9 +119,9 @@ async function installPkg(
     deps.map(async (dep: any) => {
       // Check if the dependency is already installed
       if (existsSync(path.join(pathname, "node_modules", dep.name))) {
-        return await installPkg(dep.name, dep.version, installPath);
+        return installPkg(dep.name, dep.version, installPath);
       }
-      return await installPkg(dep.name, dep.version, pathname);
+      return installPkg(dep.name, dep.version, pathname);
     })
   );
 }
