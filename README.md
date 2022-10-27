@@ -33,7 +33,7 @@ npm i ultra-pkg -g
 | `ultra install [pkg (optional), flags]` | Install packages.                                                       |
 | `ultra run <script> <params>`           | Run script from package.json                                            |
 | `ultra create <template> <arguments>`   | Create a project from a template (Similar to npm create).               |
-| `ultra benchmark`                       | Tests ULTRA against NPM and PNPM.                                       |
+| `ultra benchmark`                       | Tests ULTRA against NPM, Yarn Classic, PNPM and Bun.                    |
 | `ultra clear`                           | Remove .ultra-cache and manifests cache, node_modules and `ultra.lock`. |
 | `ultra ls <pkg>`                        | Show versions installed by ULTRA.                                       |
 | `ultra remove <pkg>`                    | Remove a dependency from the `package.json`                             |
