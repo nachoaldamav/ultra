@@ -5,7 +5,7 @@ import readPackage from "../utils/readPackage.js";
 export async function remove(args: string[]) {
   if (args.length === 0) {
     console.log(
-      chalk.red("Please provide packages to remove, e.g. fnpm remove react")
+      chalk.red("Please provide packages to remove, e.g. ultra remove react")
     );
     return;
   }
@@ -28,5 +28,5 @@ export async function remove(args: string[]) {
   );
 
   console.log(chalk.green("Removed packages from package.json"));
-  console.log(chalk.yellow("Run `fnpm install` to update your node_modules"));
+  console.log(chalk.yellow("Run `ultra install` to update your node_modules"));
 }

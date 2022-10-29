@@ -4,7 +4,7 @@
   "name": "ultra-landing",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nachoaldamav/fnpm",
+    "url": "https://github.com/nachoaldamav/ultra",
     "directory": "apps/landing"
   },
   "scripts": {

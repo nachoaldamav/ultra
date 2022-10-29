@@ -8,7 +8,7 @@ export async function upgrade() {
 
   await execa("npm", ["install", "--locate=global", "ultra-pkg@latest"]);
 
-  // Get the latest version of fnpm
+  // Get the latest version of ultra
   const { version } = await pacote.manifest("ultra-pkg");
 
   spinner.succeed(chalk.green(`Ultra upgraded to v`) + chalk.blue(version));

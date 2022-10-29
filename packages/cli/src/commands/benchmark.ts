@@ -324,7 +324,8 @@ export async function benchmark(args: string[]) {
     );
     test.spinner.succeed();
 
-    await sleep(2000);
+    await sleep(5000);
+    continue;
   }
 
   // Sort the results by time

@@ -58,7 +58,11 @@ export async function ultraExtract(
   }
 
   try {
-    if (!existsSync(file)) {
+    // If file exists and it's not corrupted, extract it directly
+    if (
+      !existsSync(file) ||
+      sha !== createHash("sha1").update(readFileSync(file)).digest("hex")
+    ) {
       const org = name.startsWith("@") ? name.split("/")[0] : null;
 
       const npmRegistry =
@@ -106,19 +110,11 @@ export async function ultraExtract(
     // Extract "package" directory from tarball to "target" directory
     mkdirSync(target, { recursive: true });
 
-    await tar
-      .extract({
-        file,
-        cwd: target,
-        strip: 1,
-      })
-      .catch((err) => {
-        ora(
-          chalk.red(
-            `Error extracting ${file} to ${target}: ${err.message || err}`
-          )
-        ).fail();
-      });
+    await tar.extract({
+      file,
+      cwd: target,
+      strip: 1,
+    });
 
     // Create .ultra file
     writeFileSync(ultraFile, "{}");
@@ -128,11 +124,19 @@ export async function ultraExtract(
     return {
       res: "extracted",
     };
-  } catch (err) {
+  } catch (err: any) {
     // Try again but remove the file
     if (existsSync(file)) {
       unlinkSync(file);
     }
+
+    ora(
+      chalk.red(
+        `Error extracting ${file} to ${target}, trying again: ${
+          err.message || err
+        }`
+      )
+    ).fail();
 
     return ultraExtract(target, tarball, sha, name);
   }

@@ -203,10 +203,10 @@ export async function install(opts: string[]) {
     symbol: chalk.green("⚡"),
   });
 
+  const { installPkg } = await import("../utils/installPkg.js");
+
   const __install = spinnerGradient(chalk.green("Installing packages..."));
   const __install_start = performance.now();
-
-  const { installPkg } = await import("../utils/installPkg.js");
 
   await Promise.all(
     pkgs.map(async (pkg) => {
@@ -246,6 +246,11 @@ export async function install(opts: string[]) {
     `Installed packages in ${chalk.gray(
       parseTime(__install_start, __install_end)
     )}`
+  );
+
+  await writeFile(
+    path.join(process.cwd(), "ultra-dirs.json"),
+    JSON.stringify(__DIRS, null, 2)
   );
 
   __install.stopAndPersist({
