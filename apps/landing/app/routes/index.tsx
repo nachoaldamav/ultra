@@ -96,22 +96,23 @@ export default function Index() {
             This demo shows how shared dependencies are handled.
           </p>
         </div>
-        <div style={{ paddingTop: "35%", position: "relative", width: "65%" }}>
-          <iframe
-            src="https://player.vimeo.com/video/759983180?h=1ac1372daa&title=0&byline=0&portrait=0"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              borderRadius: "10px",
-            }}
-            frameBorder="0"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen={true}
-          ></iframe>
-        </div>
+        <iframe
+          src="https://player.vimeo.com/video/759983180?h=1ac1372daa&title=0&byline=0&portrait=0"
+          style={{
+            // position: "absolute",
+            aspectRatio: "16/9",
+            top: 0,
+            left: 0,
+            width: "65%",
+            height: "100%",
+            borderRadius: "10px",
+            overflow: "hidden",
+          }}
+          className="shadow-xl"
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen={true}
+        ></iframe>
         <script src="https://player.vimeo.com/api/player.js"></script>
       </section>
       <section
@@ -151,15 +152,41 @@ export default function Index() {
           <h2 className="text-xl font-bold text-white">
             Do you want to know more?
           </h2>
-          <Link to={"/docs/get-started"}>
-            <a className="get-started-button w-fit">
+          <nav className="flex items-center gap-4">
+            <Link
+              to={"/docs/get-started"}
+              className="get-started-button self-start"
+            >
               <span className="get-started-text text-lg font-semibold">
                 Get started
               </span>
+            </Link>
+            <a
+              href="https://github.com/nachoaldamav/ultra"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white/5 px-6 py-3 rounded-md text-neutral-400 text-lg"
+            >
+              View on Github
             </a>
-          </Link>
+          </nav>
         </div>
       </section>
+      <footer className="w-full">
+        <div className="w-full max-w-[65%] flex items-center justify-end mx-auto py-6">
+          <p className="text-sm font-medium text-neutral-500">
+            Designed by{" "}
+            <a
+              href="https://davidponc.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-neutral-400"
+            >
+              davidponc
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

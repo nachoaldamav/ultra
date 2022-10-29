@@ -57,7 +57,10 @@ export async function create(args: string[]) {
   });
 
   if (install) {
-    const globalPath = path.join(npmPath, "lib", "node_modules", manifest.name);
+    const globalPath =
+      operatingSystem === "win32"
+        ? path.join(npmPath, "node_modules", manifest.name)
+        : path.join(npmPath, "lib", "node_modules", manifest.name);
 
     const __downloading = ora(`Downloading ${manifest.name}...`).start();
     await pacote.extract(command, globalPath);
@@ -88,13 +91,21 @@ export async function create(args: string[]) {
       pkg,
       global: true,
       force: true,
+      top: true,
     });
 
     // Execute the script with spawn
-    spawn(binName, args, {
-      stdio: "inherit",
-      shell: true,
-    });
+    if (operatingSystem === "win32") {
+      spawn(`cmd.exe`, ["/c", binName, ...args], {
+        cwd: process.cwd(),
+        stdio: "inherit",
+      });
+    } else {
+      spawn(binName, args, {
+        stdio: "inherit",
+        shell: true,
+      });
+    }
   }
   return;
 }

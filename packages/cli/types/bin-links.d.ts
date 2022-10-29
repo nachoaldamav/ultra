@@ -10,5 +10,6 @@ declare module "bin-links" {
     pkg: any;
     global?: boolean;
     force?: boolean;
+    top?: boolean;
   }): Promise<void>;
 }
