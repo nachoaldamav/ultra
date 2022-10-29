@@ -19,6 +19,15 @@ type __POSTSCRIPTS_TYPE = {
   cachePath: string;
 };
 
+type __DIRS_TYPE = {
+  [key: string]: {
+    name: string;
+    version: string | undefined;
+    spec: string;
+    cachePath: string | undefined;
+  };
+};
+
 declare global {
   var downloadFile: string;
   var __DOWNLOADING: string[];
@@ -29,6 +38,7 @@ declare global {
   var __VERIFIED: string[];
   var __POSTSCRIPTS: __POSTSCRIPTS_TYPE[];
   var __NOPOSTSCRIPTS: boolean;
+  var __DIRS: __DIRS_TYPE;
   var libc: string | null;
   var pkgs: pkg[];
   var userUltraCache: string;

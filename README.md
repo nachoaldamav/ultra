@@ -104,7 +104,7 @@ This example is generated using `npx create-vite-app --template react-ts`
 Node.js: v18.10.0
 OS: linux
 ULTRA version: 0.6.9
-Current project: fnpm-vite-demo (0.0.0)
+Current project: ultra-vite-demo (0.0.0)
 
 ┌─────────┬─────────────────────────────────────────────────┬──────────┬───────┐
 │ (index) │                      name                       │   time   │ group │
