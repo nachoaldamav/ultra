@@ -6,7 +6,6 @@ import {
   existsSync,
   writeFileSync,
   readFileSync,
-  readdirSync,
   symlinkSync,
 } from "node:fs";
 import path from "path";
@@ -18,6 +17,9 @@ import { hardLinkSync } from "./hardLinkSync.js";
 import { ultraExtract } from "./extract.js";
 import { gitInstall } from "./gitInstaller.js";
 import { getDir } from "./getInstallableDir.js";
+import { updateIndex } from "./updateIndex.js";
+import getVersions from "./getVersions.js";
+import { sleep } from "./sleep.js";
 
 type Return = {
   name: string;
@@ -42,22 +44,29 @@ export async function installPkg(
     return gitInstall(manifest, parent, spinner);
   }
 
+  const localPath = path.join(process.cwd(), "node_modules", manifest.name);
+
   // Check if package is already installed in node_modules
-  const islocalInstalled = existsSync(
-    path.join(process.cwd(), "node_modules", manifest.name, "package.json")
-  );
+  const islocalInstalled = __DIRS[localPath];
 
-  const localManifest = islocalInstalled
-    ? readPackage(
-        path.join(process.cwd(), "node_modules", manifest.name, "package.json")
-      )
-    : null;
+  if (islocalInstalled && islocalInstalled.version) {
+    if (semver.satisfies(islocalInstalled.version, manifest.version)) {
+      return null;
+    }
+  }
 
-  if (
-    localManifest &&
-    semver.satisfies(localManifest.version, manifest.version)
-  ) {
-    return null;
+  // Fetch manifest
+  const pkg = await manifestFetcher(`${manifest.name}@${manifest.version}`, {
+    registry: REGISTRY,
+  });
+
+  if (!islocalInstalled) {
+    __DIRS[localPath] = {
+      name: manifest.name,
+      version: pkg.version,
+      spec: manifest.version,
+      cachePath: undefined,
+    };
   }
 
   if (spinner) {
@@ -67,23 +76,24 @@ export async function installPkg(
 
   let cacheFolder;
 
-  const installedVersions = existsSync(path.join(userUltraCache, manifest.name))
-    ? readdirSync(path.join(userUltraCache, manifest.name))
-    : [];
-
-  const suitableVersion = installedVersions.find((version) =>
-    semver.satisfies(version, manifest.version)
+  const suitableVersion = getVersions(manifest.name).find((v) =>
+    semver.satisfies(v, manifest.version)
   );
 
   if (suitableVersion) {
     cacheFolder = path.join(userUltraCache, manifest.name, suitableVersion);
   }
 
-  let pkgProjectDir = getDir(manifest, parent, islocalInstalled);
+  let pkgProjectDir = islocalInstalled
+    ? getDir(manifest, parent, !!islocalInstalled)
+    : localPath;
 
-  if (!pkgProjectDir) {
-    return null;
-  }
+  __DIRS[pkgProjectDir] = {
+    name: manifest.name,
+    version: pkg.version,
+    spec: manifest.version,
+    cachePath: cacheFolder,
+  };
 
   const isSatisfied = cacheFolder
     ? existsSync(path.join(cacheFolder, downloadFile))
@@ -97,13 +107,7 @@ export async function installPkg(
       );
     }
 
-    if (existsSync(pkgProjectDir)) {
-      pkgProjectDir = path.join(
-        parent || process.cwd(),
-        "node_modules",
-        manifest.name
-      );
-    }
+    __DIRS[pkgProjectDir].version = suitableVersion;
 
     // Push to downloaded package info
     __DOWNLOADED.push({
@@ -130,25 +134,6 @@ export async function installPkg(
       const deps = getDeps(pkgJson, {
         dev: true,
       });
-
-      // Symlink bin files
-      await binLinks({
-        path: pkgProjectDir,
-        pkg: pkgJson,
-        global: false,
-        force: true,
-      });
-
-      // Push post install script
-      const postinstall = pkgJson.scripts?.postinstall;
-      if (postinstall && !__NOPOSTSCRIPTS) {
-        __POSTSCRIPTS.push({
-          package: pkgJson.name,
-          script: postinstall,
-          scriptPath: pkgProjectDir,
-          cachePath: cacheFolder,
-        });
-      }
 
       // Install deps
       for (const dep of Object.keys(cachedDeps)) {
@@ -194,6 +179,27 @@ export async function installPkg(
         } catch (e) {}
       }
 
+      if (pkgProjectDir === localPath) {
+        // Symlink bin files
+        await binLinks({
+          path: pkgProjectDir,
+          pkg: pkgJson,
+          global: false,
+          force: false,
+        });
+      }
+
+      // Push post install script
+      const postinstall = pkgJson.scripts?.postinstall;
+      if (postinstall && !__NOPOSTSCRIPTS) {
+        __POSTSCRIPTS.push({
+          package: pkgJson.name,
+          script: postinstall,
+          scriptPath: pkgProjectDir,
+          cachePath: cacheFolder,
+        });
+      }
+
       return null;
     } catch (e: any) {
       ora(
@@ -205,24 +211,37 @@ export async function installPkg(
     }
   }
 
-  // Fetch manifest
-  const pkg = await manifestFetcher(`${manifest.name}@${manifest.version}`, {
-    registry: REGISTRY,
-  });
-
   if (
     __INSTALLED.find((e) => e.name === pkg.name && e.version === pkg.version)
   ) {
     return null;
   }
 
-  cacheFolder = path.join(userUltraCache, pkg.name, pkg.version);
-
   if (!islocalInstalled) {
     __INSTALLED.push({
       name: manifest.name,
       version: pkg.version,
     });
+  }
+
+  cacheFolder = path.join(userUltraCache, pkg.name, pkg.version);
+
+  await updateIndex(manifest.name, pkg.version);
+
+  if (existsSync(pkgProjectDir)) {
+    if (
+      semver.satisfies(
+        __DIRS[pkgProjectDir].version as string,
+        manifest.version
+      )
+    ) {
+      return null;
+    }
+    pkgProjectDir = getDir(manifest, parent, !!islocalInstalled);
+  }
+
+  if (existsSync(pkgProjectDir)) {
+    return installPkg(manifest, parent, spinner);
   }
 
   if (spinner) {
@@ -240,7 +259,10 @@ export async function installPkg(
   );
 
   if (status && status.res === "skipped") {
-    return installPkg(manifest, parent, spinner);
+    // Wait until tarball is not in __DOWNLOADING
+    while (__DOWNLOADING.includes(pkg.dist.tarball)) {
+      await sleep(100);
+    }
   }
 
   if (pkg.deprecated) {
@@ -252,16 +274,6 @@ export async function installPkg(
   }
 
   const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
-
-  if (existsSync(pkgProjectDir)) {
-    // If exists, retry
-    const parentDir = parent ? parent : process.cwd();
-    pkgProjectDir = path.join(parentDir, "node_modules", manifest.name);
-  }
-
-  if (existsSync(pkgProjectDir)) {
-    return installPkg(manifest, parent, spinner);
-  }
 
   // Push to downloaded package info
   __DOWNLOADED.push({
@@ -313,7 +325,9 @@ export async function installPkg(
           spinner
         );
 
-        if (!data) return null;
+        if (!data) {
+          return null;
+        }
 
         return {
           name: dep.name,
@@ -357,13 +371,15 @@ export async function installPkg(
       });
     }
 
-    // Symlink bin files
-    await binLinks({
-      path: pkgProjectDir,
-      pkg: pkgJson,
-      global: false,
-      force: true,
-    });
+    if (pkgProjectDir === localPath) {
+      // Symlink bin files
+      await binLinks({
+        path: pkgProjectDir,
+        pkg: pkgJson,
+        global: false,
+        force: false,
+      });
+    }
 
     return {
       name: manifest.name,

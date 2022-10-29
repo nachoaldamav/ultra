@@ -8,7 +8,7 @@ export default async function basePostInstall() {
   const pkg = readPackage(path.join(process.cwd(), "package.json"));
 
   if (pkg.scripts && pkg.scripts.postinstall) {
-    await execa("fnpm", ["run", "postinstall"], {
+    await execa("ultra", ["run", "postinstall"], {
       stdio: "inherit",
     }).catch((err) => {
       ora(chalk.red("Error running postinstall script")).fail();

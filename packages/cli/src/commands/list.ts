@@ -8,10 +8,12 @@ import path from "path";
 export async function list(pkgs: string[]) {
   if (!pkgs) {
     ora(chalk.red("Missing package name")).fail();
+
     const packages = await readdir(path.join(os.homedir(), ".ultra-cache"));
+
     console.log(
       chalk.green(
-        `${chalk.blue(packages.length)} packages installed with ULTR.`
+        `${chalk.blue(packages.length)} packages installed with ULTRA.`
       )
     );
     return;
@@ -28,7 +30,9 @@ export async function list(pkgs: string[]) {
     const dir = await lstat(pathName);
 
     if (dir.isDirectory()) {
-      const versions = await readdir(pathName);
+      const versions = (await readdir(pathName)).filter(
+        (file) => file !== "index.json"
+      );
       console.log(
         `${chalk.blue(versions.length)} version${
           versions.length > 1 ? "s" : ""

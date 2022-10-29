@@ -1,59 +1,67 @@
-import { existsSync } from "node:fs";
 import path from "node:path";
 import semver from "semver";
 import chalk from "chalk";
 import ora from "ora";
-import readPackage from "./readPackage.js";
 
 export function getDir(
   manifest: any,
   parent: string | undefined,
-  islocalInstalled: boolean
-) {
+  islocalInstalled: boolean,
+  depth?: number
+): string {
   try {
-    if (!islocalInstalled || !parent) {
+    const installed =
+      __DIRS[path.join(process.cwd(), "node_modules", manifest.name)];
+
+    if (installed && installed.spec === manifest.version) {
       return path.join(process.cwd(), "node_modules", manifest.name);
     }
 
+    if (
+      (installed.version &&
+        semver.satisfies(installed.version, manifest.version)) ||
+      !installed ||
+      !parent
+    ) {
+      return path.join(process.cwd(), "node_modules", manifest.name);
+    }
+
+    const array = parent.replace(process.cwd(), "").split("/node_modules/");
+
     // Check how many node_modules are in the path
-    const count = parent.split("node_modules").length - 1;
+    const count = array.length - 1;
+
     if (count === 1) {
       return path.join(parent, "node_modules", manifest.name);
     }
 
-    // Check if the dir exists in previous node_modules
-    const dir = path.join(
-      process.cwd(),
-      "node_modules",
-      parent.split("node_modules")[1],
-      "node_modules",
-      manifest.name
-    );
+    const bestDepth = array.slice(0, depth || 2).join("/node_modules/");
 
-    if (!existsSync(dir)) {
-      return dir;
+    if (!__DIRS[path.join(process.cwd(), bestDepth, manifest.name)]) {
+      return path.join(process.cwd(), bestDepth, "node_modules", manifest.name);
     }
 
-    // If it exists, check if the version is suitable with manifest.spec
-    const pkg = readPackage(path.join(dir, "package.json"));
+    const installedVersion =
+      __DIRS[path.join(process.cwd(), bestDepth, manifest.name)].version;
 
-    if (semver.satisfies(pkg.version, manifest.spec)) {
-      return dir;
+    if (
+      installedVersion &&
+      semver.satisfies(installedVersion, manifest.version)
+    ) {
+      return path.join(process.cwd(), bestDepth, "node_modules", manifest.name);
     }
 
-    const splitted = parent.split("node_modules");
-    const duplicates = hasDuplicates(splitted);
+    ora(
+      chalk.yellow(
+        `Warning: ${
+          manifest.name
+        } is already installed in ${bestDepth}, trying in ${array
+          .slice(0, (depth || 2) + 1)
+          .join("/node_modules/")}`
+      )
+    ).warn();
 
-    if (duplicates) {
-      return null;
-    }
-
-    // Check if there any package in splitted is repeated, if so, return null
-    const repeated = splitted.filter((item) => {
-      return splitted;
-    });
-
-    return path.join(parent, "node_modules", manifest.name);
+    return getDir(manifest, parent, islocalInstalled, depth ? depth + 1 : 2);
   } catch (e: any) {
     ora(
       chalk.red(
@@ -67,8 +75,4 @@ export function getDir(
       ? path.join(parent, "node_modules", manifest.name)
       : path.join(process.cwd(), "node_modules", manifest.name);
   }
-}
-
-function hasDuplicates(array: Array<string>) {
-  return new Set(array).size !== array.length;
 }

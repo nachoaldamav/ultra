@@ -63,9 +63,15 @@ export const getDeps = (
       }) || []
     : [];
 
-  return [...deps, ...devDeps, ...peerDeps, ...optDeps].filter((dep) => {
-    return checkDist(dep.name);
-  });
+  return [...deps, ...devDeps, ...peerDeps]
+    .concat(
+      optDeps.filter((dep) => {
+        return checkDist(dep.name);
+      })
+    )
+    .sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
 };
 
 type options = {
