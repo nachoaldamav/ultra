@@ -248,11 +248,6 @@ export async function install(opts: string[]) {
     )}`
   );
 
-  await writeFile(
-    path.join(process.cwd(), "ultra-dirs.json"),
-    JSON.stringify(__DIRS, null, 2)
-  );
-
   __install.stopAndPersist({
     symbol: chalk.green("⚡"),
   });
