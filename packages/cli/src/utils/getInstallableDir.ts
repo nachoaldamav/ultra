@@ -1,7 +1,9 @@
 import path from "node:path";
+import { existsSync, readdirSync } from "node:fs";
 import semver from "semver";
 import chalk from "chalk";
 import ora from "ora";
+import readPackage from "./readPackage.js";
 
 export function getDir(
   manifest: any,
@@ -10,19 +12,21 @@ export function getDir(
   depth?: number
 ): string {
   try {
-    const installed =
-      __DIRS[path.join(process.cwd(), "node_modules", manifest.name)];
+    const localPath = path.join(
+      process.cwd(),
+      "node_modules",
+      manifest.name,
+      "package.json"
+    );
+    const localPathExists = existsSync(localPath);
 
-    if (installed && installed.spec === manifest.version) {
+    const installed = localPathExists ? readPackage(localPath).version : null;
+
+    if (installed && semver.satisfies(installed.version, manifest.version)) {
       return path.join(process.cwd(), "node_modules", manifest.name);
     }
 
-    if (
-      (installed.version &&
-        semver.satisfies(installed.version, manifest.version)) ||
-      !installed ||
-      !parent
-    ) {
+    if (!installed || !parent) {
       return path.join(process.cwd(), "node_modules", manifest.name);
     }
 
@@ -37,12 +41,13 @@ export function getDir(
 
     const bestDepth = array.slice(0, depth || 2).join("/node_modules/");
 
-    if (!__DIRS[path.join(process.cwd(), bestDepth, manifest.name)]) {
+    if (!existsSync(path.join(process.cwd(), bestDepth, manifest.name))) {
       return path.join(process.cwd(), bestDepth, "node_modules", manifest.name);
     }
 
-    const installedVersion =
-      __DIRS[path.join(process.cwd(), bestDepth, manifest.name)].version;
+    const installedVersion = readPackage(
+      path.join(process.cwd(), bestDepth, manifest.name)
+    ).version;
 
     if (
       installedVersion &&
