@@ -9,6 +9,7 @@ import { markdownTable } from "markdown-table";
 import path from "path";
 import { execa } from "execa";
 import { fileURLToPath } from "url";
+import { rm } from "node:fs/promises";
 import readPackage from "../utils/readPackage.js";
 
 const delCommand = os.platform() === "win32" ? "del /s /q" : "rm -rf";
@@ -48,6 +49,20 @@ const tests = [
     group: 3,
   },
   {
+    name: "NPM install (with node_modules)",
+    command: "npm install --force --ignore-scripts",
+    spinner: ora(
+      chalk.green(`Running "NPM install (with node_modules)"...`)
+    ).stop(),
+    group: 4,
+  },
+  {
+    name: "NPM install (add dep)",
+    command: "npm install axios --force --ignore-scripts",
+    spinner: ora(chalk.green(`Running "NPM install (add dep)"...`)).stop(),
+    group: 5,
+  },
+  {
     name: "YARN install (no cache / no lockfile)",
     command: "yarn install --force --ignore-scripts",
     pre: `yarn cache clean && ${delCommand} node_modules yarn.lock`,
@@ -74,7 +89,20 @@ const tests = [
     ).stop(),
     group: 3,
   },
-
+  {
+    name: "YARN install (with node_modules)",
+    command: "yarn install --force --ignore-scripts",
+    spinner: ora(
+      chalk.green(`Running "YARN install (with node_modules)"...`)
+    ).stop(),
+    group: 4,
+  },
+  {
+    name: "YARN install (add dep)",
+    command: "yarn add axios --force --ignore-scripts",
+    spinner: ora(chalk.green(`Running "YARN install (add dep)"...`)).stop(),
+    group: 5,
+  },
   {
     name: "⚡ ULTRA install (no cache / no lockfile)",
     command: "ultra install --ignore-scripts",
@@ -102,33 +130,20 @@ const tests = [
     ).stop(),
     group: 3,
   },
-  /*{
-    name: "ULTRA Beta install (no cache / no lockfile)",
-    command: "ultra ib",
-    pre: "npm cache clean -f && ultra clear",
+  {
+    name: "⚡ ULTRA install (with node_modules)",
+    command: "ultra install --ignore-scripts",
     spinner: ora(
-      chalk.green(`Running "ULTRA Beta install (no cache / no lockfile)"...`)
+      chalk.green(`Running "ULTRA install (with node_modules)"...`)
     ).stop(),
-    group: 1,
+    group: 4,
   },
   {
-    name: "ULTRA Beta install (with cache / no lockfile)",
-    command: "ultra ib",
-    pre: "rm -rf node_modules ultra.lock",
-    spinner: ora(
-      chalk.green(`Running "ULTRA Beta install (with cache / no lockfile)"...`)
-    ).stop(),
-    group: 2,
+    name: "⚡ ULTRA install (add dep)",
+    command: "ultra install axios --ignore-scripts",
+    spinner: ora(chalk.green(`Running "ULTRA install (add dep)"...`)).stop(),
+    group: 5,
   },
-  {
-    name: "ULTRA Beta install (with cache / with lockfile)",
-    command: "ultra ib",
-    pre: "rm -rf node_modules",
-    spinner: ora(
-      chalk.green(`Running "ULTRA Beta install (with cache / with lockfile)"...`)
-    ).stop(),
-    group: 3,
-  }, */
   {
     name: "PNPM install (no cache / no lockfile)",
     command:
@@ -157,7 +172,22 @@ const tests = [
     spinner: ora(chalk.green(`Running "PNPM install (with cache)"...`)).stop(),
     group: 3,
   },
-
+  {
+    name: "PNPM install (with node_modules)",
+    command:
+      "pnpm install --force --ignore-scripts --cache-dir=cache/cache --store-dir=cache/store",
+    spinner: ora(
+      chalk.green(`Running "PNPM install (with node_modules)"...`)
+    ).stop(),
+    group: 4,
+  },
+  {
+    name: "PNPM install (add dep)",
+    command:
+      "pnpm install axios --force --ignore-scripts --cache-dir=cache/cache --store-dir=cache/store",
+    spinner: ora(chalk.green(`Running "PNPM install (add dep)"...`)).stop(),
+    group: 5,
+  },
   {
     name: "Bun install (no cache / no lockfile)",
     command: "bun install",
@@ -185,6 +215,20 @@ const tests = [
     ).stop(),
     group: 3,
   },
+  {
+    name: "Bun install (with node_modules)",
+    command: "bun install",
+    spinner: ora(
+      chalk.green(`Running "Bun install (with node_modules)"...`)
+    ).stop(),
+    group: 4,
+  },
+  {
+    name: "Bun install (add dep)",
+    command: "bun add axios",
+    spinner: ora(chalk.green(`Running "Bun install (add dep)"...`)).stop(),
+    group: 5,
+  },
 ];
 
 export async function benchmark(args: string[]) {
@@ -194,6 +238,7 @@ export async function benchmark(args: string[]) {
   const onlyultra = args.includes("--only-ultra");
   const ignoreBun = args.includes("--ignore-bun");
   const ignorePnpm = args.includes("--ignore-pnpm");
+  const addDeps = args.includes("--add-deps");
   const genjson = args.includes("--json");
 
   if (onlyultra) ora(chalk.yellow("Only running ultra tests")).warn();
@@ -202,7 +247,7 @@ export async function benchmark(args: string[]) {
     .find((arg) => arg.startsWith("--group="))
     ?.replace("--group=", "");
 
-  const testsToRun = !selectedGroup
+  let testsToRun = !selectedGroup
     ? onlyultra
       ? tests.filter((test) => test.name.includes("ULTRA"))
       : tests
@@ -233,6 +278,14 @@ export async function benchmark(args: string[]) {
     ).warn();
   }
 
+  if (addDeps) {
+    // We only run the add deps tests
+    testsToRun = testsToRun.filter((test) => test.group === 5);
+  } else {
+    // We remove the add deps tests
+    testsToRun = testsToRun.filter((test) => test.group !== 5);
+  }
+
   const __init = ora(chalk.green("Starting benchmark...")).start();
 
   await execa("npm", [
@@ -261,14 +314,18 @@ export async function benchmark(args: string[]) {
 
     // Execute the pre command
     await new Promise(async (resolve, reject) => {
-      exec(test.pre, (error, stdout, stderr) => {
-        if (error) {
-          resolve(error);
-          ora(chalk.red(`[Error] ${error}`)).fail();
-        } else {
-          resolve(stdout);
-        }
-      });
+      if (test.pre) {
+        exec(test.pre, (error, stdout, stderr) => {
+          if (error) {
+            resolve(error);
+            ora(chalk.red(`[Error] ${error}`)).fail();
+          } else {
+            resolve(stdout);
+          }
+        });
+      } else {
+        resolve(true);
+      }
     });
 
     if (
@@ -324,9 +381,27 @@ export async function benchmark(args: string[]) {
     );
     test.spinner.succeed();
 
+    if (test.name.includes("add dep")) {
+      await execa("ultra", ["remove", "axios"]);
+    }
+
     await sleep(5000);
     continue;
   }
+
+  const cleaning = ora(chalk.green("Cleaning up...")).start();
+  [
+    "cache/store",
+    "cache/cache",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "node_modules",
+    "bun.lockb",
+  ].forEach(async (file) => {
+    await rm(path.join(process.cwd(), file), { recursive: true, force: true });
+  });
+  cleaning.succeed("Cleaned up");
 
   // Sort the results by time
   results.sort((a, b) => a.time - b.time);

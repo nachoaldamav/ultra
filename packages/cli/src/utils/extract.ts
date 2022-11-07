@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import axios from "axios";
 import { createHash } from "node:crypto";
+import https from "https";
 import os from "node:os";
 import path from "node:path";
 import ora from "ora";
@@ -83,7 +84,11 @@ export async function ultraExtract(
         responseType: "stream",
         headers: {
           Authorization: `Bearer ${npmToken}`,
+          "keep-alive": "timeout=5, max=1000",
         },
+        httpsAgent: new https.Agent({
+          keepAlive: true,
+        }),
       });
 
       response.data.pipe(writer);

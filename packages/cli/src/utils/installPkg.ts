@@ -6,7 +6,6 @@ import {
   existsSync,
   writeFileSync,
   readFileSync,
-  readdirSync,
   symlinkSync,
 } from "node:fs";
 import path from "path";
@@ -19,13 +18,16 @@ import { ultraExtract } from "./extract.js";
 import { gitInstall } from "./gitInstaller.js";
 import { getDir } from "./getInstallableDir.js";
 import { sleep } from "./sleep.js";
+import getVersions from "./getVersions.js";
+import { checkDist } from "./checkDist.js";
 
 type Return = {
   name: string;
   version: string;
   tarball: string;
-  parent?: string;
   spec: string;
+  integrity: string;
+  parent?: string;
 };
 
 export async function installPkg(
@@ -37,6 +39,38 @@ export async function installPkg(
   if (manifest.version === "*") {
     __SKIPPED.push(manifest.name);
     return null;
+  }
+
+  if (manifest.optional) {
+    const suitable = checkDist(manifest.name);
+    if (!suitable) {
+      const pkg = await manifestFetcher(
+        `${manifest.name}@${manifest.version}`,
+        {
+          registry: REGISTRY,
+        }
+      );
+
+      if (!pkg) return null;
+
+      __DOWNLOADED.push({
+        name: manifest.name,
+        version: pkg.version,
+        tarball: pkg.dist.tarball,
+        integrity: pkg.dist.integrity,
+        path: path.join("/node_modules", manifest.name),
+        cache: "/" + path.join(manifest.name, pkg.version),
+        optional: true,
+      });
+
+      return {
+        name: manifest.name,
+        version: pkg.version,
+        tarball: pkg.dist.tarball,
+        spec: manifest.version,
+        integrity: pkg.dist.integrity,
+      };
+    }
   }
 
   if (manifest.version.startsWith("git")) {
@@ -68,9 +102,7 @@ export async function installPkg(
 
   let cacheFolder;
 
-  const installedVersions = existsSync(path.join(userUltraCache, manifest.name))
-    ? readdirSync(path.join(userUltraCache, manifest.name))
-    : [];
+  const installedVersions = getVersions(manifest.name);
 
   const suitableVersion = installedVersions.find((version) =>
     semver.satisfies(version, manifest.version)
@@ -110,10 +142,10 @@ export async function installPkg(
     __DOWNLOADED.push({
       name: manifest.name,
       version: suitableVersion,
-      // Remove cwd from path
       path: pkgProjectDir.replace(process.cwd(), ""),
-      // Remove homeDir from path
       cache: cacheFolder.replace(userUltraCache, ""),
+      tarball: manifest.tarball,
+      integrity: manifest.integrity,
     });
 
     // Create directory for package without the last folder
@@ -160,6 +192,7 @@ export async function installPkg(
           {
             name,
             version,
+            tarball: cachedDeps[dep][version].tarball || "",
           },
           pkgProjectDir,
           spinner
@@ -263,6 +296,12 @@ export async function installPkg(
   }
 
   if (existsSync(pkgProjectDir)) {
+    const pkgJson = readPackage(path.join(pkgProjectDir, "package.json"));
+
+    if (semver.satisfies(pkgJson.version, pkg.version)) {
+      return null;
+    }
+
     return installPkg(manifest, parent, spinner);
   }
 
@@ -270,10 +309,11 @@ export async function installPkg(
   __DOWNLOADED.push({
     name: manifest.name,
     version: pkg.version,
-    // Remove cwd from path
     path: pkgProjectDir.replace(process.cwd(), ""),
-    // Remove homeDir from path
     cache: cacheFolder.replace(userUltraCache, ""),
+    tarball: pkg.dist.tarball,
+    integrity: pkg.dist.integrity,
+    optional: manifest.optional || false,
   });
 
   mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
@@ -311,6 +351,7 @@ export async function installPkg(
           {
             name: dep.name,
             version: dep.version,
+            optional: dep.optional || false,
           },
           pkgProjectDir as string,
           spinner
@@ -331,7 +372,15 @@ export async function installPkg(
     const filtered = installed.filter((i) => i);
 
     // Save installed deps with its path in .ultra file as objects
-    let object: { [key: string]: any } = {};
+    let object: { [key: string]: any } = {
+      "ultra:self": {
+        name: pkg.name,
+        version: pkg.version,
+        tarball: pkg.dist.tarball,
+        integrity: pkg.dist.integrity,
+        path: cacheFolder,
+      },
+    };
 
     filtered.forEach((dep) => {
       if (dep)
@@ -373,6 +422,7 @@ export async function installPkg(
       version: pkg.version,
       tarball: pkg.dist.tarball,
       spec: manifest.version,
+      integrity: pkg.dist.integrity,
     };
   } catch (error: any) {
     ora(
@@ -388,6 +438,7 @@ export async function installPkg(
       version: pkg.version,
       tarball: pkg.dist.tarball,
       spec: manifest.version,
+      integrity: pkg.dist.integrity,
     };
   }
 }
