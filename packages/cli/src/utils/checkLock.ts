@@ -15,6 +15,8 @@ export default function checkLock(lock: any) {
       // If no version satisfies the version of the pkg, throw error
       if (semver.satisfies(version, dep.version)) {
         results.push(version);
+      } else if (version === "local") {
+        results.push(version);
       }
     }
     if (results.length === 0)

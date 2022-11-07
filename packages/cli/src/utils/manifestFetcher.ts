@@ -16,7 +16,7 @@ const npmrc = readNpmConfig();
 
 const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
 
-export default async function manifestFetcher(spec: string, props: any) {
+export default async function manifestFetcher(spec: string, props?: any) {
   // Remove spaces "|", ">" and "<" from the spec
   const sanitizedSpec = spec
     .replace(/\|/g, "7C")
@@ -47,7 +47,12 @@ export default async function manifestFetcher(spec: string, props: any) {
     // Fetch manifest
     const manifest = await pacote.manifest(spec, {
       ...props,
+      registry,
+      token,
       ...npmrc,
+      headers: {
+        "keep-alive": "timeout=5, max=1000",
+      },
     });
 
     if (spec.includes("nachoaldamav")) {
@@ -72,7 +77,12 @@ export default async function manifestFetcher(spec: string, props: any) {
     // Fetch manifest
     const manifest = await pacote.manifest(spec, {
       ...props,
+      registry,
+      token,
       ...npmrc,
+      headers: {
+        "keep-alive": "timeout=5, max=1000",
+      },
     });
 
     mkdirSync(path.dirname(cacheFile), { recursive: true });

@@ -2,10 +2,8 @@ import type { ultra_lock } from "../../types/pkg";
 import chalk from "chalk";
 import ora from "ora";
 import { writeFile, readFile, unlink, rm } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import path from "path";
 import { performance } from "perf_hooks";
-import binLinks from "bin-links";
 import { getDeps } from "../utils/getDeps.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
@@ -16,9 +14,9 @@ import manifestFetcher from "../utils/manifestFetcher.js";
 import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
 import { __dirname } from "../utils/__dirname.js";
-import { hardLinkSync } from "../utils/hardLinkSync.js";
-import checkLock from "../utils/checkLock.js";
 import { executePost } from "../utils/postInstall.js";
+import { installLock } from "../utils/installLock.js";
+import { genLock } from "../utils/genLockfile.js";
 
 __NOPOSTSCRIPTS = process.argv.includes("--ignore-scripts");
 
@@ -36,81 +34,7 @@ export async function install(opts: string[]) {
 
   if (lock && !newDeps) {
     try {
-      const __install = ora({
-        text: chalk.green("Installing dependencies..."),
-        discardStdin: false,
-      }).start();
-      const start = performance.now();
-
-      checkLock(lock);
-
-      // Hardlink all the packages in ultra.lock to each path from cache
-      await Promise.all(
-        Object.keys(lock).map(async (pkg) => {
-          await Promise.all(
-            Object.keys(lock[pkg]).map(async (version) => {
-              __install.prefixText = "🔗";
-              __install.text = chalk.green(`${pkg}@${version}`);
-
-              const pathname = path.join(
-                process.cwd(),
-                lock[pkg][version].path
-              );
-
-              // If version is local, it's a local dependency
-              if (version === "local") {
-                await installLocalDep({
-                  name: pkg,
-                  version: pathname,
-                }).catch((err) => {
-                  ora(chalk.red(`Error installing ${pkg}@${version}`)).fail();
-                  throw err;
-                });
-
-                return;
-              }
-
-              const cache = path.join(userUltraCache, lock[pkg][version].cache);
-
-              if (existsSync(pathname)) {
-                await rm(pathname, { recursive: true, force: true }).catch(
-                  () => {}
-                );
-              }
-
-              hardLinkSync(cache, pathname);
-
-              const manifest = readPackage(path.join(pathname, "package.json"));
-
-              // If the package has a postinstall script, run it
-              if (manifest.scripts?.postinstall && !__NOPOSTSCRIPTS) {
-                await executePost(manifest.scripts.postinstall, pathname);
-              }
-
-              await binLinks({
-                path: pathname,
-                pkg: manifest,
-                global: false,
-                force: true,
-              });
-            })
-          );
-        })
-      );
-
-      __install.prefixText = "";
-      const end = performance.now();
-      __install.text = chalk.green(
-        `Installed dependencies in ${chalk.grey(
-          parseTime(start, end)
-        )} ${chalk.grey("(from lockfile)")}`
-      );
-
-      __install.stopAndPersist({
-        symbol: chalk.green("⚡"),
-      });
-
-      await basePostInstall();
+      await installLock(lock);
       return;
     } catch (e) {
       ora(chalk.red(`${e}`)).fail();
@@ -122,12 +46,6 @@ export async function install(opts: string[]) {
       return;
     }
   }
-
-  // Remove node_modules folder
-  await rm(path.join(process.cwd(), "node_modules"), {
-    recursive: true,
-    force: true,
-  }).catch(() => {});
 
   const addDeps = await getParamsDeps(opts);
 
@@ -186,6 +104,7 @@ export async function install(opts: string[]) {
         name: dep.name,
         version: dep.version,
         parent: dep.parent || undefined,
+        optional: dep.optional || false,
         fromMonorepo: dep.parent ? dep.parent : undefined,
       });
     })
@@ -357,19 +276,26 @@ export async function install(opts: string[]) {
       path: pkg.path,
       cache: pkg.cache,
       tarball: pkg.tarball,
+      integrity: pkg.integrity,
+      optional: pkg.optional,
     };
 
     return;
   });
 
-  if (__DOWNLOADED.length > 0) {
+  if (
+    __DOWNLOADED.filter((pkg) => pkg.version !== "local").length > 0 &&
+    !newDeps
+  ) {
     await writeFile(
       path.join(process.cwd(), "ultra.lock"),
       JSON.stringify(downloadedPkgs, null, 2),
       "utf-8"
     );
   } else {
-    ora(chalk.red("No packages were downloaded.")).warn();
+    if (__DOWNLOADED.length === 0)
+      ora(chalk.red("No packages were downloaded.")).warn();
+    genLock();
   }
 
   if (__VERIFIED.length > 0) {

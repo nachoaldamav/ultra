@@ -10,7 +10,7 @@ export function getDir(
   parent: string | undefined,
   islocalInstalled: boolean,
   depth?: number
-): string {
+): string | null {
   try {
     const localPath = path.join(
       process.cwd(),
@@ -23,7 +23,7 @@ export function getDir(
     const installed = localPathExists ? readPackage(localPath).version : null;
 
     if (installed && semver.satisfies(installed.version, manifest.version)) {
-      return path.join(process.cwd(), "node_modules", manifest.name);
+      return null;
     }
 
     if (!installed || !parent) {
@@ -36,7 +36,10 @@ export function getDir(
     const count = array.length - 1;
 
     if (count === 1) {
-      return path.join(parent, "node_modules", manifest.name);
+      const pathname = path.join(parent, "node_modules", manifest.name);
+      if (!existsSync(pathname))
+        return path.join(parent, "node_modules", manifest.name);
+      return null;
     }
 
     const bestDepth = array.slice(0, depth || 2).join("/node_modules/");
@@ -53,7 +56,7 @@ export function getDir(
       installedVersion &&
       semver.satisfies(installedVersion, manifest.version)
     ) {
-      return path.join(process.cwd(), bestDepth, "node_modules", manifest.name);
+      return null;
     }
 
     ora(

@@ -1,6 +1,5 @@
 import binLinks from "bin-links";
 import chalk from "chalk";
-import { execa } from "execa";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -86,9 +85,7 @@ export async function continuousInstall() {
 async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
   spinner.text = chalk.green(`${spec}`);
   spinner.prefixText = "🔍";
-  const manifest = await manifestFetcher(spec, {
-    registry: "https://registry.npmjs.org",
-  });
+  const manifest = await manifestFetcher(spec);
 
   const tarball = manifest.dist.tarball;
   const integrity = manifest.dist.integrity;

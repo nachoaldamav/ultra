@@ -1,5 +1,3 @@
-import { checkDist } from "./checkDist.js";
-
 /**
  *
  * @param pkg package.json content in json
@@ -13,6 +11,7 @@ export const getDeps = (
   name: string;
   version: string;
   parent?: string;
+  optional?: boolean;
 }> => {
   const deps =
     Object.keys(pkg.dependencies || {}).map((dep) => {
@@ -59,19 +58,14 @@ export const getDeps = (
           name: dep,
           version: pkg.optionalDependencies[dep],
           parent: undefined,
+          optional: true,
         };
       }) || []
     : [];
 
-  return [...deps, ...devDeps, ...peerDeps]
-    .concat(
-      optDeps.filter((dep) => {
-        return checkDist(dep.name);
-      })
-    )
-    .sort((a, b) => {
-      return a.name.localeCompare(b.name);
-    });
+  return [...deps, ...devDeps, ...peerDeps, ...optDeps].sort((a, b) => {
+    return a.name.localeCompare(b.name);
+  });
 };
 
 type options = {
