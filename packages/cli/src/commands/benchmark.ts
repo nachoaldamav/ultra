@@ -258,7 +258,7 @@ export async function benchmark(args: string[]) {
     const firstBunTestIndex = testsToRun.findIndex((test) =>
       test.name.includes("Bun")
     );
-    testsToRun.splice(firstBunTestIndex, 3);
+    testsToRun.splice(firstBunTestIndex, 4);
     ora(
       chalk.yellow(
         `Bun tests have been ignored. To run them, remove the --ignore-bun flag.`
@@ -270,7 +270,7 @@ export async function benchmark(args: string[]) {
     const firstPnpmTestIndex = testsToRun.findIndex((test) =>
       test.name.includes("PNPM")
     );
-    testsToRun.splice(firstPnpmTestIndex, 3);
+    testsToRun.splice(firstPnpmTestIndex, 4);
     ora(
       chalk.yellow(
         `Pnpm tests have been ignored. To run them, remove the --ignore-pnpm flag.`
