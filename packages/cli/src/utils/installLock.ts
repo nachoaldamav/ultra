@@ -16,6 +16,7 @@ import { executePost } from "../utils/postInstall.js";
 import { ultraExtract } from "./extract.js";
 import { updateIndex } from "./updateIndex.js";
 import { checkDist } from "./checkDist.js";
+import { gitInstall } from "./gitInstaller.js";
 
 export async function installLock(lock: any) {
   const start = performance.now();
@@ -69,9 +70,9 @@ export async function installLock(lock: any) {
               await rm(pathname, { recursive: true, force: true }).catch(
                 () => {}
               );
+            } else {
+              return;
             }
-
-            return;
           }
 
           if (existsSync(cache)) {
@@ -81,7 +82,14 @@ export async function installLock(lock: any) {
           } else {
             __install.text = chalk.green(`${pkg}`);
             __install.prefixText = "📦";
-            await ultraExtract(cache, tarball, integrity, pkg);
+            if (version.startsWith("git")) {
+              await gitInstall({
+                name: pkg,
+                version,
+              });
+            } else {
+              await ultraExtract(cache, tarball, integrity, pkg);
+            }
             updateIndex(pkg, version);
             __install.prefixText = "🔗";
             hardLinkSync(cache, pathname);

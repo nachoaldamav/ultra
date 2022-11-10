@@ -13,7 +13,7 @@ export default function checkLock(lock: any) {
     let results = [];
     for (const version of Object.keys(lock[dep.name])) {
       // If no version satisfies the version of the pkg, throw error
-      if (semver.satisfies(version, dep.version)) {
+      if (semver.satisfies(version, dep.version) || version === dep.version) {
         results.push(version);
       } else if (version === "local") {
         results.push(version);

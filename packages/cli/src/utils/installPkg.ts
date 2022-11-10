@@ -363,6 +363,7 @@ export async function installPkg(
           name: dep.name,
           version: data.version,
           tarball: data.tarball,
+          integrity: data.integrity,
           path: path.join(userUltraCache, dep.name, data.version),
         };
       })
@@ -388,6 +389,7 @@ export async function installPkg(
           [dep.version]: {
             path: dep.path,
             tarball: dep.tarball,
+            integrity: dep.integrity,
           },
         };
     });
