@@ -177,6 +177,7 @@ export async function gitInstall(
     version: manifest.version,
     tarball: url,
     spec: manifest.version,
+    optional: manifest.optional || false,
     integrity: "",
   };
 }

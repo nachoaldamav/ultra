@@ -20,6 +20,7 @@ import { getDir } from "./getInstallableDir.js";
 import { sleep } from "./sleep.js";
 import getVersions from "./getVersions.js";
 import { checkDist } from "./checkDist.js";
+import { updateIndex } from "./updateIndex.js";
 
 type Return = {
   name: string;
@@ -27,6 +28,7 @@ type Return = {
   tarball: string;
   spec: string;
   integrity: string;
+  optional: boolean;
   parent?: string;
 };
 
@@ -69,6 +71,7 @@ export async function installPkg(
         tarball: pkg.dist.tarball,
         spec: manifest.version,
         integrity: pkg.dist.integrity,
+        optional: true,
       };
     }
   }
@@ -138,16 +141,6 @@ export async function installPkg(
       );
     }
 
-    // Push to downloaded package info
-    __DOWNLOADED.push({
-      name: manifest.name,
-      version: suitableVersion,
-      path: pkgProjectDir.replace(process.cwd(), ""),
-      cache: cacheFolder.replace(userUltraCache, ""),
-      tarball: manifest.tarball,
-      integrity: manifest.integrity,
-    });
-
     // Create directory for package without the last folder
     mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
     hardLinkSync(cacheFolder, pkgProjectDir);
@@ -188,10 +181,35 @@ export async function installPkg(
         const name = dep;
         const version = Object.keys(cachedDeps[dep])[0];
 
+        // Ignore ultra:self package
+        if (name === "ultra:self") {
+          const { tarball, integrity, version, optional } = cachedDeps[dep];
+          const cachePath = cachedDeps[dep].path;
+
+          if (!cachePath) {
+            ora().fail(
+              `Could not find cache path for ${name}@${version} in ${cacheFolder} - ${JSON.stringify(
+                cachedDeps[dep][version]
+              )}`
+            );
+          }
+          __DOWNLOADED.push({
+            name: manifest.name,
+            version,
+            tarball,
+            integrity,
+            optional,
+            path: pkgProjectDir.replace(process.cwd(), ""),
+            cache: cachePath.replace(userUltraCache, ""),
+          });
+          continue;
+        }
+
         await installPkg(
           {
             name,
             version,
+            optional: cachedDeps[dep][version].optional || false,
             tarball: cachedDeps[dep][version].tarball || "",
           },
           pkgProjectDir,
@@ -201,7 +219,14 @@ export async function installPkg(
 
       for (const dep of deps) {
         if (!cachedDeps[dep.name]) {
-          await installPkg(dep, pkgProjectDir, spinner);
+          await installPkg(
+            {
+              optional: dep.optional,
+              ...dep,
+            },
+            pkgProjectDir,
+            spinner
+          );
         }
       }
 
@@ -278,6 +303,8 @@ export async function installPkg(
       await sleep(100);
     }
   }
+
+  updateIndex(pkg.name, pkg.version);
 
   if (pkg.deprecated) {
     ora(
@@ -363,6 +390,7 @@ export async function installPkg(
           name: dep.name,
           version: data.version,
           tarball: data.tarball,
+          optional: dep.optional || false,
           integrity: data.integrity,
           path: path.join(userUltraCache, dep.name, data.version),
         };
@@ -379,6 +407,7 @@ export async function installPkg(
         version: pkg.version,
         tarball: pkg.dist.tarball,
         integrity: pkg.dist.integrity,
+        optional: manifest.optional || false,
         path: cacheFolder,
       },
     };
@@ -390,6 +419,7 @@ export async function installPkg(
             path: dep.path,
             tarball: dep.tarball,
             integrity: dep.integrity,
+            optional: dep.optional,
           },
         };
     });
@@ -423,6 +453,7 @@ export async function installPkg(
       name: manifest.name,
       version: pkg.version,
       tarball: pkg.dist.tarball,
+      optional: manifest.optional || false,
       spec: manifest.version,
       integrity: pkg.dist.integrity,
     };
@@ -439,6 +470,7 @@ export async function installPkg(
       name: manifest.name,
       version: pkg.version,
       tarball: pkg.dist.tarball,
+      optional: manifest.optional || false,
       spec: manifest.version,
       integrity: pkg.dist.integrity,
     };
