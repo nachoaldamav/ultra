@@ -4,6 +4,7 @@ import { useState } from "react";
 import Feature from "~/components/featureCard";
 import Graph from "~/components/graph";
 import Snippet from "~/components/snippet";
+import Ticker from "~/components/ticker";
 
 const GROUPS: {
   [key: number]: string;
@@ -17,7 +18,8 @@ export default function Index() {
   const [group, setGroup] = useState(3);
 
   return (
-    <div className="flex h-fit w-full flex-col bg-[#18181B]">
+    <div className="flex h-fit w-full flex-col bg-[#18181B] relative">
+      <Ticker />
       <section
         id="hero"
         className="flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center z-[2]"

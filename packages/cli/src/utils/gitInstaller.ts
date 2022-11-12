@@ -60,6 +60,8 @@ export async function gitInstall(
     });
   }
 
+  writeFileSync(join(targetPath, downloadFile), "{}");
+
   if (!justDownload) {
     const nmPath = join(process.cwd(), "node_modules", manifest.name);
 
