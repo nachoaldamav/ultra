@@ -44,7 +44,7 @@ export async function installPkg(
   }
 
   if (manifest.optional) {
-    const suitable = checkDist(manifest.name);
+    const suitable = await checkDist(`${manifest.name}@${manifest.version}`);
     if (!suitable) {
       const pkg = await manifestFetcher(
         `${manifest.name}@${manifest.version}`,

@@ -1,41 +1,34 @@
 import os from "node:os";
 import { GLIBC, MUSL } from "detect-libc";
+import manifestFetcher from "./manifestFetcher.js";
+import ora from "ora";
+import chalk from "chalk";
 
 const system = {
   platform: os.platform(),
-  arch: os.arch(),
+  cpu: os.arch(),
+  libc: libc,
 };
 
-const regxp =
-  /(?<package>\w+)[-|\/](?<os>\blinux\b|\bwindows\b|\bandroid\b|\bdarwin\b|\bfreebsd\b|\bsunos\b|\bopenbsd\b|\bnetbsd\b|\bwin32\b|\bwin64\b)\-?(?<arch>\w+)?\-?(?<dist>\beabi\b|\bmsvc\b|\bgnueabihf\b|\bgnu\b|\bmusl\b)?/gm;
+export async function checkDist(dep: string) {
+  const manifest = await manifestFetcher(dep);
+  const { os, cpu, libc } = manifest;
 
-export function checkDist(dep: string) {
-  const matches = dep.matchAll(regxp);
-  const match = matches.next().value;
+  const osCompatible = compatibility(os || "any", system.platform);
+  const cpuCompatible = compatibility(cpu || "any", system.cpu);
+  const libcCompatible = compatibility(libc || "any", system.libc as string);
 
-  if (!match) {
-    return true;
+  if (!osCompatible || !cpuCompatible || !libcCompatible) return false;
+
+  return true;
+}
+
+function compatibility(type: string | string[], value: string) {
+  if (type === "any") return true;
+
+  if (Array.isArray(type)) {
+    return type.includes(value);
   }
 
-  const { os, arch, dist } = match.groups;
-
-  if (system.platform === os) {
-    if (system.arch === (arch.startsWith("x") ? arch : "x" + arch)) {
-      if (dist && libc) {
-        if (libc === GLIBC) {
-          return dist === "gnu";
-        } else if (libc === MUSL) {
-          return dist === "musl";
-        }
-      } else {
-        return true;
-      }
-
-      return false;
-    }
-
-    return false;
-  }
-
-  return false;
+  return type === value;
 }

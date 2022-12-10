@@ -4,6 +4,7 @@ import ora from "ora";
 import { writeFile, readFile, unlink, rm } from "node:fs/promises";
 import path from "path";
 import { performance } from "perf_hooks";
+import semver from "semver";
 import { getDeps } from "../utils/getDeps.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
@@ -52,6 +53,7 @@ export async function install(opts: string[]) {
   const flag = opts.filter((opt) => opt.startsWith("-"))[0];
 
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
+  ora(chalk.blue(`Using ${userUltraCache} as cache directory...`)).info();
 
   // Read package.json
   const pkg = readPackage("./package.json");
@@ -267,21 +269,30 @@ export async function install(opts: string[]) {
 
   const downloadedPkgs: ultra_lock = {};
 
-  __DOWNLOADED.forEach((pkg: any) => {
-    if (!downloadedPkgs[pkg.name]) {
-      downloadedPkgs[pkg.name] = {};
-    }
+  __DOWNLOADED
+    .sort((a, b) => {
+      // Sort by name and then by version using semver
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      if (semver.lt(a.version, b.version)) return -1;
+      if (semver.gt(a.version, b.version)) return 1;
+      return 0;
+    })
+    .forEach((pkg: any) => {
+      if (!downloadedPkgs[pkg.name]) {
+        downloadedPkgs[pkg.name] = {};
+      }
 
-    downloadedPkgs[pkg.name][pkg.version] = {
-      path: pkg.path,
-      cache: pkg.cache,
-      tarball: pkg.tarball,
-      integrity: pkg.integrity,
-      optional: pkg.optional,
-    };
+      downloadedPkgs[pkg.name][pkg.version] = {
+        path: pkg.path,
+        cache: pkg.cache,
+        tarball: pkg.tarball,
+        integrity: pkg.integrity,
+        optional: pkg.optional,
+      };
 
-    return;
-  });
+      return;
+    });
 
   if (
     __DOWNLOADED.filter((pkg) => pkg.version !== "local").length > 0 &&
