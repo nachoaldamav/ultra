@@ -13,7 +13,6 @@ import semver from "semver";
 import binLinks from "bin-links";
 import { getDeps } from "./getDeps.js";
 import manifestFetcher from "./manifestFetcher.js";
-import { hardLinkSync } from "./hardLinkSync.js";
 import { ultraExtract } from "./extract.js";
 import { gitInstall } from "./gitInstaller.js";
 import { getDir } from "./getInstallableDir.js";
@@ -21,6 +20,7 @@ import { sleep } from "./sleep.js";
 import getVersions from "./getVersions.js";
 import { checkDist } from "./checkDist.js";
 import { updateIndex } from "./updateIndex.js";
+import { linker } from "./linker.js";
 
 type Return = {
   name: string;
@@ -143,7 +143,7 @@ export async function installPkg(
 
     // Create directory for package without the last folder
     mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
-    hardLinkSync(cacheFolder, pkgProjectDir);
+    await linker(cacheFolder, pkgProjectDir);
 
     try {
       const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
@@ -345,7 +345,7 @@ export async function installPkg(
 
   mkdirSync(path.dirname(pkgProjectDir), { recursive: true });
 
-  hardLinkSync(cacheFolder, pkgProjectDir);
+  await linker(cacheFolder, pkgProjectDir);
 
   if (manifest.fromMonorepo !== undefined) {
     try {

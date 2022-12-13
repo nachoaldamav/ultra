@@ -3,11 +3,11 @@ import { Ora } from "ora";
 import { execa } from "execa";
 import { join, dirname } from "path";
 import { existsSync, mkdirSync, symlinkSync, writeFileSync } from "fs";
-import { hardLinkSync } from "./hardLinkSync.js";
 import readPackage from "./readPackage.js";
 import { getDeps } from "./getDeps.js";
 import { installPkg } from "./installPkg.js";
 import binLinks from "bin-links";
+import { linker } from "./linker.js";
 
 export async function gitInstall(
   manifest: any,
@@ -65,7 +65,7 @@ export async function gitInstall(
   if (!justDownload) {
     const nmPath = join(process.cwd(), "node_modules", manifest.name);
 
-    hardLinkSync(targetPath, nmPath);
+    await linker(targetPath, nmPath);
 
     __DOWNLOADED.push({
       name: manifest.name,

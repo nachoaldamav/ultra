@@ -4,6 +4,15 @@ import { join } from "path";
 import { readFileSync, writeFileSync } from "fs";
 import os from "os";
 
+type DEP = {
+  name: string;
+  version: string;
+  integrity: string;
+  tarball: string;
+  path: string;
+  cache: string;
+};
+
 export function genLock() {
   // Get all ".ultra" files inside node_modules
   const files = glob.sync("**/.ultra", {
@@ -11,24 +20,35 @@ export function genLock() {
     absolute: false,
   });
 
-  const deps = files.map((file) => {
-    const data = readFileSync(join("node_modules", file), "utf-8");
-    const parsed = JSON.parse(data);
-    const { name, version, integrity, path, tarball } = parsed["ultra:self"];
+  // @ts-ignore-next-line
+  const deps: DEP[] = files
+    .map((file) => {
+      const data = readFileSync(join("node_modules", file), "utf-8");
+      const parsed = JSON.parse(data);
+      try {
+        const { name, version, integrity, path, tarball } =
+          parsed["ultra:self"];
 
-    return {
-      name: name,
-      version: version,
-      integrity: integrity,
-      tarball: tarball,
-      path: join("/node_modules", file.replace("/.ultra", "")),
-      cache: path.replace(join(os.homedir(), ".ultra-cache"), ""),
-    };
-  });
+        return {
+          name: name,
+          version: version,
+          integrity: integrity,
+          tarball: tarball,
+          path: join("/node_modules", file.replace("/.ultra", "")),
+          cache: path.replace(join(os.homedir(), ".ultra-cache"), ""),
+        };
+      } catch (e) {
+        return null;
+      }
+    })
+    .filter((dep) => {
+      return dep !== null;
+    });
 
   const lock: ultra_lock = {};
 
-  deps.forEach((dep) => {
+  // Filter null values
+  deps.forEach((dep: DEP) => {
     if (!lock[dep.name]) {
       lock[dep.name] = {};
     }

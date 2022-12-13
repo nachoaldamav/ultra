@@ -1,8 +1,5 @@
 import os from "node:os";
-import { GLIBC, MUSL } from "detect-libc";
 import manifestFetcher from "./manifestFetcher.js";
-import ora from "ora";
-import chalk from "chalk";
 
 const system = {
   platform: os.platform(),

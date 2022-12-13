@@ -10,13 +10,13 @@ import parseTime from "../utils/parseTime.js";
 import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
 import { __dirname } from "../utils/__dirname.js";
-import { hardLinkSync } from "../utils/hardLinkSync.js";
 import checkLock from "../utils/checkLock.js";
 import { executePost } from "../utils/postInstall.js";
 import { ultraExtract } from "./extract.js";
 import { updateIndex } from "./updateIndex.js";
 import { checkDist } from "./checkDist.js";
 import { gitInstall } from "./gitInstaller.js";
+import { linker } from "./linker.js";
 
 export async function installLock(lock: any) {
   const start = performance.now();
@@ -76,7 +76,7 @@ export async function installLock(lock: any) {
           }
 
           if (existsSync(cache)) {
-            hardLinkSync(cache, pathname);
+            await linker(cache, pathname);
             __install.text = chalk.green(`${pkg}`);
             __install.prefixText = "🔗";
           } else {
@@ -92,7 +92,7 @@ export async function installLock(lock: any) {
             }
             updateIndex(pkg, version);
             __install.prefixText = "🔗";
-            hardLinkSync(cache, pathname);
+            await linker(cache, pathname);
           }
 
           manifest = readPackage(path.join(cache, "package.json"));

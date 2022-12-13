@@ -6,12 +6,9 @@ import {
   copyFileSync,
   constants,
 } from "node:fs";
-import path from "path";
-import os from "os";
+import path from "node:path";
 import ora from "ora";
 import chalk from "chalk";
-
-const isMac = os.platform() === "darwin";
 
 export function hardLinkSync(dir: string, targetDir: string) {
   try {
@@ -26,26 +23,21 @@ export function hardLinkSync(dir: string, targetDir: string) {
       } else {
         // Create previous folders if they don't exist
         mkdirSync(path.dirname(targetPath), { recursive: true });
-        if (!isMac) {
-          try {
-            linkSync(filePath, targetPath);
-          } catch (e: any) {
-            if (e.code === "EEXIST") return;
-            if (e.code === "EXDEV")
-              return copyFileSync(
-                filePath,
-                targetPath,
-                constants.COPYFILE_FICLONE
-              );
-            ora(
-              chalk.red(
-                `Error: ${e.message} (file: ${filePath}, target: ${targetPath})`
-              )
-            ).fail();
-          }
-        } else {
-          // Use clonefile on mac
-          copyFileSync(filePath, targetPath, constants.COPYFILE_FICLONE);
+        try {
+          linkSync(filePath, targetPath);
+        } catch (e: any) {
+          if (e.code === "EEXIST") return;
+          if (e.code === "EXDEV")
+            return copyFileSync(
+              filePath,
+              targetPath,
+              constants.COPYFILE_FICLONE
+            );
+          ora(
+            chalk.red(
+              `Error: ${e.message} (file: ${filePath}, target: ${targetPath})`
+            )
+          ).fail();
         }
       }
     });
