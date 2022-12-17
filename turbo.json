@@ -17,6 +17,9 @@
     },
     "types": {
       "outputs": ["dist/types/**"]
+    },
+    "package": {
+      "outputs": ["**/*.tgz"]
     }
   }
 }

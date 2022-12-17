@@ -18,7 +18,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=apps^... --filter=examples && changeset publish"
+    "release": "turbo run build --filter=apps^... --filter=examples && turbo run package && changeset publish",
+    "package": "turbo run package"
   },
   "dependencies": {
     "@changesets/cli": "2.25.0",

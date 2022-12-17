@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "swc ./src -d ./build --watch",
     "build": "swc ./src -d ./build",
-    "prepublish": "pnpm pack"
+    "package": "pnpm pack"
   },
   "files": [
     "build"
@@ -68,7 +68,7 @@
     "@ultrapkg/extract-tar",
     "@ultrapkg/manifest-fetcher",
     "@ultrapkg/linker",
-    "ultrapkg/gen-lock",
+    "@ultrapkg/gen-lock",
     "@ultrapkg/check-dist",
     "@ultrapkg/get-deps"
   ]
