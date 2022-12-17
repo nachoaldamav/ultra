@@ -3,7 +3,7 @@ import glob from "glob";
 import chalk from "chalk";
 import ora from "ora";
 import { chmodSync, symlinkSync } from "node:fs";
-import readPackage from "./readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 export async function installBins() {
   try {

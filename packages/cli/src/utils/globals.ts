@@ -1,5 +1,5 @@
 import { familySync } from "detect-libc";
-import readConfig from "./readConfig.js";
+import { readConfig } from "@ultrapkg/read-config";
 
 const Config = readConfig();
 const libc = familySync();

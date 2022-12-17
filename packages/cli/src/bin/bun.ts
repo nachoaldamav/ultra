@@ -1,11 +1,11 @@
 import chalk from "chalk";
 import path from "path";
-import readPackage from "../utils/readPackage.js";
 import { __dirname } from "../utils/__dirname.js";
 import "../utils/globals.js";
-import { getDeps } from "../utils/getDeps.js";
 import { copyFile } from "fs/promises";
 import { nanoseconds } from "bun";
+import { getDeps } from "@ultrapkg/get-deps";
+import { readPackage } from "@ultrapkg/read-package";
 
 async function main() {
   const { version } = readPackage(

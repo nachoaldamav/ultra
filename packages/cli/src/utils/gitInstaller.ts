@@ -3,11 +3,11 @@ import { Ora } from "ora";
 import { execa } from "execa";
 import { join, dirname } from "path";
 import { existsSync, mkdirSync, symlinkSync, writeFileSync } from "fs";
-import { getDeps } from "./getDeps.js";
 import { installPkg } from "./installPkg.js";
 import binLinks from "bin-links";
 import { linker } from "@ultrapkg/linker";
 import { readPackage } from "@ultrapkg/read-package";
+import { getDeps } from "@ultrapkg/get-deps";
 
 export async function gitInstall(
   manifest: any,

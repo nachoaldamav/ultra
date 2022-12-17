@@ -32,6 +32,7 @@
     "@ultrapkg/gen-lock": "workspace:*",
     "@ultrapkg/check-dist": "workspace:*",
     "@ultrapkg/get-deps": "workspace:*",
+    "@ultrapkg/read-config": "0.1.0",
     "axios": "1.1.2",
     "bin-links": "3.0.3",
     "chalk": "5.1.0",
@@ -70,6 +71,7 @@
     "@ultrapkg/linker",
     "@ultrapkg/gen-lock",
     "@ultrapkg/check-dist",
-    "@ultrapkg/get-deps"
+    "@ultrapkg/get-deps",
+    "@ultrapkg/read-config"
   ]
 }

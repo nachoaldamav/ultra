@@ -7,16 +7,16 @@ import { performance } from "perf_hooks";
 import binLinks from "bin-links";
 import { installLocalDep } from "./installLocalDep.js";
 import parseTime from "./parseTime.js";
-import readPackage from "./readPackage.js";
 import basePostInstall from "./basePostInstall.js";
 import { __dirname } from "./__dirname.js";
 import checkLock from "./checkLock.js";
 import { executePost } from "./postInstall.js";
-import { ultraExtract } from "./extract.js";
 import { updateIndex } from "./updateIndex.js";
-import { checkDist } from "./checkDist.js";
 import { gitInstall } from "./gitInstaller.js";
-import { linker } from "./linker.js";
+import { readPackage } from "@ultrapkg/read-package";
+import { extract } from "@ultrapkg/extract-tar";
+import { checkDist } from "@ultrapkg/check-dist";
+import { linker } from "@ultrapkg/linker";
 
 export async function installLock(lock: any) {
   const start = performance.now();
@@ -88,7 +88,7 @@ export async function installLock(lock: any) {
                 version,
               });
             } else {
-              await ultraExtract(cache, tarball, integrity, pkg);
+              await extract(cache, tarball, integrity, pkg);
             }
             updateIndex(pkg, version);
             __install.prefixText = "🔗";

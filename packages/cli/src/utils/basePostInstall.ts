@@ -1,8 +1,8 @@
-import readPackage from "./readPackage.js";
 import path from "path";
 import { execa } from "execa";
 import ora from "ora";
 import chalk from "chalk";
+import { readPackage } from "@ultrapkg/read-package";
 
 export default async function basePostInstall() {
   const pkg = readPackage(path.join(process.cwd(), "package.json"));
