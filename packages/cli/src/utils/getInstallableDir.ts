@@ -3,7 +3,7 @@ import { existsSync, readdirSync } from "node:fs";
 import semver from "semver";
 import chalk from "chalk";
 import ora from "ora";
-import readPackage from "./readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 export function getDir(
   manifest: any,

@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import ora, { Ora } from "ora";
-import readPackage from "./readPackage.js";
 import {
   mkdirSync,
   existsSync,
@@ -11,16 +10,17 @@ import {
 import path from "path";
 import semver from "semver";
 import binLinks from "bin-links";
-import { getDeps } from "./getDeps.js";
-import manifestFetcher from "./manifestFetcher.js";
-import { ultraExtract } from "./extract.js";
 import { gitInstall } from "./gitInstaller.js";
 import { getDir } from "./getInstallableDir.js";
 import { sleep } from "./sleep.js";
 import getVersions from "./getVersions.js";
-import { checkDist } from "./checkDist.js";
 import { updateIndex } from "./updateIndex.js";
-import { linker } from "./linker.js";
+import { readPackage } from "@ultrapkg/read-package";
+import { checkDist } from "@ultrapkg/check-dist";
+import { linker } from "@ultrapkg/linker";
+import { extract } from "@ultrapkg/extract-tar";
+import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
+import { getDeps } from "@ultrapkg/get-deps";
 
 type Return = {
   name: string;
@@ -291,7 +291,7 @@ export async function installPkg(
     );
   }
 
-  const status = await ultraExtract(
+  const status = await extract(
     cacheFolder,
     pkg.dist.tarball,
     pkg.dist.integrity,

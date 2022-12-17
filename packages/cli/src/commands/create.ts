@@ -6,9 +6,9 @@ import path from "path";
 import { execa } from "execa";
 import { existsSync } from "node:fs";
 import { spawn } from "child_process";
-import { getDeps } from "../utils/getDeps.js";
-import readPackage from "../utils/readPackage.js";
-import manifestFetcher from "../utils/manifestFetcher.js";
+import { getDeps } from "@ultrapkg/get-deps";
+import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
+import { readPackage } from "@ultrapkg/read-package";
 import binLinks from "bin-links";
 import os from "node:os";
 

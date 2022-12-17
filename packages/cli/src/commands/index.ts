@@ -1,5 +1,5 @@
 import path from "node:path";
-import readPackage from "../utils/readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 const comms = [
   {

@@ -1,28 +1,27 @@
-import type { ultra_lock } from "../../types/pkg";
+import type { ultra_lock } from "@ultrapkg/types/pkg";
 import chalk from "chalk";
 import ora from "ora";
-import { writeFile, readFile, unlink, rm } from "node:fs/promises";
+import { writeFile, readFile, unlink } from "fs/promises";
 import path from "path";
-import { performance } from "perf_hooks";
 import semver from "semver";
-import { getDeps } from "../utils/getDeps.js";
 import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
 import getParamsDeps from "../utils/parseDepsParams.js";
 import parseTime from "../utils/parseTime.js";
 import { spinnerGradient } from "../utils/spinnerGradient.js";
-import manifestFetcher from "../utils/manifestFetcher.js";
-import readPackage from "../utils/readPackage.js";
 import basePostInstall from "../utils/basePostInstall.js";
 import { __dirname } from "../utils/__dirname.js";
 import { executePost } from "../utils/postInstall.js";
 import { installLock } from "../utils/installLock.js";
-import { genLock } from "../utils/genLockfile.js";
+import { readPackage } from "@ultrapkg/read-package";
+import { getDeps } from "@ultrapkg/get-deps";
+import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
+import { genLock } from "@ultrapkg/gen-lock";
 
 __NOPOSTSCRIPTS = process.argv.includes("--ignore-scripts");
 
 export async function install(opts: string[]) {
-  const start = performance.now();
+  const start = Date.now();
   const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
 
   // Read ultra.lock file as JSON
@@ -70,7 +69,7 @@ export async function install(opts: string[]) {
   const deps = getDeps(pkg).concat(wsDeps).concat(addDeps);
 
   const __fetch = ora(chalk.green("Installing local packages...")).start();
-  const __fetch_start = performance.now();
+  const __fetch_start = Date.now();
 
   await Promise.all(
     deps.map(async (dep) => {
@@ -112,7 +111,7 @@ export async function install(opts: string[]) {
     })
   );
 
-  const __fetch_end = performance.now();
+  const __fetch_end = Date.now();
 
   __fetch.text = chalk.green(
     `Installed local packages in ${chalk.gray(
@@ -127,7 +126,7 @@ export async function install(opts: string[]) {
   const { installPkg } = await import("../utils/installPkg.js");
 
   const __install = spinnerGradient(chalk.green("Installing packages..."));
-  const __install_start = performance.now();
+  const __install_start = Date.now();
 
   await Promise.all(
     pkgs.map(async (pkg) => {
@@ -161,7 +160,7 @@ export async function install(opts: string[]) {
   );
 
   __install.prefixText = "";
-  const __install_end = performance.now();
+  const __install_end = Date.now();
 
   __install.text = chalk.green(
     `Installed packages in ${chalk.gray(
@@ -177,7 +176,7 @@ export async function install(opts: string[]) {
     const __postinstall = ora(
       chalk.gray("Running postinstall scripts...")
     ).start();
-    const __postinstall_start = performance.now();
+    const __postinstall_start = Date.now();
 
     await Promise.all(
       __POSTSCRIPTS.map(async (script) => {
@@ -195,7 +194,7 @@ export async function install(opts: string[]) {
       })
     );
 
-    const __postinstall_end = performance.now();
+    const __postinstall_end = Date.now();
     __postinstall.text = chalk.green(
       `${__POSTSCRIPTS.length} Post Install scripts completed in ${chalk.gray(
         parseTime(__postinstall_start, __postinstall_end)
@@ -320,7 +319,7 @@ export async function install(opts: string[]) {
   }
 
   const __done = ora(
-    chalk.green(`Done in ${chalk.gray(parseTime(start, performance.now()))}`)
+    chalk.green(`Done in ${chalk.gray(parseTime(start, Date.now()))}`)
   ).start();
 
   __done.stopAndPersist({

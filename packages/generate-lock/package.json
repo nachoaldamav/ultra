@@ -1,0 +1,29 @@
+{
+  "name": "@ultrapkg/gen-lock",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.11.13",
+    "@types/glob": "8.0.0",
+    "@ultrapkg/types": "workspace:*",
+    "tsup": "6.5.0"
+  },
+  "dependencies": {
+    "chalk": "5.2.0",
+    "glob": "8.0.3"
+  },
+  "bundledDependencies": [
+    "@ultrapkg/types"
+  ]
+}

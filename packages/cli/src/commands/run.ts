@@ -4,7 +4,7 @@ import chalk from "chalk";
 import { spawn } from "child_process";
 import { execa } from "execa";
 import checkNodeVersion from "../utils/checkNodeVersion.js";
-import readPackage from "../utils/readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 import { getBinaries } from "../utils/getBinaries.js";
 
 export async function run(args: Array<string>) {

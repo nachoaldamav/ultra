@@ -1,0 +1,34 @@
+{
+  "name": "@ultrapkg/manifest-fetcher",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ultrapkg/types": "workspace:*",
+    "@types/node": "^18.11.13",
+    "@types/pacote": "11.1.5",
+    "tsup": "6.5.0"
+  },
+  "dependencies": {
+    "@ultrapkg/npm-config": "workspace:*",
+    "@ultrapkg/read-config": "workspace:*",
+    "chalk": "5.2.0",
+    "ora": "6.1.2",
+    "pacote": "14.0.0"
+  },
+  "bundledDependencies": [
+    "@ultrapkg/npm-config",
+    "@ultrapkg/read-config",
+    "@ultrapkg/types"
+  ]
+}

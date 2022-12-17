@@ -12,7 +12,8 @@
   "type": "module",
   "scripts": {
     "dev": "swc ./src -d ./build --watch",
-    "build": "swc ./src -d ./build"
+    "build": "swc ./src -d ./build",
+    "prepublish": "pnpm pack"
   },
   "files": [
     "build"
@@ -24,6 +25,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ultrapkg/read-package": "workspace:*",
+    "@ultrapkg/extract-tar": "workspace:*",
+    "@ultrapkg/manifest-fetcher": "workspace:*",
+    "@ultrapkg/linker": "workspace:*",
+    "@ultrapkg/gen-lock": "workspace:*",
+    "@ultrapkg/check-dist": "workspace:*",
+    "@ultrapkg/get-deps": "workspace:*",
     "axios": "1.1.2",
     "bin-links": "3.0.3",
     "chalk": "5.1.0",
@@ -40,6 +48,7 @@
     "tar": "6.1.11"
   },
   "devDependencies": {
+    "@ultrapkg/types": "workspace:*",
     "@swc/cli": "0.1.57",
     "@swc/core": "1.3.6",
     "@types/glob": "7.2.0",
@@ -50,6 +59,17 @@
     "@types/semver": "7.3.12",
     "@types/spinnies": "^0.5.0",
     "@types/tar": "6.1.3",
+    "bun-types": "^0.3.0",
     "chokidar": "3.5.3"
-  }
+  },
+  "bundledDependencies": [
+    "@ultrapkg/types",
+    "@ultrapkg/read-package",
+    "@ultrapkg/extract-tar",
+    "@ultrapkg/manifest-fetcher",
+    "@ultrapkg/linker",
+    "ultrapkg/gen-lock",
+    "@ultrapkg/check-dist",
+    "@ultrapkg/get-deps"
+  ]
 }

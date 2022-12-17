@@ -2,7 +2,7 @@ import glob from "glob";
 import ora from "ora";
 import path from "path";
 import { getDeps } from "./getDeps.js";
-import readPackage from "./readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 type Return = {
   deps: {

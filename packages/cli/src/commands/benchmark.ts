@@ -10,7 +10,7 @@ import path from "path";
 import { execa } from "execa";
 import { fileURLToPath } from "url";
 import { rm } from "node:fs/promises";
-import readPackage from "../utils/readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 const delCommand = os.platform() === "win32" ? "del /s /q" : "rm -rf";
 

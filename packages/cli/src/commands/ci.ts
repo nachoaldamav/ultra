@@ -6,11 +6,11 @@ import { join } from "node:path";
 import ora, { Ora } from "ora";
 import basePostInstall from "../utils/basePostInstall.js";
 import { installLocalDep } from "../utils/installLocalDep.js";
-import manifestFetcher from "../utils/manifestFetcher.js";
+import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
 import parseTime from "../utils/parseTime.js";
-import { ultraExtract } from "../utils/extract.js";
-import readPackage from "../utils/readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 import { executePost } from "../utils/postInstall.js";
+import { extract } from "@ultrapkg/extract-tar";
 
 export async function continuousInstall() {
   try {
@@ -96,7 +96,7 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
 
   spinner.text = chalk.green(`${spec}`);
   spinner.prefixText = "📦";
-  await ultraExtract(pathname, tarball, integrity, manifest.name);
+  await extract(pathname, tarball, integrity, manifest.name);
 
   spinner.prefixText = "🔗";
   const pkg = readPackage(join(pathname, "package.json"));

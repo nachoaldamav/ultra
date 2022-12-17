@@ -28,7 +28,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
       - name: Build CLI
-        run: pnpm run build --filter=ultra-pkg
+        run: pnpm run build
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1

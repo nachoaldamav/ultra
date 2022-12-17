@@ -1,0 +1,1 @@
+export { readNpmConfig } from "./npmConfig";

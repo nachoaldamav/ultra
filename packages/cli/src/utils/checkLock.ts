@@ -1,7 +1,7 @@
 import path from "node:path";
 import { getDeps } from "./getDeps.js";
-import readPackage from "./readPackage.js";
 import semver from "semver";
+import { readPackage } from "@ultrapkg/read-package";
 
 export default function checkLock(lock: any) {
   const pkg = readPackage(path.join(process.cwd(), "package.json"));

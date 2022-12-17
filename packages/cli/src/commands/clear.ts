@@ -3,7 +3,7 @@ import { mkdir, rm } from "node:fs/promises";
 import path from "path";
 import ora from "ora";
 import glob from "glob";
-import readPackage from "../utils/readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 export async function clear() {
   const cacheFolder = `${os.homedir()}/.ultra-cache`;

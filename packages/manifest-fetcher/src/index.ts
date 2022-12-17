@@ -1,0 +1,1 @@
+export { manifestFetcher } from "./fetcher";

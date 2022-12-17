@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { writeFile } from "node:fs/promises";
-import readPackage from "../utils/readPackage.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 export async function remove(args: string[]) {
   if (args.length === 0) {

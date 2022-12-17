@@ -14,13 +14,15 @@
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
+    "types": "turbo run types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build --filter=apps^... --filter=examples && changeset publish"
   },
   "dependencies": {
-    "@changesets/cli": "2.25.0"
+    "@changesets/cli": "2.25.0",
+    "inquirer": "9.1.4"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",

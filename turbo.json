@@ -14,6 +14,9 @@
     "publish-pkg": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "build/**"]
+    },
+    "types": {
+      "outputs": ["dist/types/**"]
     }
   }
 }

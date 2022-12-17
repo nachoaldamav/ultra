@@ -14,8 +14,8 @@ import os from "node:os";
 import path from "node:path";
 import ora from "ora";
 import chalk from "chalk";
-import { readNpmConfig } from "./npmConfig.js";
-import readConfig from "./readConfig.js";
+import { readConfig } from "@ultrapkg/read-config";
+import { readNpmConfig } from "@ultrapkg/npm-config";
 
 const npmrc = readNpmConfig();
 const { token, registry } = readConfig();
