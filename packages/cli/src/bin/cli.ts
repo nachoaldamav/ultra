@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import chalk from "chalk";
 import path from "node:path";
-import readPackage from "../utils/readPackage.js";
 import { __dirname } from "../utils/__dirname.js";
 import "../utils/globals.js";
+import { readPackage } from "@ultrapkg/read-package";
 
 async function main() {
   const { version } = readPackage(
