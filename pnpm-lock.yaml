@@ -180,7 +180,8 @@ importers:
       '@ultrapkg/get-deps': workspace:*
       '@ultrapkg/linker': workspace:*
       '@ultrapkg/manifest-fetcher': workspace:*
-      '@ultrapkg/read-config': 0.1.0
+      '@ultrapkg/npm-config': workspace:*
+      '@ultrapkg/read-config': workspace:*
       '@ultrapkg/read-package': workspace:*
       '@ultrapkg/types': workspace:*
       axios: 1.1.2
@@ -206,6 +207,7 @@ importers:
       '@ultrapkg/get-deps': link:../get-deps
       '@ultrapkg/linker': link:../linker
       '@ultrapkg/manifest-fetcher': link:../manifest-fetcher
+      '@ultrapkg/npm-config': link:../npm-config
       '@ultrapkg/read-config': link:../read-config
       '@ultrapkg/read-package': link:../read-package
       axios: 1.1.2
