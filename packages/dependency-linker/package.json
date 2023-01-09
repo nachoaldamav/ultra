@@ -30,15 +30,5 @@
     "@ultrapkg/check-dist": "workspace:*",
     "bin-links": "3.0.3",
     "semver": "7.3.8"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/types",
-    "@ultrapkg/dependency-resolver",
-    "@ultrapkg/linker",
-    "@ultrapkg/extract-tar",
-    "@ultrapkg/read-config",
-    "@ultrapkg/globals",
-    "@ultrapkg/read-package",
-    "@ultrapkg/check-dist"
-  ]
+  }
 }

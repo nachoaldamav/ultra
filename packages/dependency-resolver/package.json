@@ -27,11 +27,5 @@
     "@ultrapkg/get-deps": "workspace:*",
     "@ultrapkg/manifest-fetcher": "workspace:*",
     "semver": "7.3.8"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/types",
-    "@ultrapkg/read-package",
-    "@ultrapkg/get-deps",
-    "@ultrapkg/manifest-fetcher"
-  ]
+  }
 }

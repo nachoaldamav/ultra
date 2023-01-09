@@ -21,9 +21,5 @@
   "dependencies": {
     "@ultrapkg/read-config": "workspace:*",
     "detect-libc": "2.0.1"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/types",
-    "@ultrapkg/read-config"
-  ]
+  }
 }

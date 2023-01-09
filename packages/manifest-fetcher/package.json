@@ -24,10 +24,5 @@
     "chalk": "5.2.0",
     "ora": "6.1.2",
     "pacote": "14.0.0"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/npm-config",
-    "@ultrapkg/read-config",
-    "@ultrapkg/types"
-  ]
+  }
 }

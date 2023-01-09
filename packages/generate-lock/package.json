@@ -21,8 +21,5 @@
   "dependencies": {
     "chalk": "5.2.0",
     "glob": "8.0.3"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/types"
-  ]
+  }
 }

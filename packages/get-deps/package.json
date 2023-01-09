@@ -17,8 +17,5 @@
     "@types/node": "^18.11.13",
     "tsup": "6.5.0"
   },
-  "dependencies": {},
-  "bundledDependencies": [
-    "@ultrapkg/types"
-  ]
+  "dependencies": {}
 }

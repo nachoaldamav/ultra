@@ -26,10 +26,5 @@
     "pacote": "14.0.0",
     "tar": "6.1.13",
     "axios": "0.24.0"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/npm-config",
-    "@ultrapkg/read-config",
-    "@ultrapkg/types"
-  ]
+  }
 }

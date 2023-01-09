@@ -16,8 +16,5 @@
     "@types/node": "^18.11.13",
     "@ultrapkg/types": "workspace:*",
     "tsup": "6.5.0"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/types"
-  ]
+  }
 }
