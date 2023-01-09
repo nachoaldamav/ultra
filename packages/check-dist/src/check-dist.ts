@@ -20,6 +20,18 @@ export async function checkDist(dep: string) {
   return true;
 }
 
+export function checkDistWithoutFetch(manifest: any) {
+  const { os, cpu, libc } = manifest;
+
+  const osCompatible = compatibility(os || "any", system.platform);
+  const cpuCompatible = compatibility(cpu || "any", system.cpu);
+  const libcCompatible = compatibility(libc || "any", system.libc as string);
+
+  if (!osCompatible || !cpuCompatible || !libcCompatible) return false;
+
+  return true;
+}
+
 function compatibility(type: string | string[], value: string) {
   if (type === "any") return true;
 

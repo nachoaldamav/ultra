@@ -1,0 +1,44 @@
+{
+  "name": "@ultrapkg/dependency-linker",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "ava"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ultrapkg/types": "workspace:*",
+    "@types/node": "^18.11.13",
+    "@types/semver": "7.3.11",
+    "tsup": "6.5.0",
+    "ava": "5.1.0"
+  },
+  "dependencies": {
+    "@ultrapkg/dependency-resolver": "workspace:*",
+    "@ultrapkg/linker": "workspace:*",
+    "@ultrapkg/extract-tar": "workspace:*",
+    "@ultrapkg/read-config": "workspace:*",
+    "@ultrapkg/globals": "workspace:*",
+    "@ultrapkg/read-package": "workspace:*",
+    "@ultrapkg/check-dist": "workspace:*",
+    "bin-links": "3.0.3",
+    "semver": "7.3.8"
+  },
+  "bundledDependencies": [
+    "@ultrapkg/types",
+    "@ultrapkg/dependency-resolver",
+    "@ultrapkg/linker",
+    "@ultrapkg/extract-tar",
+    "@ultrapkg/read-config",
+    "@ultrapkg/globals",
+    "@ultrapkg/read-package",
+    "@ultrapkg/check-dist"
+  ]
+}

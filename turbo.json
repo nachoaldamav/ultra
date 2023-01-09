@@ -11,6 +11,10 @@
     "dev": {
       "cache": false
     },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
     "publish-pkg": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "build/**"]

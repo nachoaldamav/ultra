@@ -1,0 +1,31 @@
+{
+  "name": "@ultrapkg/core",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "test": "ava",
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ultrapkg/types": "workspace:*",
+    "@types/node": "^18.11.13",
+    "@types/yargs": "^17.0.19",
+    "@types/semver": "7.3.11",
+    "tsup": "6.5.0",
+    "ava": "5.1.0"
+  },
+  "dependencies": {
+    "yargs": "17.6.2",
+    "semver": "7.3.8"
+  },
+  "bundledDependencies": [
+    "@ultrapkg/types"
+  ]
+}

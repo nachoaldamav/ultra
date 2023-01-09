@@ -16,6 +16,15 @@ const npmrc = readNpmConfig();
 
 const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
 
+/**
+ * Fetches a manifest from the registry using pacote
+ * and caches it for 5 minutes.
+ * @param spec The package spec, e.g. "react@latest"
+ * @param props Additional pacote options
+ * @returns The manifest as a JSON object
+ * @example
+ * const manifest = await manifestFetcher("react@latest");
+ **/
 export async function manifestFetcher(spec: string, props?: any) {
   // Remove spaces "|", ">" and "<" from the spec
   const sanitizedSpec = spec

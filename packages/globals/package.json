@@ -1,0 +1,29 @@
+{
+  "name": "@ultrapkg/globals",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ultrapkg/types": "workspace:*",
+    "@types/node": "^18.11.13",
+    "tsup": "6.5.0",
+    "detect-libc": "2.0.1"
+  },
+  "dependencies": {
+    "@ultrapkg/read-config": "workspace:*",
+    "detect-libc": "2.0.1"
+  },
+  "bundledDependencies": [
+    "@ultrapkg/types",
+    "@ultrapkg/read-config"
+  ]
+}

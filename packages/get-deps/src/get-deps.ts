@@ -1,24 +1,17 @@
 /**
- *
  * @param pkg package.json content in json
- * @param opts Type of dependencies to get, use true to ignore false to add.
+ * @param opts Type of dependencies to get, use true to ignore or false to add.
  * @returns Array of dependencies with name and version
  */
-export const getDeps = (
-  pkg: any,
-  opts?: options
-): Array<{
-  name: string;
-  version: string;
-  parent?: string;
-  optional?: boolean;
-}> => {
+export const getDeps = (pkg: any, opts?: options): Dependency[] => {
   const deps =
     Object.keys(pkg.dependencies || {}).map((dep) => {
       return {
         name: dep,
         version: pkg.dependencies[dep],
-        parent: undefined,
+        parent: null,
+        optional: false,
+        type: DependencyType.REGULAR,
       };
     }) || [];
 
@@ -27,7 +20,9 @@ export const getDeps = (
         return {
           name: dep,
           version: pkg.devDependencies[dep],
-          parent: undefined,
+          parent: null,
+          optional: false,
+          type: DependencyType.DEV,
         };
       }) || []
     : [];
@@ -46,7 +41,9 @@ export const getDeps = (
           return {
             name: dep,
             version: pkg.peerDependencies[dep],
-            parent: undefined,
+            parent: null,
+            optional: false,
+            type: DependencyType.PEER,
           };
         })
         .filter((dep) => dep) || []
@@ -57,8 +54,9 @@ export const getDeps = (
         return {
           name: dep,
           version: pkg.optionalDependencies[dep],
-          parent: undefined,
+          parent: null,
           optional: true,
+          type: DependencyType.OPTIONAL,
         };
       }) || []
     : [];
@@ -66,6 +64,21 @@ export const getDeps = (
   return [...deps, ...devDeps, ...peerDeps, ...optDeps].sort((a, b) => {
     return a.name.localeCompare(b.name);
   });
+};
+
+export enum DependencyType {
+  REGULAR = "regular",
+  DEV = "dev",
+  PEER = "peer",
+  OPTIONAL = "optional",
+}
+
+type Dependency = {
+  name: string;
+  version: string;
+  parent: string | string[] | null;
+  type: DependencyType;
+  optional?: boolean;
 };
 
 type options = {

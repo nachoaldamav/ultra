@@ -63,6 +63,12 @@ const DEFAULT_PACKAGE_JSON = {
   bundledDependencies: ["@ultrapkg/types"],
 };
 
+const DEFAULT_TSCONFIG = {
+  extends: "../base.json",
+  include: ["src/**/*.ts"],
+  exclude: ["node_modules", "dist", "dist/types"],
+};
+
 const dirs = {
   src: {
     "index.ts": `export const name = "name";`,
@@ -70,6 +76,7 @@ const dirs = {
   "tsup.config.ts": DEFAULT_TSUP_CONFIG,
   "swc.config.json": DEFAULT_SWC_CONFIG,
   "package.json": DEFAULT_PACKAGE_JSON,
+  "tsconfig.json": DEFAULT_TSCONFIG,
 };
 
 const questions = [
@@ -141,6 +148,13 @@ async function main() {
     fs.writeFileSync(`${path}/tsup.config.ts`, DEFAULT_TSUP_CONFIG);
   }
 
+  // Create tsconfig.json
+  console.log(`Creating tsconfig.json`);
+  fs.writeFileSync(
+    `${path}/tsconfig.json`,
+    JSON.stringify(DEFAULT_TSCONFIG, null, 2)
+  );
+
   // Create .swcrc
   if (type === "swc") {
     console.log(`Creating .swcrc`);
@@ -159,20 +173,6 @@ async function main() {
   fs.writeFileSync(
     `${path}/src/index.ts`,
     `export { name } from "./${simpleName}";`
-  );
-
-  // Create src/tsconfig.json
-  fs.writeFileSync(
-    `${path}/src/tsconfig.json`,
-    JSON.stringify(
-      {
-        extends: "../base.json",
-        include: ["src/**/*.ts"],
-        exclude: ["node_modules", "dist", "dist/types"],
-      },
-      null,
-      2
-    )
   );
 
   console.log(`Done!`);

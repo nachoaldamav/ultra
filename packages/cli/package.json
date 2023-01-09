@@ -12,8 +12,7 @@
   "type": "module",
   "scripts": {
     "dev": "swc ./src -d ./build --watch",
-    "build": "swc ./src -d ./build",
-    "package": "pnpm pack"
+    "build": "swc ./src -d ./build"
   },
   "files": [
     "build"
@@ -37,7 +36,7 @@
     "axios": "1.1.2",
     "bin-links": "3.0.3",
     "chalk": "5.1.0",
-    "detect-libc": "^2.0.1",
+    "detect-libc": "2.0.1",
     "execa": "6.1.0",
     "glob": "8.0.3",
     "markdown-table": "3.0.2",
@@ -63,17 +62,5 @@
     "@types/tar": "6.1.3",
     "bun-types": "^0.3.0",
     "chokidar": "3.5.3"
-  },
-  "bundledDependencies": [
-    "@ultrapkg/types",
-    "@ultrapkg/read-package",
-    "@ultrapkg/extract-tar",
-    "@ultrapkg/manifest-fetcher",
-    "@ultrapkg/linker",
-    "@ultrapkg/gen-lock",
-    "@ultrapkg/check-dist",
-    "@ultrapkg/get-deps",
-    "@ultrapkg/read-config",
-    "@ultrapkg/npm-config"
-  ]
+  }
 }

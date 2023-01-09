@@ -15,6 +15,7 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "types": "turbo run types",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version",
