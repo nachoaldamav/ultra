@@ -1,6 +1,6 @@
 {
   "name": "snpm-edge",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "devDependencies": {
     "@cloudflare/workers-types": "^3.14.1",
     "typescript": "^4.8.2",
