@@ -1,6 +1,6 @@
 {
   "name": "@ultrapkg/types",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "",
   "types": "index.d.ts",
   "scripts": {},
