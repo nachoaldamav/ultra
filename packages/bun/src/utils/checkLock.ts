@@ -1,10 +1,10 @@
-import path from "node:path";
-import { getDeps } from "./getDeps.js";
-import readPackage from "./readPackage.js";
-import semver from "semver";
+import path from 'node:path';
+import { getDeps } from './getDeps.js';
+import readPackage from './readPackage.js';
+import semver from 'semver';
 
 export default function checkLock(lock: any) {
-  const pkg = readPackage(path.join(process.cwd(), "package.json"));
+  const pkg = readPackage(path.join(process.cwd(), 'package.json'));
   const deps = getDeps(pkg);
 
   for (const dep of deps) {
@@ -15,13 +15,13 @@ export default function checkLock(lock: any) {
       // If no version satisfies the version of the pkg, throw error
       if (semver.satisfies(version, dep.version) || version === dep.version) {
         results.push(version);
-      } else if (version === "local") {
+      } else if (version === 'local') {
         results.push(version);
       }
     }
     if (results.length === 0)
       throw new Error(
-        `No version of ${dep.name} satisfies the version ${dep.version} in package.json`
+        `No version of ${dep.name} satisfies the version ${dep.version} in package.json`,
       );
   }
 

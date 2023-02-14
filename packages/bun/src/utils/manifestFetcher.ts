@@ -1,27 +1,27 @@
-import os from "os";
-import path from "path";
-import pacote from "pacote";
-import { mkdir } from "node:fs/promises";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import readConfig from "./readConfig.js";
-import { readNpmConfig } from "./npmConfig.js";
-import ora from "ora";
-import chalk from "chalk";
+import os from 'os';
+import path from 'path';
+import pacote from 'pacote';
+import { mkdir } from 'node:fs/promises';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import readConfig from './readConfig.js';
+import { readNpmConfig } from './npmConfig.js';
+import ora from 'ora';
+import chalk from 'chalk';
 
-const cacheFolder = path.join(os.homedir(), ".ultra", "__manifests__");
+const cacheFolder = path.join(os.homedir(), '.ultra', '__manifests__');
 
 const token = readConfig().token;
-const registry = readConfig().registry || "https://registry.npmjs.org";
+const registry = readConfig().registry || 'https://registry.npmjs.org';
 const npmrc = readNpmConfig();
 
-const specialChars = ["^", "~", ">", "<", "=", "|", "&", "*"];
+const specialChars = ['^', '~', '>', '<', '=', '|', '&', '*'];
 
 export default async function manifestFetcher(spec: string, props?: any) {
   // Remove spaces "|", ">" and "<" from the spec
   const sanitizedSpec = spec
-    .replace(/\|/g, "7C")
-    .replace(/>/g, "3E")
-    .replace(/</g, "3C");
+    .replace(/\|/g, '7C')
+    .replace(/>/g, '3E')
+    .replace(/</g, '3C');
 
   const cacheFile = path.join(cacheFolder, `${sanitizedSpec}.json`);
   const now = Date.now();
@@ -29,11 +29,12 @@ export default async function manifestFetcher(spec: string, props?: any) {
     await mkdir(cacheFolder, { recursive: true }).catch((e) => {});
 
     const isExact = !specialChars.some(
-      (char) => sanitizedSpec.includes(char) || sanitizedSpec.includes("latest")
+      (char) =>
+        sanitizedSpec.includes(char) || sanitizedSpec.includes('latest'),
     );
 
     // Check if cache file exists
-    const cacheExists = readFileSync(cacheFile, "utf-8");
+    const cacheExists = readFileSync(cacheFile, 'utf-8');
 
     if (cacheExists) {
       const cache = JSON.parse(cacheExists);
@@ -51,11 +52,11 @@ export default async function manifestFetcher(spec: string, props?: any) {
       token,
       ...npmrc,
       headers: {
-        "keep-alive": "timeout=5, max=1000",
+        'keep-alive': 'timeout=5, max=1000',
       },
     });
 
-    if (spec.includes("nachoaldamav")) {
+    if (spec.includes('nachoaldamav')) {
       ora(chalk.blueBright(JSON.stringify(manifest))).info();
     }
 
@@ -69,7 +70,7 @@ export default async function manifestFetcher(spec: string, props?: any) {
         // Add 5 minutes to cache
         expires: now + 300000,
       }),
-      "utf-8"
+      'utf-8',
     );
 
     return manifest;
@@ -81,7 +82,7 @@ export default async function manifestFetcher(spec: string, props?: any) {
       token,
       ...npmrc,
       headers: {
-        "keep-alive": "timeout=5, max=1000",
+        'keep-alive': 'timeout=5, max=1000',
       },
     });
 
@@ -95,7 +96,7 @@ export default async function manifestFetcher(spec: string, props?: any) {
         // Add 5 minutes to cache
         expires: now + 300000,
       }),
-      "utf-8"
+      'utf-8',
     );
 
     return manifest;

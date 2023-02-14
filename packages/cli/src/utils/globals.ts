@@ -1,11 +1,11 @@
-import { familySync } from "detect-libc";
-import { readConfig } from "@ultrapkg/read-config";
+import { familySync } from 'detect-libc';
+import { readConfig } from '@ultrapkg/read-config';
 
 const Config = readConfig();
 const libc = familySync();
 
 (() => {
-  global.downloadFile = ".ultra";
+  global.downloadFile = '.ultra';
   global.__DOWNLOADING = [];
   global.__DOWNLOADED = [];
   global.__SKIPPED = [];

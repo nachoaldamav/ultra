@@ -1,10 +1,10 @@
-import axios from "axios";
-import { clearName } from "./clearName.js";
+import axios from 'axios';
+import { clearName } from './clearName.js';
 
 export default async function betterOptions(pkg: string) {
   const name = clearName(pkg);
   const res = await axios.get(
-    `https://bundlephobia.com/api/similar-packages?package=${name}`
+    `https://bundlephobia.com/api/similar-packages?package=${name}`,
   );
   const json = res.data;
 

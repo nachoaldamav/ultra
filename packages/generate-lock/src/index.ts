@@ -1,1 +1,1 @@
-export { genLock } from "./gen-lock";
+export { genLock } from './gen-lock';

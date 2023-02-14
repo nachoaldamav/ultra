@@ -1,22 +1,22 @@
-import { existsSync, writeFileSync } from "node:fs";
-import path from "path";
-import pacote from "pacote";
+import { existsSync, writeFileSync } from 'node:fs';
+import path from 'path';
+import pacote from 'pacote';
 
 export async function extract(
   cacheFolder: string,
-  tarball: string
+  tarball: string,
 ): Promise<any> {
   // Read .fnpm file to know if it's fully installed
   const fnpmFile = path.join(cacheFolder, downloadFile);
   const fnpmFileExists = existsSync(fnpmFile);
 
   if (!tarball) {
-    throw new Error("No tarball provided");
+    throw new Error('No tarball provided');
   }
 
   if (fnpmFileExists) {
     return {
-      res: "skipped",
+      res: 'skipped',
     };
   }
 
@@ -28,11 +28,11 @@ export async function extract(
   });
 
   // Create .fnpm file
-  writeFileSync(fnpmFile, "{}");
+  writeFileSync(fnpmFile, '{}');
 
   __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
 
   return {
-    res: "extracted",
+    res: 'extracted',
   };
 }

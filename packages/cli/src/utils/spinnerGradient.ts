@@ -1,20 +1,20 @@
-import ora, { Ora } from "ora";
-import chalk from "chalk";
+import ora, { Ora } from 'ora';
+import chalk from 'chalk';
 
 const gradientColors = [
-  "#3E3B92",
-  "#4A3C90",
-  "#553C8D",
-  "#613D8B",
-  "#6C3D88",
-  "#833E83",
-  "#993F7E",
-  "#B04079",
-  "#C74174",
-  "#F44369",
+  '#3E3B92',
+  '#4A3C90',
+  '#553C8D',
+  '#613D8B',
+  '#6C3D88',
+  '#833E83',
+  '#993F7E',
+  '#B04079',
+  '#C74174',
+  '#F44369',
 ];
 
-export const rocketAscii = "■■";
+export const rocketAscii = '■■';
 
 const referenceGradient = [
   ...gradientColors,
@@ -29,8 +29,8 @@ function getGradientAnimFrames() {
     frames.push(
       referenceGradient
         .slice(start, end)
-        .map((g) => chalk.hex(g).bold(">"))
-        .join("")
+        .map((g) => chalk.hex(g).bold('>'))
+        .join(''),
     );
   }
   return frames;

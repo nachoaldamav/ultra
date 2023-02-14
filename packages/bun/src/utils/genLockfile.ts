@@ -1,8 +1,8 @@
-import type { ultra_lock } from "../../types/pkg";
-import glob from "glob";
-import { join } from "path";
-import { readFileSync, writeFileSync } from "fs";
-import os from "os";
+import type { ultra_lock } from '../../types/pkg';
+import glob from 'glob';
+import { join } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
+import os from 'os';
 
 type DEP = {
   name: string;
@@ -15,27 +15,27 @@ type DEP = {
 
 export function genLock() {
   // Get all ".ultra" files inside node_modules
-  const files = glob.sync("**/.ultra", {
-    cwd: join(process.cwd(), "node_modules"),
+  const files = glob.sync('**/.ultra', {
+    cwd: join(process.cwd(), 'node_modules'),
     absolute: false,
   });
 
   // @ts-ignore-next-line
   const deps: DEP[] = files
     .map((file) => {
-      const data = readFileSync(join("node_modules", file), "utf-8");
+      const data = readFileSync(join('node_modules', file), 'utf-8');
       const parsed = JSON.parse(data);
       try {
         const { name, version, integrity, path, tarball } =
-          parsed["ultra:self"];
+          parsed['ultra:self'];
 
         return {
           name: name,
           version: version,
           integrity: integrity,
           tarball: tarball,
-          path: join("/node_modules", file.replace("/.ultra", "")),
-          cache: path.replace(join(os.homedir(), ".ultra-cache"), ""),
+          path: join('/node_modules', file.replace('/.ultra', '')),
+          cache: path.replace(join(os.homedir(), '.ultra-cache'), ''),
         };
       } catch (e) {
         return null;
@@ -62,9 +62,9 @@ export function genLock() {
   });
 
   writeFileSync(
-    join(process.cwd(), "ultra.lock"),
+    join(process.cwd(), 'ultra.lock'),
     JSON.stringify(lock, null, 2),
-    "utf-8"
+    'utf-8',
   );
 
   return lock;

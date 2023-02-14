@@ -1,33 +1,33 @@
-import type { ultra_lock } from "@ultrapkg/types/pkg";
-import chalk from "chalk";
-import ora from "ora";
-import { writeFile, readFile, unlink } from "fs/promises";
-import path from "path";
-import semver from "semver";
-import { getDepsWorkspaces } from "../utils/getDepsWorkspaces.js";
-import { installLocalDep } from "../utils/installLocalDep.js";
-import getParamsDeps from "../utils/parseDepsParams.js";
-import parseTime from "../utils/parseTime.js";
-import { spinnerGradient } from "../utils/spinnerGradient.js";
-import basePostInstall from "../utils/basePostInstall.js";
-import { __dirname } from "../utils/__dirname.js";
-import { executePost } from "../utils/postInstall.js";
-import { installLock } from "../utils/installLock.js";
-import { readPackage } from "@ultrapkg/read-package";
-import { getDeps } from "@ultrapkg/get-deps";
-import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
-import { genLock } from "@ultrapkg/gen-lock";
+import type { ultra_lock } from '@ultrapkg/types/pkg';
+import chalk from 'chalk';
+import ora from 'ora';
+import { writeFile, readFile, unlink } from 'fs/promises';
+import path from 'path';
+import semver from 'semver';
+import { getDepsWorkspaces } from '../utils/getDepsWorkspaces.js';
+import { installLocalDep } from '../utils/installLocalDep.js';
+import getParamsDeps from '../utils/parseDepsParams.js';
+import parseTime from '../utils/parseTime.js';
+import { spinnerGradient } from '../utils/spinnerGradient.js';
+import basePostInstall from '../utils/basePostInstall.js';
+import { __dirname } from '../utils/__dirname.js';
+import { executePost } from '../utils/postInstall.js';
+import { installLock } from '../utils/installLock.js';
+import { readPackage } from '@ultrapkg/read-package';
+import { getDeps } from '@ultrapkg/get-deps';
+import { manifestFetcher } from '@ultrapkg/manifest-fetcher';
+import { genLock } from '@ultrapkg/gen-lock';
 
-__NOPOSTSCRIPTS = process.argv.includes("--ignore-scripts");
+__NOPOSTSCRIPTS = process.argv.includes('--ignore-scripts');
 
 export async function install(opts: string[]) {
   const start = Date.now();
-  const newDeps = opts.filter((opt) => !opt.startsWith("-")).length > 0;
+  const newDeps = opts.filter((opt) => !opt.startsWith('-')).length > 0;
 
   // Read ultra.lock file as JSON
   const lockFile: string | null = await readFile(
-    path.join(process.cwd(), "ultra.lock"),
-    "utf8"
+    path.join(process.cwd(), 'ultra.lock'),
+    'utf8',
   ).catch(() => null);
 
   const lock = lockFile ? JSON.parse(lockFile) : null;
@@ -39,9 +39,9 @@ export async function install(opts: string[]) {
     } catch (e) {
       ora(chalk.red(`${e}`)).fail();
       ora(
-        chalk.yellow("Lockfile is outdated, installing from cache...")
+        chalk.yellow('Lockfile is outdated, installing from cache...'),
       ).warn();
-      await unlink(path.join(process.cwd(), "ultra.lock"));
+      await unlink(path.join(process.cwd(), 'ultra.lock'));
       await install(opts);
       return;
     }
@@ -49,13 +49,13 @@ export async function install(opts: string[]) {
 
   const addDeps = await getParamsDeps(opts);
 
-  const flag = opts.filter((opt) => opt.startsWith("-"))[0];
+  const flag = opts.filter((opt) => opt.startsWith('-'))[0];
 
   ora(chalk.blue(`Using ${REGISTRY} as registry...`)).info();
   ora(chalk.blue(`Using ${userUltraCache} as cache directory...`)).info();
 
   // Read package.json
-  const pkg = readPackage("./package.json");
+  const pkg = readPackage('./package.json');
 
   // Read "workspaces" field
   const workspaces = pkg.workspaces || null;
@@ -68,17 +68,17 @@ export async function install(opts: string[]) {
   // Get all dependencies with version
   const deps = getDeps(pkg).concat(wsDeps).concat(addDeps);
 
-  const __fetch = ora(chalk.green("Installing local packages...")).start();
+  const __fetch = ora(chalk.green('Installing local packages...')).start();
   const __fetch_start = Date.now();
 
   await Promise.all(
     deps.map(async (dep) => {
-      const islocal = dep.version.startsWith("file:");
+      const islocal = dep.version.startsWith('file:');
 
       if (islocal) {
         __DOWNLOADED.push({
           name: dep.name,
-          version: "local",
+          version: 'local',
           path: dep.version,
         });
         await installLocalDep(dep);
@@ -91,7 +91,7 @@ export async function install(opts: string[]) {
       if (localAvailable) {
         __DOWNLOADED.push({
           name: dep.name,
-          version: "local",
+          version: 'local',
           path: localAvailable.version,
         });
         await installLocalDep({
@@ -108,30 +108,30 @@ export async function install(opts: string[]) {
         optional: dep.optional || false,
         fromMonorepo: dep.parent ? dep.parent : undefined,
       });
-    })
+    }),
   );
 
   const __fetch_end = Date.now();
 
   __fetch.text = chalk.green(
     `Installed local packages in ${chalk.gray(
-      parseTime(__fetch_start, __fetch_end)
-    )}`
+      parseTime(__fetch_start, __fetch_end),
+    )}`,
   );
 
   __fetch.stopAndPersist({
-    symbol: chalk.green("⚡"),
+    symbol: chalk.green('⚡'),
   });
 
-  const { installPkg } = await import("../utils/installPkg.js");
+  const { installPkg } = await import('../utils/installPkg.js');
 
-  const __install = spinnerGradient(chalk.green("Installing packages..."));
+  const __install = spinnerGradient(chalk.green('Installing packages...'));
   const __install_start = Date.now();
 
   await Promise.all(
     pkgs.map(async (pkg) => {
       return installPkg(pkg, pkg.parent, __install);
-    })
+    }),
   );
 
   await Promise.all(
@@ -147,62 +147,62 @@ export async function install(opts: string[]) {
           {
             name: pkg,
             version: manifest.version,
-            spec: "latest",
+            spec: 'latest',
             tarball: manifest.dist.tarball,
           },
           undefined,
-          __install
+          __install,
         );
       }
 
       return;
-    })
+    }),
   );
 
-  __install.prefixText = "";
+  __install.prefixText = '';
   const __install_end = Date.now();
 
   __install.text = chalk.green(
     `Installed packages in ${chalk.gray(
-      parseTime(__install_start, __install_end)
-    )}`
+      parseTime(__install_start, __install_end),
+    )}`,
   );
 
   __install.stopAndPersist({
-    symbol: chalk.green("⚡"),
+    symbol: chalk.green('⚡'),
   });
 
   if (__POSTSCRIPTS.length > 0) {
     const __postinstall = ora(
-      chalk.gray("Running postinstall scripts...")
+      chalk.gray('Running postinstall scripts...'),
     ).start();
     const __postinstall_start = Date.now();
 
     await Promise.all(
       __POSTSCRIPTS.map(async (script) => {
         __postinstall.text = chalk.gray(
-          `Running ${chalk.blueBright(script.package)}...`
+          `Running ${chalk.blueBright(script.package)}...`,
         );
         try {
           await executePost(script.script, script.scriptPath, script.cachePath);
         } catch (e) {
           ora(
-            chalk.red(`Error with ${script.package} postinstall script - ${e}`)
+            chalk.red(`Error with ${script.package} postinstall script - ${e}`),
           ).fail();
           return;
         }
-      })
+      }),
     );
 
     const __postinstall_end = Date.now();
     __postinstall.text = chalk.green(
       `${__POSTSCRIPTS.length} Post Install scripts completed in ${chalk.gray(
-        parseTime(__postinstall_start, __postinstall_end)
-      )}`
+        parseTime(__postinstall_start, __postinstall_end),
+      )}`,
     );
 
     __postinstall.stopAndPersist({
-      symbol: chalk.green("⚡"),
+      symbol: chalk.green('⚡'),
     });
   }
 
@@ -215,15 +215,15 @@ export async function install(opts: string[]) {
     pkg.peerDependencies = pkg.peerDependencies || {};
     pkg.optionalDependencies = pkg.optionalDependencies || {};
 
-    if (flag === "-D" || flag === "--dev") {
+    if (flag === '-D' || flag === '--dev') {
       addDeps.forEach((dep) => {
         pkg.devDependencies[dep.name] = dep.version;
       });
-    } else if (flag === "-P" || flag === "--peer") {
+    } else if (flag === '-P' || flag === '--peer') {
       addDeps.forEach((dep) => {
         pkg.peerDependencies[dep.name] = dep.version;
       });
-    } else if (flag === "-O" || flag === "--optional") {
+    } else if (flag === '-O' || flag === '--optional') {
       addDeps.forEach((dep) => {
         pkg.optionalDependencies[dep.name] = dep.version;
       });
@@ -235,13 +235,13 @@ export async function install(opts: string[]) {
 
     // Remove duplicates from other dep types
     addDeps.forEach((dep) => {
-      if (flag !== "-D" && flag !== "--dev")
+      if (flag !== '-D' && flag !== '--dev')
         delete pkg.devDependencies[dep.name];
 
-      if (flag !== "-P" && flag !== "--peer")
+      if (flag !== '-P' && flag !== '--peer')
         delete pkg.peerDependencies[dep.name];
 
-      if (flag !== "-O" && flag !== "--optional")
+      if (flag !== '-O' && flag !== '--optional')
         delete pkg.optionalDependencies[dep.name];
 
       if (flag) delete pkg.dependencies[dep.name];
@@ -260,9 +260,9 @@ export async function install(opts: string[]) {
       delete pkg.optionalDependencies;
 
     await writeFile(
-      path.join(process.cwd(), "package.json"),
+      path.join(process.cwd(), 'package.json'),
       JSON.stringify(pkg, null, 2),
-      "utf-8"
+      'utf-8',
     );
   }
 
@@ -294,36 +294,36 @@ export async function install(opts: string[]) {
     });
 
   if (
-    __DOWNLOADED.filter((pkg) => pkg.version !== "local").length > 0 &&
+    __DOWNLOADED.filter((pkg) => pkg.version !== 'local').length > 0 &&
     !newDeps
   ) {
     await writeFile(
-      path.join(process.cwd(), "ultra.lock"),
+      path.join(process.cwd(), 'ultra.lock'),
       JSON.stringify(downloadedPkgs, null, 2),
-      "utf-8"
+      'utf-8',
     );
   } else {
     if (__DOWNLOADED.length === 0)
-      ora(chalk.red("No packages were downloaded.")).warn();
+      ora(chalk.red('No packages were downloaded.')).warn();
     genLock();
   }
 
   if (__VERIFIED.length > 0) {
     const verify = ora(
-      chalk.green(`${chalk.gray(__VERIFIED.length)} packages verified`)
+      chalk.green(`${chalk.gray(__VERIFIED.length)} packages verified`),
     ).start();
 
     verify.stopAndPersist({
-      symbol: chalk.green("⚡"),
+      symbol: chalk.green('⚡'),
     });
   }
 
   const __done = ora(
-    chalk.green(`Done in ${chalk.gray(parseTime(start, Date.now()))}`)
+    chalk.green(`Done in ${chalk.gray(parseTime(start, Date.now()))}`),
   ).start();
 
   __done.stopAndPersist({
-    symbol: chalk.green("⚡"),
+    symbol: chalk.green('⚡'),
   });
 
   process.exit(0);

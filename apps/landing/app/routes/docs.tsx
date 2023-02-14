@@ -1,17 +1,17 @@
-import type { LinksFunction, LoaderFunction } from "@remix-run/node";
-import { useLoaderData, Outlet, Link, useLocation } from "@remix-run/react";
-import styles from "highlight.js/styles/github-dark-dimmed.css";
-import * as gettingStarted from "./docs/get-started.mdx";
-import * as commands from "./docs/commands.mdx";
-import * as comparison from "./docs/comparison.mdx";
+import type { LinksFunction, LoaderFunction } from '@remix-run/node';
+import { useLoaderData, Outlet, Link, useLocation } from '@remix-run/react';
+import styles from 'highlight.js/styles/github-dark-dimmed.css';
+import * as gettingStarted from './docs/get-started.mdx';
+import * as commands from './docs/commands.mdx';
+import * as comparison from './docs/comparison.mdx';
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: styles }];
+  return [{ rel: 'stylesheet', href: styles }];
 };
 
 function docsFromModule(mod: any) {
   return {
-    slug: mod.filename.replace(/\.mdx?$/, ""),
+    slug: mod.filename.replace(/\.mdx?$/, ''),
     ...mod.attributes.meta,
   };
 }
@@ -30,7 +30,7 @@ export default function Docs() {
 
   // Check if the current path is a doc
   const currentDoc = docs.find(
-    (doc) => doc.slug === location.pathname.replace("/docs/", "")
+    (doc) => doc.slug === location.pathname.replace('/docs/', ''),
   );
 
   return (
@@ -43,7 +43,7 @@ export default function Docs() {
           <div className="flex md:order-2">
             <a
               href="https://github.com/nachoaldamav/ultra"
-              target={"_blank"}
+              target={'_blank'}
               rel="noopener noreferrer"
               className="text-white cursor-pointer bg-accent hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0"
             >
@@ -133,8 +133,8 @@ export default function Docs() {
                   key={index}
                   className={
                     currentDoc?.slug !== doc.slug
-                      ? "w-full bg-secondary py-2 px-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:bg-gray-700"
-                      : "w-full py-2 px-4 rounded-lg bg-primary border border-white transition duration-300 ease-in-out hover:bg-secondary"
+                      ? 'w-full bg-secondary py-2 px-4 rounded-lg border border-transparent transition duration-300 ease-in-out hover:bg-gray-700'
+                      : 'w-full py-2 px-4 rounded-lg bg-primary border border-white transition duration-300 ease-in-out hover:bg-secondary'
                   }
                 >
                   <Link to={doc.slug} className="w-full block">

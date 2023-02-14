@@ -1,7 +1,7 @@
-import inquirer from "inquirer";
-import fs from "fs";
-import { join } from "path";
-import { exec } from "child_process";
+import inquirer from 'inquirer';
+import fs from 'fs';
+import { join } from 'path';
+import { exec } from 'child_process';
 
 const DEFAULT_TSUP_CONFIG = `import { defineConfig } from "tsup";
 
@@ -40,76 +40,75 @@ const DEFAULT_SWC_CONFIG = `{
 `;
 
 const DEFAULT_PACKAGE_JSON = {
-  name: "name",
-  version: "0.0.1",
-  description: "",
-  main: "dist/index.js",
-  types: "dist/index.d.ts",
-  type: "module",
+  name: 'name',
+  version: '0.0.1',
+  description: '',
+  main: 'dist/index.js',
+  types: 'dist/index.d.ts',
+  type: 'module',
   scripts: {
     test: 'echo "Error: no test specified" && exit 1',
-    build: "tsup",
-    dev: "tsup --watch",
+    build: 'tsup',
+    dev: 'tsup --watch',
   },
   keywords: [],
-  author: "",
-  license: "ISC",
+  author: '',
+  license: 'ISC',
   devDependencies: {
-    "@ultrapkg/types": "workspace:*",
-    "@types/node": "^18.11.13",
-    tsup: "6.5.0",
+    '@ultrapkg/types': 'workspace:*',
+    '@types/node': '^18.11.13',
+    tsup: '6.5.0',
   },
   dependencies: {},
-  bundledDependencies: ["@ultrapkg/types"],
 };
 
 const DEFAULT_TSCONFIG = {
-  extends: "../base.json",
-  include: ["src/**/*.ts"],
-  exclude: ["node_modules", "dist", "dist/types"],
+  extends: '../base.json',
+  include: ['src/**/*.ts'],
+  exclude: ['node_modules', 'dist', 'dist/types'],
 };
 
 const dirs = {
   src: {
-    "index.ts": `export const name = "name";`,
+    'index.ts': `export const name = "name";`,
   },
-  "tsup.config.ts": DEFAULT_TSUP_CONFIG,
-  "swc.config.json": DEFAULT_SWC_CONFIG,
-  "package.json": DEFAULT_PACKAGE_JSON,
-  "tsconfig.json": DEFAULT_TSCONFIG,
+  'tsup.config.ts': DEFAULT_TSUP_CONFIG,
+  'swc.config.json': DEFAULT_SWC_CONFIG,
+  'package.json': DEFAULT_PACKAGE_JSON,
+  'tsconfig.json': DEFAULT_TSCONFIG,
 };
 
 const questions = [
   {
-    type: "input",
-    name: "name",
-    message: "What is the name of the package?",
+    type: 'input',
+    name: 'name',
+    message: 'What is the name of the package?',
   },
   {
-    type: "confirm",
-    name: "scope",
-    message: "Is this package scoped?",
+    type: 'confirm',
+    name: 'scope',
+    message: 'Is this package scoped?',
     default: true,
   },
   {
-    type: "input",
-    name: "folder",
-    message: "What is the folder name?",
+    type: 'input',
+    name: 'folder',
+    message: 'What is the folder name?',
     default: (answers) => answers.name,
   },
   {
-    type: "list",
-    name: "where",
-    message: "Where is the package?",
-    choices: ["packages", "apps"],
-    default: "packages",
+    type: 'list',
+    name: 'where',
+    message: 'Where is the package?',
+    choices: ['packages', 'apps'],
+    default: 'packages',
   },
   {
-    type: "list",
-    name: "type",
-    message: "What type of package is it?",
-    choices: ["swc", "tsup", "none"],
-    default: "tsup",
+    type: 'list',
+    name: 'type',
+    message: 'What type of package is it?',
+    choices: ['swc', 'tsup', 'none'],
+    default: 'tsup',
   },
 ];
 
@@ -125,9 +124,9 @@ async function main() {
   const { folder, where, type } = answers;
   const path = `${where}/${folder}`;
 
-  if (!fs.existsSync(join(path, "src"))) {
+  if (!fs.existsSync(join(path, 'src'))) {
     console.log(`Creating ${path}`);
-    fs.mkdirSync(join(path, "src"), { recursive: true });
+    fs.mkdirSync(join(path, 'src'), { recursive: true });
   }
 
   const packageJson = {
@@ -143,7 +142,7 @@ async function main() {
   );
 
   // Create tsup.config.ts
-  if (type === "tsup") {
+  if (type === 'tsup') {
     console.log(`Creating tsup.config.ts`);
     fs.writeFileSync(`${path}/tsup.config.ts`, DEFAULT_TSUP_CONFIG);
   }
@@ -156,7 +155,7 @@ async function main() {
   );
 
   // Create .swcrc
-  if (type === "swc") {
+  if (type === 'swc') {
     console.log(`Creating .swcrc`);
     fs.writeFileSync(`${path}/.swcrc`, DEFAULT_SWC_CONFIG);
   }
@@ -179,9 +178,9 @@ async function main() {
 
   console.log(`Installing dependencies...`);
 
-  exec("pnpm i", {
+  exec('pnpm i', {
     cwd: process.cwd() + `/${where}/${folder}`,
-    stdio: "inherit",
+    stdio: 'inherit',
   });
 
   console.log(`Done!`);

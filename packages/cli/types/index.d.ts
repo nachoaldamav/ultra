@@ -1,4 +1,4 @@
-import type { pkg } from "./pkg";
+import type { pkg } from './pkg';
 
 type __INSTALLED_TYPE = {
   name: string;

@@ -18,7 +18,8 @@
     "@types/node": "^18.11.13",
     "@types/semver": "7.3.11",
     "tsup": "6.5.0",
-    "ava": "5.1.0"
+    "ava": "5.1.0",
+    "typescript": "4.9.5"
   },
   "dependencies": {
     "@ultrapkg/dependency-resolver": "workspace:*",
@@ -28,6 +29,7 @@
     "@ultrapkg/globals": "workspace:*",
     "@ultrapkg/read-package": "workspace:*",
     "@ultrapkg/check-dist": "workspace:*",
+    "@ultrapkg/logger": "workspace:*",
     "bin-links": "3.0.3",
     "semver": "7.3.8"
   }

@@ -1,22 +1,22 @@
-import path from "node:path";
-import { existsSync, readdirSync } from "node:fs";
-import semver from "semver";
-import chalk from "chalk";
-import ora from "ora";
-import { readPackage } from "@ultrapkg/read-package";
+import path from 'node:path';
+import { existsSync, readdirSync } from 'node:fs';
+import semver from 'semver';
+import chalk from 'chalk';
+import ora from 'ora';
+import { readPackage } from '@ultrapkg/read-package';
 
 export function getDir(
   manifest: any,
   parent: string | undefined,
   islocalInstalled: boolean,
-  depth?: number
+  depth?: number,
 ): string | null {
   try {
     const localPath = path.join(
       process.cwd(),
-      "node_modules",
+      'node_modules',
       manifest.name,
-      "package.json"
+      'package.json',
     );
     const localPathExists = existsSync(localPath);
 
@@ -27,29 +27,29 @@ export function getDir(
     }
 
     if (!installed || !parent) {
-      return path.join(process.cwd(), "node_modules", manifest.name);
+      return path.join(process.cwd(), 'node_modules', manifest.name);
     }
 
-    const array = parent.replace(process.cwd(), "").split("/node_modules/");
+    const array = parent.replace(process.cwd(), '').split('/node_modules/');
 
     // Check how many node_modules are in the path
     const count = array.length - 1;
 
     if (count === 1) {
-      const pathname = path.join(parent, "node_modules", manifest.name);
+      const pathname = path.join(parent, 'node_modules', manifest.name);
       if (!existsSync(pathname))
-        return path.join(parent, "node_modules", manifest.name);
+        return path.join(parent, 'node_modules', manifest.name);
       return null;
     }
 
-    const bestDepth = array.slice(0, depth || 2).join("/node_modules/");
+    const bestDepth = array.slice(0, depth || 2).join('/node_modules/');
 
     if (!existsSync(path.join(process.cwd(), bestDepth, manifest.name))) {
-      return path.join(process.cwd(), bestDepth, "node_modules", manifest.name);
+      return path.join(process.cwd(), bestDepth, 'node_modules', manifest.name);
     }
 
     const installedVersion = readPackage(
-      path.join(process.cwd(), bestDepth, manifest.name)
+      path.join(process.cwd(), bestDepth, manifest.name),
     ).version;
 
     if (
@@ -65,8 +65,8 @@ export function getDir(
           manifest.name
         } is already installed in ${bestDepth}, trying in ${array
           .slice(0, (depth || 2) + 1)
-          .join("/node_modules/")}`
-      )
+          .join('/node_modules/')}`,
+      ),
     ).warn();
 
     return getDir(manifest, parent, islocalInstalled, depth ? depth + 1 : 2);
@@ -75,12 +75,12 @@ export function getDir(
       chalk.red(
         `Error while installing ${manifest.name}@${
           manifest.version
-        } - ${e.toString()}`
-      )
+        } - ${e.toString()}`,
+      ),
     ).fail();
 
     return parent
-      ? path.join(parent, "node_modules", manifest.name)
-      : path.join(process.cwd(), "node_modules", manifest.name);
+      ? path.join(parent, 'node_modules', manifest.name)
+      : path.join(process.cwd(), 'node_modules', manifest.name);
   }
 }

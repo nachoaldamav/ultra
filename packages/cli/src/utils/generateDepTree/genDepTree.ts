@@ -1,7 +1,7 @@
-import chalk from "chalk";
-import { getDeps } from "../getDeps.js";
-import manifestFetcher from "../manifestFetcher.js";
-import readPackage from "../readPackage.js";
+import chalk from 'chalk';
+import { getDeps } from '../getDeps.js';
+import manifestFetcher from '../manifestFetcher.js';
+import readPackage from '../readPackage.js';
 
 class dependencyMapper {
   private map: Object;
@@ -31,25 +31,25 @@ const dependencyMap = new dependencyMapper();
 
 const MOCK_PACKAGE = {
   react: {
-    "1.0.0": {
-      parent: "react-dom",
+    '1.0.0': {
+      parent: 'react-dom',
       optional: false,
       fromMonorepo: false,
     },
-    "2.0.0": {
-      parent: "react-dom",
+    '2.0.0': {
+      parent: 'react-dom',
       optional: false,
       fromMonorepo: false,
     },
   },
-  "react-dom": {
-    "1.0.0": {
-      parent: "react",
+  'react-dom': {
+    '1.0.0': {
+      parent: 'react',
       optional: false,
       fromMonorepo: false,
     },
-    "2.0.0": {
-      parent: "react",
+    '2.0.0': {
+      parent: 'react',
       optional: false,
       fromMonorepo: false,
     },
@@ -89,7 +89,7 @@ export async function genDepTree(pkg: string) {
 
         console.log(chalk.green(`Adding ${name}@${version} dependencies`));
         await addDeps(dependencies);
-      })
+      }),
     );
   };
 

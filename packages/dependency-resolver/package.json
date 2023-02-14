@@ -26,6 +26,8 @@
     "@ultrapkg/read-package": "workspace:*",
     "@ultrapkg/get-deps": "workspace:*",
     "@ultrapkg/manifest-fetcher": "workspace:*",
+    "@ultrapkg/logger": "workspace:*",
+    "@ultrapkg/event-handler": "workspace:*",
     "semver": "7.3.8"
   }
 }

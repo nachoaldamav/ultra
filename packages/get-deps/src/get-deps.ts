@@ -67,10 +67,10 @@ export const getDeps = (pkg: any, opts?: options): Dependency[] => {
 };
 
 export enum DependencyType {
-  REGULAR = "regular",
-  DEV = "dev",
-  PEER = "peer",
-  OPTIONAL = "optional",
+  REGULAR = 'regular',
+  DEV = 'dev',
+  PEER = 'peer',
+  OPTIONAL = 'optional',
 }
 
 type Dependency = {

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
-import { fetchPackage } from "./fetchPackage";
-import { getName } from "./functions/getNameTar";
+import { fetchPackage } from './fetchPackage';
+import { getName } from './functions/getNameTar';
 
 export interface Env {
   // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -17,33 +17,33 @@ export default {
   async fetch(request: Request, env: Env, context: ExecutionContext) {
     const url = new URL(request.url);
     const path = url.pathname;
-    const hasQuery = path.includes("?");
-    const packageName = hasQuery ? path.split("?")[0] : path;
+    const hasQuery = path.includes('?');
+    const packageName = hasQuery ? path.split('?')[0] : path;
 
-    if (path.startsWith("/package/")) {
-      const full = url.searchParams.get("full") === "true";
+    if (path.startsWith('/package/')) {
+      const full = url.searchParams.get('full') === 'true';
       const packageJson = await fetchPackage(
-        packageName.replace("/package/", ""),
-        full
+        packageName.replace('/package/', ''),
+        full,
       );
       return new Response(packageJson, {
         headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "public, max-age=60",
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, max-age=60',
         },
       });
-    } else if (path.startsWith("/download/")) {
+    } else if (path.startsWith('/download/')) {
       const { version, dependency, filename } = getName(path);
 
       if (!version) {
         console.log(
-          `Could not find version ${version} for dependency ${dependency}`
+          `Could not find version ${version} for dependency ${dependency}`,
         );
 
-        return new Response("Version not found in URL", {
+        return new Response('Version not found in URL', {
           headers: {
-            "Content-Type": "text/plain",
-            "Cache-Control": "public, max-age=0",
+            'Content-Type': 'text/plain',
+            'Cache-Control': 'public, max-age=0',
           },
         });
       }
@@ -63,7 +63,7 @@ export default {
       }
 
       console.log(
-        `Response for request url: ${request.url} not present in cache. Fetching and caching request.`
+        `Response for request url: ${request.url} not present in cache. Fetching and caching request.`,
       );
 
       // If not in cache, get it from R2
@@ -75,22 +75,22 @@ export default {
             return object;
           })
           .catch((err) => {
-            console.log("Failed to retrieve file from R2: ", err);
+            console.log('Failed to retrieve file from R2: ', err);
             return null;
           });
 
         const headers = new Headers();
 
         headers.append(
-          "Cache-Control",
-          "public, max-age=84600, s-maxage=84600, inmutable"
+          'Cache-Control',
+          'public, max-age=84600, s-maxage=84600, inmutable',
         );
-        headers.append("Content-Type", "application/octet-stream");
+        headers.append('Content-Type', 'application/octet-stream');
         headers.append(
-          "content-disposition",
+          'content-disposition',
           `attachment; filename*=UTF-8''${encodeURIComponent(
-            objectKey
-          )}; filename="${objectKey}"`
+            objectKey,
+          )}; filename="${objectKey}"`,
         );
 
         if (object) {
@@ -98,7 +98,7 @@ export default {
 
           // Set the appropriate object headers
           object.writeHttpMetadata(headers);
-          headers.set("etag", object.httpEtag);
+          headers.set('etag', object.httpEtag);
 
           response = new Response(object.body, {
             headers,
@@ -113,35 +113,35 @@ export default {
 
           // Download file from NPM, send it to the client, and store it in the cache
           const file = await fetch(
-            `https://registry.npmjs.com/${dependency}/-/${filename}`
+            `https://registry.npmjs.com/${dependency}/-/${filename}`,
           )
             .then((res) => res.blob())
             .then((blob) => {
               return blob;
             })
             .catch((err) => {
-              console.log("Failed to retrieve file from NPM: ", err);
+              console.log('Failed to retrieve file from NPM: ', err);
               return null;
             });
 
           if (!file) {
-            return new Response("File not found in NPM", {
+            return new Response('File not found in NPM', {
               headers: {
-                "Content-Type": "text/plain",
-                "Cache-Control": "public, max-age=0",
+                'Content-Type': 'text/plain',
+                'Cache-Control': 'public, max-age=0',
               },
             });
           }
 
           response = new Response(file, {
             headers: {
-              "Content-Type": "application/octet-stream",
-              "Cache-Control":
-                "public, max-age=84600, s-maxage=84600, inmutable",
-              "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(
-                filename
+              'Content-Type': 'application/octet-stream',
+              'Cache-Control':
+                'public, max-age=84600, s-maxage=84600, inmutable',
+              'content-disposition': `attachment; filename*=UTF-8''${encodeURIComponent(
+                filename,
               )}; filename="${filename}"`,
-              "content-length": `${file.size}`,
+              'content-length': `${file.size}`,
             },
           });
 
@@ -158,40 +158,40 @@ export default {
               console.log(`Saved file to R2: ${filename}`);
             })
             .catch((err) => {
-              console.error("Failed to save file to R2: ", err);
+              console.error('Failed to save file to R2: ', err);
             });
         }
       } catch (err) {
-        console.log("Failed to retrieve file from R2: ", err);
+        console.log('Failed to retrieve file from R2: ', err);
         const file = await fetch(
-          `https://registry.npmjs.com/${dependency}/-/${filename}`
+          `https://registry.npmjs.com/${dependency}/-/${filename}`,
         )
           .then((res) => res.blob())
           .then((blob) => {
             return blob;
           })
           .catch((err) => {
-            console.log("Failed to retrieve file from NPM: ", err);
+            console.log('Failed to retrieve file from NPM: ', err);
             return null;
           });
 
         if (!file) {
-          return new Response("File not found in NPM", {
+          return new Response('File not found in NPM', {
             headers: {
-              "Content-Type": "text/plain",
-              "Cache-Control": "public, max-age=0",
+              'Content-Type': 'text/plain',
+              'Cache-Control': 'public, max-age=0',
             },
           });
         }
 
         response = new Response(file, {
           headers: {
-            "Content-Type": "application/octet-stream",
-            "Cache-Control": "public, max-age=84600, s-maxage=84600, inmutable",
-            "content-disposition": `attachment; filename*=UTF-8''${encodeURIComponent(
-              filename
+            'Content-Type': 'application/octet-stream',
+            'Cache-Control': 'public, max-age=84600, s-maxage=84600, inmutable',
+            'content-disposition': `attachment; filename*=UTF-8''${encodeURIComponent(
+              filename,
             )}; filename="${filename}"`,
-            "content-length": `${file.size}`,
+            'content-length': `${file.size}`,
           },
         });
       }
@@ -199,7 +199,7 @@ export default {
       // Return the response
       return response;
     } else {
-      return new Response("Not Found", { status: 404 });
+      return new Response('Not Found', { status: 404 });
     }
   },
 };

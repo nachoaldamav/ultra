@@ -1,13 +1,13 @@
 export function fetchPackage(
   packageName: string,
-  full?: boolean
+  full?: boolean,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const res = fetch(`https://registry.npmjs.org/${packageName}`, {
       headers: {
         Accept: full
-          ? "application/json"
-          : "application/vnd.npm.install-v1+json",
+          ? 'application/json'
+          : 'application/vnd.npm.install-v1+json',
       },
     });
     res

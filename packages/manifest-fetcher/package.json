@@ -21,6 +21,7 @@
   "dependencies": {
     "@ultrapkg/npm-config": "workspace:*",
     "@ultrapkg/read-config": "workspace:*",
+    "@ultrapkg/error-logger": "workspace:*",
     "chalk": "5.2.0",
     "ora": "6.1.2",
     "pacote": "14.0.0"

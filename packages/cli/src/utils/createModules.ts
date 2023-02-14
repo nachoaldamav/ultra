@@ -1,5 +1,5 @@
-import { existsSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import { existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 
 export async function createModules() {
   // Create node_modules folder if it doesn't exist

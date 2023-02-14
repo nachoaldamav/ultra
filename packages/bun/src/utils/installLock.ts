@@ -1,30 +1,30 @@
-import chalk from "chalk";
-import ora from "ora";
-import { rm } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import path from "path";
-import { performance } from "perf_hooks";
-import binLinks from "bin-links";
-import { installLocalDep } from "./installLocalDep.js";
-import parseTime from "./parseTime.js";
-import readPackage from "./readPackage.js";
-import basePostInstall from "./basePostInstall.js";
-import { __dirname } from "./__dirname.js";
-import checkLock from "./checkLock.js";
-import { executePost } from "./postInstall.js";
-import { ultraExtract } from "./extract.js";
-import { updateIndex } from "./updateIndex.js";
-import { checkDist } from "./checkDist.js";
-import { gitInstall } from "./gitInstaller.js";
-import { linker } from "./linker.js";
+import chalk from 'chalk';
+import ora from 'ora';
+import { rm } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'path';
+import { performance } from 'perf_hooks';
+import binLinks from 'bin-links';
+import { installLocalDep } from './installLocalDep.js';
+import parseTime from './parseTime.js';
+import readPackage from './readPackage.js';
+import basePostInstall from './basePostInstall.js';
+import { __dirname } from './__dirname.js';
+import checkLock from './checkLock.js';
+import { executePost } from './postInstall.js';
+import { ultraExtract } from './extract.js';
+import { updateIndex } from './updateIndex.js';
+import { checkDist } from './checkDist.js';
+import { gitInstall } from './gitInstaller.js';
+import { linker } from './linker.js';
 
 export async function installLock(lock: any) {
   const start = performance.now();
-  const __install = ora(chalk.green("Installing dependencies...")).start();
+  const __install = ora(chalk.green('Installing dependencies...')).start();
 
   let deps = 0;
 
-  __install.prefixText = "🔗";
+  __install.prefixText = '🔗';
 
   checkLock(lock);
 
@@ -47,7 +47,7 @@ export async function installLock(lock: any) {
           deps++;
 
           // If version is local, it's a local dependency
-          if (version === "local") {
+          if (version === 'local') {
             await installLocalDep({
               name: pkg,
               version: pathname,
@@ -63,12 +63,12 @@ export async function installLock(lock: any) {
 
           let manifest;
 
-          if (existsSync(path.join(pathname, "package.json"))) {
-            manifest = readPackage(path.join(pathname, "package.json"));
+          if (existsSync(path.join(pathname, 'package.json'))) {
+            manifest = readPackage(path.join(pathname, 'package.json'));
 
             if (manifest.version !== version) {
               await rm(pathname, { recursive: true, force: true }).catch(
-                () => {}
+                () => {},
               );
             } else {
               return;
@@ -78,11 +78,11 @@ export async function installLock(lock: any) {
           if (existsSync(cache)) {
             await linker(cache, pathname);
             __install.text = chalk.green(`${pkg}`);
-            __install.prefixText = "🔗";
+            __install.prefixText = '🔗';
           } else {
             __install.text = chalk.green(`${pkg}`);
-            __install.prefixText = "📦";
-            if (version.startsWith("git")) {
+            __install.prefixText = '📦';
+            if (version.startsWith('git')) {
               await gitInstall({
                 name: pkg,
                 version,
@@ -91,11 +91,11 @@ export async function installLock(lock: any) {
               await ultraExtract(cache, tarball, integrity, pkg);
             }
             updateIndex(pkg, version);
-            __install.prefixText = "🔗";
+            __install.prefixText = '🔗';
             await linker(cache, pathname);
           }
 
-          manifest = readPackage(path.join(cache, "package.json"));
+          manifest = readPackage(path.join(cache, 'package.json'));
 
           // If the package has a postinstall script, run it
           if (manifest.scripts?.postinstall && !__NOPOSTSCRIPTS) {
@@ -108,21 +108,21 @@ export async function installLock(lock: any) {
             global: false,
             force: true,
           });
-        })
+        }),
       );
-    })
+    }),
   );
 
-  __install.prefixText = "";
+  __install.prefixText = '';
   const end = performance.now();
   __install.text = chalk.green(
     `Installed ${chalk.grey.bold(deps)} dependencies in ${chalk.grey(
-      parseTime(start, end)
-    )} ${chalk.grey("(from lockfile)")}`
+      parseTime(start, end),
+    )} ${chalk.grey('(from lockfile)')}`,
   );
 
   __install.stopAndPersist({
-    symbol: chalk.green("⚡"),
+    symbol: chalk.green('⚡'),
   });
 
   await basePostInstall();

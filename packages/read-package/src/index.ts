@@ -1,1 +1,1 @@
-export { readPackage } from "./read-package";
+export { readPackage } from './read-package';

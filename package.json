@@ -1,5 +1,5 @@
 {
-  "name": "fnpm",
+  "name": "ultra",
   "version": "0.8.11",
   "private": true,
   "repository": {
@@ -30,8 +30,9 @@
     "eslint-config-custom": "workspace:*",
     "ora": "6.1.2",
     "prettier": "2.7.1",
+    "rome": "^11.0.0",
     "tsconfig": "workspace:*",
-    "turbo": "latest"
+    "turbo": "1.7.4"
   },
   "engines": {
     "npm": ">=7.0.0",

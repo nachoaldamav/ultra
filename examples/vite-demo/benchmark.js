@@ -1,31 +1,31 @@
-import { exec } from "child_process";
-import { performance } from "perf_hooks";
+import { exec } from 'child_process';
+import { performance } from 'perf_hooks';
 
 const tests = [
   {
-    name: "NPM install (no cache / no lockfile)",
-    command: "npm install",
-    pre: "npm cache clean -f && rm -rf node_modules package-lock.json",
+    name: 'NPM install (no cache / no lockfile)',
+    command: 'npm install',
+    pre: 'npm cache clean -f && rm -rf node_modules package-lock.json',
   },
   {
-    name: "NPM install (with cache / no lockfile)",
-    command: "npm install",
-    pre: "rm -rf node_modules package-lock.json",
+    name: 'NPM install (with cache / no lockfile)',
+    command: 'npm install',
+    pre: 'rm -rf node_modules package-lock.json',
   },
   {
-    name: "NPM install (with cache / with lockfile)",
-    command: "npm install",
-    pre: "rm -rf node_modules/",
+    name: 'NPM install (with cache / with lockfile)',
+    command: 'npm install',
+    pre: 'rm -rf node_modules/',
   },
   {
-    name: "SNPM install (no cache)",
-    command: "snpm install",
-    pre: "npm cache clean -f && rm -rf node_modules /home/nachoaldama/.snpm-cache",
+    name: 'SNPM install (no cache)',
+    command: 'snpm install',
+    pre: 'npm cache clean -f && rm -rf node_modules /home/nachoaldama/.snpm-cache',
   },
   {
-    name: "SNPM install (with cache)",
-    command: "snpm install",
-    pre: "rm -rf node_modules",
+    name: 'SNPM install (with cache)',
+    command: 'snpm install',
+    pre: 'rm -rf node_modules',
   },
 ];
 
@@ -37,7 +37,7 @@ const tests = [
 
     // Execute the pre command
     await new Promise((resolve, reject) => {
-      exec(test.pre, (error, stdout, stderr) => {}).on("exit", (code) => {
+      exec(test.pre, (error, stdout, stderr) => {}).on('exit', (code) => {
         resolve();
       });
     });
@@ -62,11 +62,11 @@ const tests = [
   // Sort the results by time
   results.sort((a, b) => a.time - b.time);
   // Print the results parsing the time to seconds
-  console.log("------------------------");
+  console.log('------------------------');
 
   results.forEach((result) => {
     console.log(
-      `${result.name} took ${(result.time / 1000).toFixed(2)} seconds`
+      `${result.name} took ${(result.time / 1000).toFixed(2)} seconds`,
     );
   });
 })();

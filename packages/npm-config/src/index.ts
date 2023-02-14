@@ -1,1 +1,1 @@
-export { readNpmConfig } from "./npmConfig";
+export { readNpmConfig } from './npmConfig';

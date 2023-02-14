@@ -1,10 +1,10 @@
-import os from "os";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "path";
+import os from 'os';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import path from 'path';
 
 const BASIC_CONFIG = {
-  registry: "https://registry.npmjs.org/",
-  cache: path.join(os.homedir(), ".ultra-cache"),
+  registry: 'https://registry.npmjs.org/',
+  cache: path.join(os.homedir(), '.ultra-cache'),
 };
 
 type CONFIG = {
@@ -20,7 +20,7 @@ export default function readConfig(): CONFIG {
   if (existsSync(workspaceConfigPath)) {
     // Replace basic config with workspace config
     const workspaceConfig = JSON.parse(
-      readFileSync(workspaceConfigPath, "utf8")
+      readFileSync(workspaceConfigPath, 'utf8'),
     );
     return { ...BASIC_CONFIG, ...workspaceConfig };
   }
@@ -29,15 +29,15 @@ export default function readConfig(): CONFIG {
     // Create directory recursively
     mkdirSync(`${os.homedir()}/.ultra`, { recursive: true });
     writeFileSync(configPath, JSON.stringify(BASIC_CONFIG, null, 2));
-    return JSON.parse(readFileSync(configPath, "utf-8"));
+    return JSON.parse(readFileSync(configPath, 'utf-8'));
   } else {
-    return JSON.parse(readFileSync(configPath, "utf-8"));
+    return JSON.parse(readFileSync(configPath, 'utf-8'));
   }
 }
 
 export function update(params: string[]) {
   const configPath = `${os.homedir()}/.ultra/.ultrarc`;
-  const config = JSON.parse(readFileSync(configPath, "utf8"));
+  const config = JSON.parse(readFileSync(configPath, 'utf8'));
 
   const [key, value] = params;
   config[key] = value;

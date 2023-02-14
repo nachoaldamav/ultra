@@ -1,8 +1,8 @@
-import glob from "glob";
-import ora from "ora";
-import path from "path";
-import { readPackage } from "@ultrapkg/read-package";
-import { getDeps } from "@ultrapkg/get-deps";
+import glob from 'glob';
+import ora from 'ora';
+import path from 'path';
+import { readPackage } from '@ultrapkg/read-package';
+import { getDeps } from '@ultrapkg/get-deps';
 
 type Return = {
   deps: {
@@ -17,7 +17,7 @@ type Return = {
 };
 
 export async function getDepsWorkspaces(
-  globs: string[]
+  globs: string[],
 ): Promise<Return | null> {
   if (!globs) return null;
 
@@ -34,7 +34,7 @@ export async function getDepsWorkspaces(
         localDeps.push({
           name: packageName,
           // Remove "package.json" from the path
-          path: file.substring(0, file.length - "package.json".length),
+          path: file.substring(0, file.length - 'package.json'.length),
         });
 
         const deps = getDeps(pkg).map((dep) => {
@@ -43,14 +43,14 @@ export async function getDepsWorkspaces(
             version: dep.version,
             parent: path.join(
               process.cwd(),
-              file.substring(0, file.length - "package.json".length)
+              file.substring(0, file.length - 'package.json'.length),
             ),
           };
         });
 
         pkgs.push(...deps);
       }
-    })
+    }),
   );
 
   ora(JSON.stringify(pkgs, null, 2));

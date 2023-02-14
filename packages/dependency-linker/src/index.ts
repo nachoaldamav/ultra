@@ -1,1 +1,1 @@
-export { DependencyLinker } from "./dependency-linker";
+export { DependencyLinker } from './dependency-linker';

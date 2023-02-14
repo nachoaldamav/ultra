@@ -1,17 +1,17 @@
-import path from "path";
-import os from "os";
-import { writeFileSync, readFileSync } from "node:fs";
+import path from 'path';
+import os from 'os';
+import { writeFileSync, readFileSync } from 'node:fs';
 
 const homeDir = os.homedir();
 
 const comms = [
-  "install",
-  "run",
-  "benchmark",
-  "create",
-  "ls",
-  "remove",
-  "upgrade",
+  'install',
+  'run',
+  'benchmark',
+  'create',
+  'ls',
+  'remove',
+  'upgrade',
 ];
 
 export default function autocompletion() {
@@ -19,31 +19,31 @@ export default function autocompletion() {
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   const shell = process.env.SHELL;
   if (shell) {
-    if (shell.endsWith("bash")) {
-      const bashPathname = path.join(homeDir, ".bashrc");
+    if (shell.endsWith('bash')) {
+      const bashPathname = path.join(homeDir, '.bashrc');
       const text = generateBashAutocompletion();
 
-      const content = readFileSync(bashPathname, "utf8");
+      const content = readFileSync(bashPathname, 'utf8');
 
-      if (!content.includes("ultra autocompletion")) {
-        writeFileSync(bashPathname, text, { flag: "a" });
+      if (!content.includes('ultra autocompletion')) {
+        writeFileSync(bashPathname, text, { flag: 'a' });
       }
 
       return;
-    } else if (shell.endsWith("zsh")) {
-      const zshPathname = path.join(homeDir, ".zshrc");
+    } else if (shell.endsWith('zsh')) {
+      const zshPathname = path.join(homeDir, '.zshrc');
       const text = generateZshAutocompletion();
 
-      const content = readFileSync(zshPathname, "utf8");
+      const content = readFileSync(zshPathname, 'utf8');
 
-      if (!content.includes("ultra autocompletion")) {
-        writeFileSync(zshPathname, text, { flag: "a" });
+      if (!content.includes('ultra autocompletion')) {
+        writeFileSync(zshPathname, text, { flag: 'a' });
       }
 
       return;
     }
   }
-  throw new Error("Unsupported shell");
+  throw new Error('Unsupported shell');
 }
 
 function generateBashAutocompletion() {
@@ -57,7 +57,7 @@ _ultra_completion() {
     COMPREPLY=()
     cur="\${COMP_WORDS[COMP_CWORD]}"
     prev="\${COMP_WORDS[COMP_CWORD-1]}"
-    opts="${comms.join(" ")}"
+    opts="${comms.join(' ')}"
     COMPREPLY=(\$(compgen -W "\${opts}" -- \${cur}))
     return 0
 }
@@ -72,7 +72,7 @@ function generateZshAutocompletion() {
     
     _ultra_completion() {
         local -a opts
-        opts=(${comms.join(" ")})
+        opts=(${comms.join(' ')})
         _describe "ultra" opts
         return
     }

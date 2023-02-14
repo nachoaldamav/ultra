@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useHover } from "@react-aria/interactions";
+import { useState, useEffect } from 'react';
+import { useHover } from '@react-aria/interactions';
 
 export default function Ticker() {
   const [count, setCount] = useState(0);

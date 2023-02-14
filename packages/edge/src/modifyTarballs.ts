@@ -3,8 +3,8 @@ export function modifyTarballs(data: Package) {
   for (const version of Object.keys(data.versions)) {
     const tarball = data.versions[version].dist.tarball;
     data.versions[version].dist.tarball = tarball.replace(
-      "https://registry.npmjs.org",
-      "https://registry.ultrapkg.dev/download"
+      'https://registry.npmjs.org',
+      'https://registry.ultrapkg.dev/download',
     );
   }
 
@@ -13,7 +13,7 @@ export function modifyTarballs(data: Package) {
 
 type Package = {
   name: string;
-  "dist-tags": {
+  'dist-tags': {
     latest: string;
   };
   versions: {

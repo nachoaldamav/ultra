@@ -1,1 +1,1 @@
-import "./globals";
+import './globals';

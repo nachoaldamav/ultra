@@ -1,4 +1,4 @@
-import { readdirSync } from "fs";
+import { readdirSync } from 'fs';
 
 export function getBinaries(binPath: string) {
   try {

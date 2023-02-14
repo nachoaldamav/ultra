@@ -1,1 +1,1 @@
-export { ultraCore } from "./core";
+export { ultraCore } from './core';

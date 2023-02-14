@@ -1,0 +1,14 @@
+{
+  "extends": "../base.json",
+  "compilerOptions": {
+    "module": "es2022"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist/types"
+  ]
+}

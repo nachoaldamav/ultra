@@ -1,7 +1,7 @@
 export const compareSemanticVersions = (a: semver, b: semver) => {
   // 1. Split the strings into their parts.
-  const a1 = a.version.split(".");
-  const b1 = b.version.split(".");
+  const a1 = a.version.split('.');
+  const b1 = b.version.split('.');
   // 2. Contingency in case there's a 4th or 5th version
   const len = Math.min(a1.length, b1.length);
   // 3. Look through each version number and compare.

@@ -1,1 +1,1 @@
-export { ultraExtract as extract } from "./extract";
+export { ultraExtract as extract } from './extract';

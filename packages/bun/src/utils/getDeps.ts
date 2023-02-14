@@ -6,7 +6,7 @@
  */
 export const getDeps = (
   pkg: any,
-  opts?: options
+  opts?: options,
 ): Array<{
   name: string;
   version: string;

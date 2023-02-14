@@ -1,7 +1,7 @@
-import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
+import { manifestFetcher } from '@ultrapkg/manifest-fetcher';
 
 export default async function getParamsDeps(opts: string[]) {
-  const instalableDeps = opts.filter((opt) => !opt.startsWith("-"));
+  const instalableDeps = opts.filter((opt) => !opt.startsWith('-'));
 
   const addDeps =
     instalableDeps.map(async (dep) => {

@@ -1,26 +1,26 @@
-import chalk from "chalk";
-import ora, { Ora } from "ora";
-import readPackage from "./readPackage.js";
+import chalk from 'chalk';
+import ora, { Ora } from 'ora';
+import readPackage from './readPackage.js';
 import {
   mkdirSync,
   existsSync,
   writeFileSync,
   readFileSync,
   symlinkSync,
-} from "node:fs";
-import path from "path";
-import semver from "semver";
-import binLinks from "bin-links";
-import { getDeps } from "./getDeps.js";
-import manifestFetcher from "./manifestFetcher.js";
-import { ultraExtract } from "./extract.js";
-import { gitInstall } from "./gitInstaller.js";
-import { getDir } from "./getInstallableDir.js";
-import { sleep } from "./sleep.js";
-import getVersions from "./getVersions.js";
-import { checkDist } from "./checkDist.js";
-import { updateIndex } from "./updateIndex.js";
-import { linker } from "./linker.js";
+} from 'node:fs';
+import path from 'path';
+import semver from 'semver';
+import binLinks from 'bin-links';
+import { getDeps } from './getDeps.js';
+import manifestFetcher from './manifestFetcher.js';
+import { ultraExtract } from './extract.js';
+import { gitInstall } from './gitInstaller.js';
+import { getDir } from './getInstallableDir.js';
+import { sleep } from './sleep.js';
+import getVersions from './getVersions.js';
+import { checkDist } from './checkDist.js';
+import { updateIndex } from './updateIndex.js';
+import { linker } from './linker.js';
 
 type Return = {
   name: string;
@@ -35,10 +35,10 @@ type Return = {
 export async function installPkg(
   manifest: any,
   parent?: string,
-  spinner?: Ora
+  spinner?: Ora,
 ): Promise<Return | null | void> {
   // Skip * versions
-  if (manifest.version === "*") {
+  if (manifest.version === '*') {
     __SKIPPED.push(manifest.name);
     return null;
   }
@@ -50,7 +50,7 @@ export async function installPkg(
         `${manifest.name}@${manifest.version}`,
         {
           registry: REGISTRY,
-        }
+        },
       );
 
       if (!pkg) return null;
@@ -60,8 +60,8 @@ export async function installPkg(
         version: pkg.version,
         tarball: pkg.dist.tarball,
         integrity: pkg.dist.integrity,
-        path: path.join("/node_modules", manifest.name),
-        cache: "/" + path.join(manifest.name, pkg.version),
+        path: path.join('/node_modules', manifest.name),
+        cache: '/' + path.join(manifest.name, pkg.version),
         optional: true,
       });
 
@@ -76,18 +76,18 @@ export async function installPkg(
     }
   }
 
-  if (manifest.version.startsWith("git")) {
+  if (manifest.version.startsWith('git')) {
     return gitInstall(manifest, parent, spinner);
   }
 
   // Check if package is already installed in node_modules
   const islocalInstalled = existsSync(
-    path.join(process.cwd(), "node_modules", manifest.name, "package.json")
+    path.join(process.cwd(), 'node_modules', manifest.name, 'package.json'),
   );
 
   const localManifest = islocalInstalled
     ? readPackage(
-        path.join(process.cwd(), "node_modules", manifest.name, "package.json")
+        path.join(process.cwd(), 'node_modules', manifest.name, 'package.json'),
       )
     : null;
 
@@ -99,7 +99,7 @@ export async function installPkg(
   }
 
   if (spinner) {
-    spinner.prefixText = "🔍";
+    spinner.prefixText = '🔍';
     spinner.text = chalk.green(`${manifest.name}@${manifest.version}`);
   }
 
@@ -108,7 +108,7 @@ export async function installPkg(
   const installedVersions = getVersions(manifest.name);
 
   const suitableVersion = installedVersions.find((version) =>
-    semver.satisfies(version, manifest.version)
+    semver.satisfies(version, manifest.version),
   );
 
   if (suitableVersion) {
@@ -125,19 +125,19 @@ export async function installPkg(
     ? existsSync(path.join(cacheFolder, downloadFile))
     : false;
 
-  if (isSatisfied && cacheFolder && manifest.version !== "latest") {
+  if (isSatisfied && cacheFolder && manifest.version !== 'latest') {
     if (spinner) {
-      spinner.prefixText = "📦";
+      spinner.prefixText = '📦';
       spinner.text = chalk.green(
-        `${manifest.name}@${manifest.version}` + chalk.gray(" (cached)")
+        `${manifest.name}@${manifest.version}` + chalk.gray(' (cached)'),
       );
     }
 
     if (existsSync(pkgProjectDir)) {
       pkgProjectDir = path.join(
         parent || process.cwd(),
-        "node_modules",
-        manifest.name
+        'node_modules',
+        manifest.name,
       );
     }
 
@@ -146,11 +146,11 @@ export async function installPkg(
     await linker(cacheFolder, pkgProjectDir);
 
     try {
-      const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
+      const pkgJson = readPackage(path.join(cacheFolder, 'package.json'));
 
       // Get deps from file
       const cachedDeps = JSON.parse(
-        readFileSync(`${cacheFolder}/${downloadFile}`, "utf-8")
+        readFileSync(`${cacheFolder}/${downloadFile}`, 'utf-8'),
       );
 
       const deps = getDeps(pkgJson, {
@@ -182,15 +182,15 @@ export async function installPkg(
         const version = Object.keys(cachedDeps[dep])[0];
 
         // Ignore ultra:self package
-        if (name === "ultra:self") {
+        if (name === 'ultra:self') {
           const { tarball, integrity, version, optional } = cachedDeps[dep];
           const cachePath = cachedDeps[dep].path;
 
           if (!cachePath) {
             ora().fail(
               `Could not find cache path for ${name}@${version} in ${cacheFolder} - ${JSON.stringify(
-                cachedDeps[dep][version]
-              )}`
+                cachedDeps[dep][version],
+              )}`,
             );
           }
           __DOWNLOADED.push({
@@ -199,8 +199,8 @@ export async function installPkg(
             tarball,
             integrity,
             optional,
-            path: pkgProjectDir.replace(process.cwd(), ""),
-            cache: cachePath.replace(userUltraCache, ""),
+            path: pkgProjectDir.replace(process.cwd(), ''),
+            cache: cachePath.replace(userUltraCache, ''),
           });
           continue;
         }
@@ -210,10 +210,10 @@ export async function installPkg(
             name,
             version,
             optional: cachedDeps[dep][version].optional || false,
-            tarball: cachedDeps[dep][version].tarball || "",
+            tarball: cachedDeps[dep][version].tarball || '',
           },
           pkgProjectDir,
-          spinner
+          spinner,
         );
       }
 
@@ -225,7 +225,7 @@ export async function installPkg(
               ...dep,
             },
             pkgProjectDir,
-            spinner
+            spinner,
           );
         }
       }
@@ -240,15 +240,15 @@ export async function installPkg(
           // Symlink pkgProjectDir to "fromMonorepo" folder
           mkdirSync(
             path.dirname(
-              path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+              path.join(manifest.fromMonorepo, 'node_modules', manifest.name),
             ),
             {
               recursive: true,
-            }
+            },
           );
           symlinkSync(
             pkgProjectDir,
-            path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+            path.join(manifest.fromMonorepo, 'node_modules', manifest.name),
           );
         } catch (e) {}
       }
@@ -257,8 +257,8 @@ export async function installPkg(
     } catch (e: any) {
       ora(
         chalk.red(
-          `Error while installing ${manifest.name}@${manifest.version} from cache - ${e.message}`
-        )
+          `Error while installing ${manifest.name}@${manifest.version} from cache - ${e.message}`,
+        ),
       ).fail();
       return null;
     }
@@ -285,9 +285,9 @@ export async function installPkg(
   }
 
   if (spinner) {
-    spinner.prefixText = "📦";
+    spinner.prefixText = '📦';
     spinner.text = chalk.green(
-      `${manifest.name}@${manifest.version}` + chalk.gray(" (cache miss)")
+      `${manifest.name}@${manifest.version}` + chalk.gray(' (cache miss)'),
     );
   }
 
@@ -295,10 +295,10 @@ export async function installPkg(
     cacheFolder,
     pkg.dist.tarball,
     pkg.dist.integrity,
-    pkg.name
+    pkg.name,
   );
 
-  if (status && status.res === "skipped") {
+  if (status && status.res === 'skipped') {
     while (__DOWNLOADING.includes(pkg.dist.tarball)) {
       await sleep(100);
     }
@@ -308,22 +308,22 @@ export async function installPkg(
 
   if (pkg.deprecated) {
     ora(
-      `${chalk.bgYellow.black("[DEPR]")} ${chalk.yellow(
-        `${manifest.name}@${manifest.version}`
-      )} - ${pkg.deprecated}`
+      `${chalk.bgYellow.black('[DEPR]')} ${chalk.yellow(
+        `${manifest.name}@${manifest.version}`,
+      )} - ${pkg.deprecated}`,
     ).warn();
   }
 
-  const pkgJson = readPackage(path.join(cacheFolder, "package.json"));
+  const pkgJson = readPackage(path.join(cacheFolder, 'package.json'));
 
   if (existsSync(pkgProjectDir)) {
     // If exists, retry
     const parentDir = parent ? parent : process.cwd();
-    pkgProjectDir = path.join(parentDir, "node_modules", manifest.name);
+    pkgProjectDir = path.join(parentDir, 'node_modules', manifest.name);
   }
 
   if (existsSync(pkgProjectDir)) {
-    const pkgJson = readPackage(path.join(pkgProjectDir, "package.json"));
+    const pkgJson = readPackage(path.join(pkgProjectDir, 'package.json'));
 
     if (semver.satisfies(pkgJson.version, pkg.version)) {
       return null;
@@ -336,8 +336,8 @@ export async function installPkg(
   __DOWNLOADED.push({
     name: manifest.name,
     version: pkg.version,
-    path: pkgProjectDir.replace(process.cwd(), ""),
-    cache: cacheFolder.replace(userUltraCache, ""),
+    path: pkgProjectDir.replace(process.cwd(), ''),
+    cache: cacheFolder.replace(userUltraCache, ''),
     tarball: pkg.dist.tarball,
     integrity: pkg.dist.integrity,
     optional: manifest.optional || false,
@@ -352,15 +352,15 @@ export async function installPkg(
       // Symlink pkgProjectDir to "fromMonorepo" folder
       mkdirSync(
         path.dirname(
-          path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+          path.join(manifest.fromMonorepo, 'node_modules', manifest.name),
         ),
         {
           recursive: true,
-        }
+        },
       );
       symlinkSync(
         pkgProjectDir,
-        path.join(manifest.fromMonorepo, "node_modules", manifest.name)
+        path.join(manifest.fromMonorepo, 'node_modules', manifest.name),
       );
     } catch (e) {}
   }
@@ -381,7 +381,7 @@ export async function installPkg(
             optional: dep.optional || false,
           },
           pkgProjectDir as string,
-          spinner
+          spinner,
         );
 
         if (!data) return null;
@@ -394,7 +394,7 @@ export async function installPkg(
           integrity: data.integrity,
           path: path.join(userUltraCache, dep.name, data.version),
         };
-      })
+      }),
     );
 
     // Remove null values
@@ -402,7 +402,7 @@ export async function installPkg(
 
     // Save installed deps with its path in .ultra file as objects
     let object: { [key: string]: any } = {
-      "ultra:self": {
+      'ultra:self': {
         name: pkg.name,
         version: pkg.version,
         tarball: pkg.dist.tarball,
@@ -427,7 +427,7 @@ export async function installPkg(
     writeFileSync(
       `${cacheFolder}/${downloadFile}`,
       JSON.stringify(object, null, 2),
-      "utf-8"
+      'utf-8',
     );
 
     // Execute postinstall script if exists
@@ -461,9 +461,9 @@ export async function installPkg(
     ora(
       chalk.red(
         `[ERR] ${chalk.bgRedBright.black(
-          `${manifest.name}@${manifest.version}`
-        )} - ${error.message} - ${error.lineNumber}`
-      )
+          `${manifest.name}@${manifest.version}`,
+        )} - ${error.message} - ${error.lineNumber}`,
+      ),
     ).fail();
 
     return {

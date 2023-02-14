@@ -1,9 +1,9 @@
-import { readFile, writeFile, readdir, stat } from "node:fs/promises";
-import { createHash } from "node:crypto";
-import path from "node:path";
+import { readFile, writeFile, readdir, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
 
 async function computeMetaHash(folder, inputHash = null) {
-  const hash = inputHash ? inputHash : createHash("sha256");
+  const hash = inputHash ? inputHash : createHash('sha256');
   const info = await readdir(folder, { withFileTypes: true });
   // construct a string from the modification date, the filename and the filesize
   for (let item of info) {
@@ -27,23 +27,23 @@ async function computeMetaHash(folder, inputHash = null) {
 async function updateVersion() {
   const packageJson = JSON.parse(
     await readFile(
-      path.join(process.cwd(), "packages", "cli", "package.json"),
-      "utf8"
-    )
+      path.join(process.cwd(), 'packages', 'cli', 'package.json'),
+      'utf8',
+    ),
   );
   const hash = await computeMetaHash(
-    path.join(process.cwd(), "packages", "cli", "src")
+    path.join(process.cwd(), 'packages', 'cli', 'src'),
   );
   // Convert the hash to a hex string
-  const hashString = hash.toString("hex");
+  const hashString = hash.toString('hex');
   // Update the version
   packageJson.version = `${packageJson.version}-next-${hashString}`;
 
   console.log(`${packageJson.version}`);
 
   await writeFile(
-    path.join(process.cwd(), "packages", "cli", "package.json"),
-    JSON.stringify(packageJson, null, 2)
+    path.join(process.cwd(), 'packages', 'cli', 'package.json'),
+    JSON.stringify(packageJson, null, 2),
   );
 }
 

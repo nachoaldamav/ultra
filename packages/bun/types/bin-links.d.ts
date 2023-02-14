@@ -1,4 +1,4 @@
-declare module "bin-links" {
+declare module 'bin-links' {
   /**
    * @param path Where the package is installed
    * @param pkg The package.json of the package

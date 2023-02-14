@@ -1,5 +1,5 @@
-import { readdir, lstat, mkdir, link } from "node:fs/promises";
-import { join, dirname } from "node:path";
+import { readdir, lstat, mkdir, link } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
 
 export async function hardLink(source: string, target: string) {
   const files = await readdir(source);
@@ -18,6 +18,6 @@ export async function hardLink(source: string, target: string) {
       } catch (e: any) {
         throw e;
       }
-    })
+    }),
   );
 }

@@ -1,1 +1,1 @@
-export { manifestFetcher } from "./fetcher";
+export { manifestFetcher } from './fetcher';

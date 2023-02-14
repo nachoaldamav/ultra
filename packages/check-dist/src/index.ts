@@ -1,1 +1,1 @@
-export { checkDist, checkDistWithoutFetch } from "./check-dist";
+export { checkDist, checkDistWithoutFetch } from './check-dist';

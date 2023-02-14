@@ -1,17 +1,17 @@
-import { Link } from "@remix-run/react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
-import Feature from "~/components/featureCard";
-import Graph from "~/components/graph";
-import Snippet from "~/components/snippet";
-import Ticker from "~/components/ticker";
+import { Link } from '@remix-run/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
+import Feature from '~/components/featureCard';
+import Graph from '~/components/graph';
+import Snippet from '~/components/snippet';
+import Ticker from '~/components/ticker';
 
 const GROUPS: {
   [key: number]: string;
 } = {
-  1: "No cache / No lockfile",
-  2: "With cache / No lockfile",
-  3: "With cache / With lockfile",
+  1: 'No cache / No lockfile',
+  2: 'With cache / No lockfile',
+  3: 'With cache / With lockfile',
 };
 
 export default function Index() {
@@ -61,7 +61,7 @@ export default function Index() {
               <img
                 src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=363463&theme=dark"
                 alt="Ultra - Fast&#0032;JavaScript&#0032;package&#0032;manager | Product Hunt"
-                style={{ width: "250px", height: "54px" }}
+                style={{ width: '250px', height: '54px' }}
                 width="250"
                 height="54"
               />
@@ -102,13 +102,13 @@ export default function Index() {
           src="https://player.vimeo.com/video/759983180?h=1ac1372daa&title=0&byline=0&portrait=0"
           style={{
             // position: "absolute",
-            aspectRatio: "16/9",
+            aspectRatio: '16/9',
             top: 0,
             left: 0,
-            width: "65%",
-            height: "100%",
-            borderRadius: "10px",
-            overflow: "hidden",
+            width: '65%',
+            height: '100%',
+            borderRadius: '10px',
+            overflow: 'hidden',
           }}
           className="shadow-xl"
           frameBorder="0"
@@ -124,7 +124,7 @@ export default function Index() {
         <div className="flex flex-col items-left justify-center">
           <h2 className="text-xl font-bold text-white">Comparison</h2>
           <p className="text-lg text-[#A1A1AA] text-center">
-            Here&apos;s a comparison between{" "}
+            Here&apos;s a comparison between{' '}
             <span className="text-[#FAFAFA] font-bold">ULTRA</span> and other
             package managers in a project with many dependencies.
           </p>
@@ -135,8 +135,8 @@ export default function Index() {
               key={i}
               className={`${
                 group === i
-                  ? "text-white border border-transparent border-b-white"
-                  : "text-[#71717A] border border-transparent border-b-[#27272A]"
+                  ? 'text-white border border-transparent border-b-white'
+                  : 'text-[#71717A] border border-transparent border-b-[#27272A]'
               } px-4 py-2`}
               onClick={() => setGroup(i)}
             >
@@ -156,7 +156,7 @@ export default function Index() {
           </h2>
           <nav className="flex items-center gap-4">
             <Link
-              to={"/docs/get-started"}
+              to={'/docs/get-started'}
               className="get-started-button self-start"
             >
               <span className="get-started-text text-lg font-semibold">
@@ -177,7 +177,7 @@ export default function Index() {
       <footer className="w-full">
         <div className="w-full max-w-[65%] flex items-center justify-end mx-auto py-6">
           <p className="text-sm font-medium text-neutral-500">
-            Designed by{" "}
+            Designed by{' '}
             <a
               href="https://davidponc.dev/"
               target="_blank"

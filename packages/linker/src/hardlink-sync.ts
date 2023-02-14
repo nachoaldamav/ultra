@@ -5,10 +5,10 @@ import {
   readdirSync,
   copyFileSync,
   constants,
-} from "node:fs";
-import path from "node:path";
-import ora from "ora";
-import chalk from "chalk";
+} from 'node:fs';
+import path from 'node:path';
+import ora from 'ora';
+import chalk from 'chalk';
 
 export function hardLinkSync(dir: string, targetDir: string) {
   try {
@@ -26,12 +26,12 @@ export function hardLinkSync(dir: string, targetDir: string) {
         try {
           linkSync(filePath, targetPath);
         } catch (e: any) {
-          if (e.code === "EEXIST") return;
-          if (e.code === "EXDEV") return copyFileSync(filePath, targetPath);
+          if (e.code === 'EEXIST') return;
+          if (e.code === 'EXDEV') return copyFileSync(filePath, targetPath);
           ora(
             chalk.red(
-              `Error: ${e.message} (file: ${filePath}, target: ${targetPath})`
-            )
+              `Error: ${e.message} (file: ${filePath}, target: ${targetPath})`,
+            ),
           ).fail();
         }
       }

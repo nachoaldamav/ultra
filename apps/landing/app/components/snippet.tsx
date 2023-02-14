@@ -1,18 +1,18 @@
-import confetti from "canvas-confetti";
-import { useEffect, useState } from "react";
-import CheckCopyIcon from "./icons/checkCopy";
-import CopyIcon from "./icons/copy";
+import confetti from 'canvas-confetti';
+import { useEffect, useState } from 'react';
+import CheckCopyIcon from './icons/checkCopy';
+import CopyIcon from './icons/copy';
 
 export default function Snippet() {
   const [isCopied, setIsCopied] = useState(false);
-  const [text, setText] = useState("npm install ultra-pkg -g");
+  const [text, setText] = useState('npm install ultra-pkg -g');
 
   useEffect(() => {
     // After 2 seconds, reset the isCopied state and set text to "snpm install"
     if (isCopied) {
       setTimeout(() => {
         setIsCopied(false);
-        setText("ultra install react react-dom -P");
+        setText('ultra install react react-dom -P');
       }, 2000);
     }
   }, [isCopied]);
@@ -21,7 +21,7 @@ export default function Snippet() {
     <div className="mt-10 snippet">
       <span className="font-mono font-semibold text-[#A1A1AA]">{text}</span>
       <button
-        className={isCopied ? "ml-2 text-green-400" : "ml-2 text-gray-400"}
+        className={isCopied ? 'ml-2 text-green-400' : 'ml-2 text-gray-400'}
         onClick={() => {
           navigator.clipboard.writeText(text);
           setIsCopied(true);

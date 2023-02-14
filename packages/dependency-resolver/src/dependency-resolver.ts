@@ -1,37 +1,30 @@
-import { readPackage } from "@ultrapkg/read-package";
-import { DependencyType, getDeps } from "@ultrapkg/get-deps";
-import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
-import { satisfies } from "semver";
-import { getPackageDir, PackageDirectoryMap } from "./get-dep-directory";
-import { join } from "path";
+import { logger } from '@ultrapkg/logger';
+import { readPackage } from '@ultrapkg/read-package';
+import { DependencyType, getDeps } from '@ultrapkg/get-deps';
+import { manifestFetcher } from '@ultrapkg/manifest-fetcher';
+import { satisfies } from 'semver';
+import { getPackageDir, PackageDirectoryMap } from './get-dep-directory';
+import { join } from 'path';
+import { existsSync, readFileSync } from 'fs';
+import { eventHandler, EventType } from '@ultrapkg/event-handler';
 
 const directories: PackageDirectoryMap = {};
 
 export const depCache = new Map<string, Dep>();
 
-const debug = false;
-
-const log = (...args: any[]) => {
-  if (debug) console.log(...args);
-};
-
 export async function resolver(packageDir: string) {
   const pkgJson = readPackage(packageDir);
   const deps = getDeps(pkgJson);
-
-  log(`Found ${deps.length} dependencies in package.json`);
 
   await Promise.all(
     deps.map(
       async (dep) =>
         await resolveDep({
           ...dep,
-          parent: ["node_modules"],
-        })
-    )
+          parent: ['node_modules'],
+        }),
+    ),
   );
-
-  log(`Resolved ${depCache.size} dependencies`);
 
   return depCache;
 }
@@ -43,11 +36,85 @@ async function resolveDep(dep: {
   optional?: boolean | undefined;
   type: DependencyType;
 }): Promise<any> {
-  log(`Resolving ${dep.name}@${dep.version}`);
+  logger.update('resolver', {
+    text: `Resolving ${dep.name}@${dep.version}`,
+  });
   const { name, version, parent, optional } = dep;
 
   if (depSatisfies(name, version)) {
     return;
+  }
+
+  // Check if installed versions locally satisfy the dependency
+  const cacheIndex = join(userUltraCache, name, 'index.json');
+  if (existsSync(cacheIndex)) {
+    const cache = JSON.parse(readFileSync(cacheIndex, 'utf-8'));
+    const versions = Object.keys(cache);
+    const satisfiesVersion = versions.find((v) => satisfies(v, version));
+    if (satisfiesVersion) {
+      const map = depCache.get(name) || {};
+
+      const manifest = readPackage(
+        join(userUltraCache, name, satisfiesVersion, 'package.json'),
+      );
+
+      const selectedDir = getPackageDir(
+        name,
+        manifest.version,
+        parent,
+        directories,
+      );
+
+      if (!selectedDir) return;
+
+      eventHandler.addResolvedDep({
+        name,
+        version: manifest.version,
+        sha: cache[satisfiesVersion].sha,
+        tarball: cache[satisfiesVersion].tarball,
+        cachePath: join(userUltraCache, name, manifest.version),
+        path: selectedDir,
+        type: dep.type,
+      });
+
+      map[satisfiesVersion] = {
+        spec: version,
+        parent,
+        optional: optional || false,
+        path: selectedDir,
+        type: dep.type,
+        sha: cache[satisfiesVersion].sha,
+        tarball: cache[satisfiesVersion].tarball,
+      };
+      depCache.set(name, map);
+
+      const dependencies = getDeps(manifest, {
+        dev: true,
+      });
+
+      return Promise.all(
+        dependencies.map((dep) => {
+          const status = depSatisfies(dep.name, dep.version);
+          if (status === 'satisfies') {
+            return;
+          } else if (status) {
+            // add dependency to cache and return
+            const depMap = depCache.get(dep.name) || {};
+            depMap[`file:${status}`] = {
+              spec: dep.version,
+              parent: [selectedDir],
+              optional: dep.optional || false,
+              path: `file:${status}`,
+              type: dep.type,
+            };
+            depCache.set(dep.name, depMap);
+            return;
+          }
+
+          return resolveDep({ ...dep, parent: [selectedDir] });
+        }),
+      );
+    }
   }
 
   const manifest = await manifestFetcher(`${name}@${version}`);
@@ -58,7 +125,7 @@ async function resolveDep(dep: {
     name,
     manifest.version,
     parent,
-    directories
+    directories,
   );
 
   if (!selectedDir) {
@@ -77,6 +144,16 @@ async function resolveDep(dep: {
 
   depCache.set(name, depMap);
 
+  eventHandler.addResolvedDep({
+    name,
+    version: manifest.version,
+    sha: manifest.dist.integrity,
+    tarball: manifest.dist.tarball,
+    cachePath: join(userUltraCache, name, manifest.version),
+    path: selectedDir,
+    type: dep.type,
+  });
+
   const deps = getDeps(manifest, {
     dev: true,
   });
@@ -84,7 +161,7 @@ async function resolveDep(dep: {
   return Promise.all(
     deps.map((dep) => {
       const status = depSatisfies(dep.name, dep.version);
-      if (status === "satisfies") {
+      if (status === 'satisfies') {
         return;
       } else if (status) {
         // add dependency to cache and return
@@ -93,22 +170,22 @@ async function resolveDep(dep: {
           spec: dep.version,
           parent: [selectedDir],
           optional: dep.optional || false,
-          path: "file:" + status,
+          path: `file:${status}`,
           type: dep.type,
         };
         depCache.set(dep.name, depMap);
         return;
       }
       return resolveDep({ ...dep, parent: [selectedDir] });
-    })
+    }),
   );
 }
 
 function depSatisfies(
   name: string,
-  version: string
-): null | "satisfies" | string {
-  const baseDir = join("node_modules", name);
+  version: string,
+): null | 'satisfies' | string {
+  const baseDir = join('node_modules', name);
 
   // get the dep from the cache
   const depMap = depCache.get(name);
@@ -120,7 +197,7 @@ function depSatisfies(
   const versions = Object.keys(depMap);
 
   // clean the versions that are not semver
-  const semverVersions = versions.filter((v) => !v.startsWith("file:"));
+  const semverVersions = versions.filter((v) => !v.startsWith('file:'));
 
   // if there are no semver versions, return null because it is not satisfied
   if (!semverVersions.length) return null;
@@ -133,7 +210,7 @@ function depSatisfies(
     const dep = depMap[satisfiesVersion];
     if (dep.path === baseDir) {
       // if the path is the same as the baseDir, return "satisfies"
-      return "satisfies";
+      return 'satisfies';
     } else {
       // if the path is not the same as the baseDir, return the path
       return dep.path;

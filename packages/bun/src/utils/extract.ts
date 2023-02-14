@@ -1,4 +1,4 @@
-import tar from "tar";
+import tar from 'tar';
 import {
   createWriteStream,
   mkdirSync,
@@ -6,16 +6,16 @@ import {
   readFileSync,
   writeFileSync,
   unlinkSync,
-} from "fs";
-import axios from "axios";
-import { createHash } from "crypto";
-import https from "https";
-import os from "os";
-import path from "path";
-import ora from "ora";
-import chalk from "chalk";
-import { readNpmConfig } from "./npmConfig.js";
-import readConfig from "./readConfig.js";
+} from 'fs';
+import axios from 'axios';
+import { createHash } from 'crypto';
+import https from 'https';
+import os from 'os';
+import path from 'path';
+import ora from 'ora';
+import chalk from 'chalk';
+import { readNpmConfig } from './npmConfig.js';
+import readConfig from './readConfig.js';
 
 const npmrc = readNpmConfig();
 const { token, registry } = readConfig();
@@ -23,16 +23,16 @@ const { token, registry } = readConfig();
 // Get system temp directory
 const tmpDir = os.tmpdir();
 
-const cacheBasePath = path.join(tmpDir, "ultra_tmp");
+const cacheBasePath = path.join(tmpDir, 'ultra_tmp');
 
 export async function ultraExtract(
   target: string,
   tarball: string,
   sha: string,
-  name: string
+  name: string,
 ): Promise<void | { res: string }> {
   if (!tarball) {
-    throw new Error("No tarball provided");
+    throw new Error('No tarball provided');
   }
 
   // Read .ultra file to know if it's fully installed
@@ -41,7 +41,7 @@ export async function ultraExtract(
 
   if (ultraFileExists || __DOWNLOADING.includes(tarball)) {
     return {
-      res: "skipped",
+      res: 'skipped',
     };
   }
 
@@ -49,9 +49,9 @@ export async function ultraExtract(
 
   const file = path.join(
     cacheBasePath,
-    `${name.replaceAll("/", "-")}-${createHash("md5")
+    `${name.replaceAll('/', '-')}-${createHash('md5')
       .update(tarball)
-      .digest("hex")}.${tarball.split(".").pop() || "tgz"}`
+      .digest('hex')}.${tarball.split('.').pop() || 'tgz'}`,
   );
 
   if (!existsSync(cacheBasePath)) {
@@ -62,16 +62,16 @@ export async function ultraExtract(
     // If file exists and it's not corrupted, extract it directly
     if (
       !existsSync(file) ||
-      sha !== createHash("sha1").update(readFileSync(file)).digest("hex")
+      sha !== createHash('sha1').update(readFileSync(file)).digest('hex')
     ) {
-      const org = name.startsWith("@") ? name.split("/")[0] : null;
+      const org = name.startsWith('@') ? name.split('/')[0] : null;
 
       const npmRegistry =
         (org ? npmrc[`${org}:registry`] : npmrc.registry) || registry;
 
       const parseRegistry = npmRegistry
-        ? npmRegistry.replace(/https?:\/\//, "")
-        : "";
+        ? npmRegistry.replace(/https?:\/\//, '')
+        : '';
 
       const npmToken = org
         ? npmrc[`//${parseRegistry}:_authToken`]
@@ -80,11 +80,11 @@ export async function ultraExtract(
       const writer = createWriteStream(file);
       const response = await axios({
         url: tarball,
-        method: "GET",
-        responseType: "stream",
+        method: 'GET',
+        responseType: 'stream',
         headers: {
           Authorization: `Bearer ${npmToken}`,
-          "keep-alive": "timeout=5, max=1000",
+          'keep-alive': 'timeout=5, max=1000',
         },
         httpsAgent: new https.Agent({
           keepAlive: true,
@@ -94,15 +94,15 @@ export async function ultraExtract(
       response.data.pipe(writer);
 
       await new Promise((resolve, reject) => {
-        writer.on("finish", resolve);
-        writer.on("error", reject);
+        writer.on('finish', resolve);
+        writer.on('error', reject);
       });
 
       const fileBuffer = readFileSync(file);
-      const hashSum = createHash("sha512");
+      const hashSum = createHash('sha512');
 
       hashSum.update(fileBuffer);
-      const hash = "sha512-" + hashSum.digest("base64");
+      const hash = 'sha512-' + hashSum.digest('base64');
 
       if (hash !== sha) {
         ora().fail(chalk.red(`SHA512 mismatch for ${tarball}`));
@@ -122,12 +122,12 @@ export async function ultraExtract(
     });
 
     // Create .ultra file
-    writeFileSync(ultraFile, "{}");
+    writeFileSync(ultraFile, '{}');
 
     __DOWNLOADING.splice(__DOWNLOADING.indexOf(tarball), 1);
 
     return {
-      res: "extracted",
+      res: 'extracted',
     };
   } catch (err: any) {
     // Try again but remove the file
@@ -139,8 +139,8 @@ export async function ultraExtract(
       chalk.red(
         `Error extracting ${file} to ${target}, trying again: ${
           err.message || err
-        }`
-      )
+        }`,
+      ),
     ).fail();
 
     return ultraExtract(target, tarball, sha, name);

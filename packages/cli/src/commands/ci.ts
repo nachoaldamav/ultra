@@ -1,39 +1,39 @@
-import binLinks from "bin-links";
-import chalk from "chalk";
-import { readFileSync, existsSync, mkdirSync } from "node:fs";
-import { rm } from "node:fs/promises";
-import { join } from "node:path";
-import ora, { Ora } from "ora";
-import basePostInstall from "../utils/basePostInstall.js";
-import { installLocalDep } from "../utils/installLocalDep.js";
-import { manifestFetcher } from "@ultrapkg/manifest-fetcher";
-import parseTime from "../utils/parseTime.js";
-import { readPackage } from "@ultrapkg/read-package";
-import { executePost } from "../utils/postInstall.js";
-import { extract } from "@ultrapkg/extract-tar";
+import binLinks from 'bin-links';
+import chalk from 'chalk';
+import { readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import ora, { Ora } from 'ora';
+import basePostInstall from '../utils/basePostInstall.js';
+import { installLocalDep } from '../utils/installLocalDep.js';
+import { manifestFetcher } from '@ultrapkg/manifest-fetcher';
+import parseTime from '../utils/parseTime.js';
+import { readPackage } from '@ultrapkg/read-package';
+import { executePost } from '../utils/postInstall.js';
+import { extract } from '@ultrapkg/extract-tar';
 
 export async function continuousInstall() {
   try {
     const lockFile: string | null = readFileSync(
-      join(process.cwd(), "ultra.lock"),
-      "utf-8"
+      join(process.cwd(), 'ultra.lock'),
+      'utf-8',
     );
 
     const lock = lockFile ? JSON.parse(lockFile) : null;
 
     if (!lock) {
-      console.log(chalk.red("No lock file found!"));
+      console.log(chalk.red('No lock file found!'));
       process.exit(1);
     }
 
     // Remove node_modules folder
-    await rm(join(process.cwd(), "node_modules"), {
+    await rm(join(process.cwd(), 'node_modules'), {
       recursive: true,
       force: true,
     });
 
     const __install = ora({
-      text: chalk.green("Installing dependencies..."),
+      text: chalk.green('Installing dependencies...'),
       discardStdin: false,
     }).start();
     const start = performance.now();
@@ -47,7 +47,7 @@ export async function continuousInstall() {
             const pathname = join(process.cwd(), lock[pkg][version].path);
 
             // If version is local, it's a local dependency
-            if (version === "local") {
+            if (version === 'local') {
               await installLocalDep({
                 name: pkg,
                 version: pathname,
@@ -63,28 +63,28 @@ export async function continuousInstall() {
 
             __install.text = chalk.green(`${spec}`);
             return await ciDownloader(spec, pathname, __install);
-          })
+          }),
         );
-      })
+      }),
     );
 
     const end = performance.now();
-    __install.prefixText = "";
+    __install.prefixText = '';
     __install.succeed(
-      chalk.green(`Installed dependencies in ${parseTime(start, end)}`)
+      chalk.green(`Installed dependencies in ${parseTime(start, end)}`),
     );
     await basePostInstall();
 
     process.exit(0);
   } catch (err) {
-    console.log(chalk.red("Error reading lock file!"));
+    console.log(chalk.red('Error reading lock file!'));
     process.exit(1);
   }
 }
 
 async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
   spinner.text = chalk.green(`${spec}`);
-  spinner.prefixText = "🔍";
+  spinner.prefixText = '🔍';
   const manifest = await manifestFetcher(spec);
 
   const tarball = manifest.dist.tarball;
@@ -95,11 +95,11 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
   }
 
   spinner.text = chalk.green(`${spec}`);
-  spinner.prefixText = "📦";
+  spinner.prefixText = '📦';
   await extract(pathname, tarball, integrity, manifest.name);
 
-  spinner.prefixText = "🔗";
-  const pkg = readPackage(join(pathname, "package.json"));
+  spinner.prefixText = '🔗';
+  const pkg = readPackage(join(pathname, 'package.json'));
 
   await binLinks({
     path: pathname,
@@ -109,7 +109,7 @@ async function ciDownloader(spec: string, pathname: string, spinner: Ora) {
   });
 
   spinner.text = chalk.green(`${spec}`);
-  spinner.prefixText = "📄";
+  spinner.prefixText = '📄';
   const postinstall = pkg?.scripts?.postinstall || null;
   if (postinstall) {
     await executePost(postinstall, pathname);

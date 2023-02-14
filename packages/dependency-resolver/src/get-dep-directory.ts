@@ -1,5 +1,5 @@
-import path from "path";
-import semver from "semver";
+import path from 'path';
+import semver from 'semver';
 
 export interface PackageDirectoryMap {
   [key: string]: string;
@@ -8,10 +8,10 @@ export interface PackageDirectoryMap {
 export function getPackageDir(
   name: string,
   version: string,
-  parent: string[] = ["node_modules"],
-  directories: PackageDirectoryMap
+  parent: string[] = ['node_modules'],
+  directories: PackageDirectoryMap,
 ): string | null {
-  let packageDir = path.join("node_modules", name);
+  let packageDir = path.join('node_modules', name);
 
   // Check if packageDir is already in use by another version
   if (packageDir in directories) {
@@ -26,7 +26,7 @@ export function getPackageDir(
   }
 
   // If packageDir is not in use, try using the parent directories, add "node_modules" between each parent
-  packageDir = path.join(...parent, "node_modules", name);
+  packageDir = path.join(...parent, 'node_modules', name);
 
   // Check if packageDir is already in use by another version
   if (packageDir in directories) {

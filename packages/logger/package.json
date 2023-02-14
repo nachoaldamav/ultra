@@ -8,19 +8,21 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "compile": "compiler -c ultra.config.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.11.13",
+    "@ultrapkg/compiler": "workspace:*",
     "@ultrapkg/types": "workspace:*",
+    "@types/spinnies": "0.5.0",
     "tsup": "6.5.0"
   },
   "dependencies": {
-    "@types/react": "18.0.15",
-    "ink": "^3.2.0",
-    "react": "18.2.0"
+    "spinnies": "0.5.1",
+    "chalk": "5.2.0"
   }
 }

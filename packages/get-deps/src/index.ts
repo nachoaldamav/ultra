@@ -1,1 +1,1 @@
-export { getDeps, DependencyType } from "./get-deps";
+export { getDeps, DependencyType } from './get-deps';
