@@ -1,11 +1,12 @@
 {
-  "name": "@ultrapkg/linker",
-  "version": "0.1.6",
+  "name": "@ultrapkg/lockfile",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsup",
     "dev": "tsup --watch"
   },
@@ -13,12 +14,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^18.11.13",
     "@ultrapkg/types": "workspace:*",
+    "@types/node": "^18.11.13",
     "tsup": "6.5.0"
   },
   "dependencies": {
-    "chalk": "5.2.0",
-    "@ultrapkg/error-logger": "workspace:*"
+    "@ultrapkg/read-package": "workspace:*",
+    "@ultrapkg/get-deps": "workspace:*"
   }
 }

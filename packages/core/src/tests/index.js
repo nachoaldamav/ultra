@@ -13,7 +13,6 @@ test('Basic test', async (t) => {
     recursive: true,
     force: true,
   });
-  /* await ultraCore('i -w ./src/tests/fixtures/vite-project'); */
   await ultraCore(`i -w ${where}`);
   execSync('npm run build', {
     cwd: where,

@@ -5,6 +5,7 @@ import { install } from './install';
 import { getVersion } from '../utils/get-version';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { rm } from 'fs/promises';
 
 type Deps = {
   name: string;
@@ -17,7 +18,7 @@ export async function add(args: Yargs) {
   const { dev, exact, peer, optional } = args;
   const packages = args.packages as string[];
   const where = process.cwd();
-  const pkg = readPackage(where);
+  const pkg = readPackage(join(where, 'package.json'));
 
   const dependencies = packages.map(async (pkg: string) => {
     const dependency = await manifestFetcher(pkg);
@@ -51,6 +52,8 @@ export async function add(args: Yargs) {
   });
 
   writeFileSync(join(where, 'package.json'), JSON.stringify(pkg, null, 2));
+
+  await rm(join(where, 'ultra.lock'), { force: true });
 
   return install({
     where,

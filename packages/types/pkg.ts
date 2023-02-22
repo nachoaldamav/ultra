@@ -17,3 +17,24 @@ export type pkg = {
   optional?: boolean;
   fromMonorepo?: string;
 };
+
+export type Dep = {
+  [key: string]: {
+    spec: string;
+    parent?: string[] | undefined;
+    optional?: boolean | undefined;
+    path: string;
+    type: DependencyType;
+    tarball?: string | undefined;
+    sha?: string | undefined;
+  };
+};
+
+enum DependencyType {
+  REGULAR = 'regular',
+  DEV = 'dev',
+  PEER = 'peer',
+  OPTIONAL = 'optional',
+}
+
+export type depCache = Map<string, Dep>;

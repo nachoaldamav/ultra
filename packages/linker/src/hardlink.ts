@@ -1,3 +1,4 @@
+import { UltraError } from '@ultrapkg/error-logger';
 import { readdir, lstat, mkdir, link } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 
@@ -16,8 +17,12 @@ export async function hardLink(source: string, target: string) {
         }
         return link(sourcePath, targetPath);
       } catch (e: any) {
-        throw e;
+        throw new UltraError(
+          'ERR_ULTRA_HARDLINK',
+          `Failed to hardlink ${sourcePath} to ${targetPath}`,
+          '@ultrapkg/linker'
+        );
       }
-    }),
+    })
   );
 }

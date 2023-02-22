@@ -70,7 +70,7 @@ export class Logger {
 
   fail(name: string, options: SpinnerOptions & { code?: string }) {
     const ErrorTemplate = `${chalk.bgRed(
-      options.code || 'ULTRA_UNKNOWN_ERROR',
+      options.code || 'ULTRA_UNKNOWN_ERROR'
     )} ${chalk.red(options.text)}`;
 
     options.text = ErrorTemplate;

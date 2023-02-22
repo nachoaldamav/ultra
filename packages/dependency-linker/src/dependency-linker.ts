@@ -69,7 +69,7 @@ export class DependencyLinker {
 
     writeFileSync(
       join(this.opts.cwd, 'node_modules', 'ultra.lock'),
-      JSON.stringify(Object.fromEntries(deps), null, 2),
+      JSON.stringify(Object.fromEntries(deps), null, 2)
     );
 
     const asyncFunctions: Array<() => Promise<void | any[]>> = [];
@@ -103,7 +103,7 @@ export class DependencyLinker {
 
             if (existsSync(join(this.opts.cwd, path))) {
               const pkg = readPackage(
-                join(this.opts.cwd, path, 'package.json'),
+                join(this.opts.cwd, path, 'package.json')
               );
               if (pkg.version === version) {
                 return;
@@ -124,7 +124,7 @@ export class DependencyLinker {
               version,
               path,
               tarball as string,
-              sha as string,
+              sha as string
             );
           });
         } else {
@@ -157,7 +157,7 @@ export class DependencyLinker {
 
             if (!srcPath) {
               console.log(
-                `Could not find a suitable version of ${name} for ${spec}`,
+                `Could not find a suitable version of ${name} for ${spec}`
               );
               return;
             }
@@ -179,13 +179,13 @@ export class DependencyLinker {
   }
 
   async linkOne(info: ResolveDepInfo) {
-    if (info.path.startsWith('file:')) {
-      const srcPath = resolve(this.opts.cwd, info.path.slice(5));
+    if (info.version.startsWith('file:')) {
+      const srcPath = resolve(this.opts.cwd, info.version.slice(5));
       const destPath = join(
         this.opts.cwd,
         info.parentPath as string,
         'node_modules',
-        info.name,
+        info.name
       );
 
       if (existsSync(srcPath)) {
@@ -215,7 +215,10 @@ export class DependencyLinker {
     const isCached = this.checkCache(info.name, info.version);
 
     if (existsSync(info.path)) {
-      const pkg = readPackage(join(info.path, 'package.json'));
+      const pkg = existsSync(join(info.path, 'package.json'))
+        ? readPackage(join(info.path, 'package.json'))
+        : { version: '0.0.0' };
+
       if (pkg.version === info.version) {
         return;
       }
@@ -233,7 +236,7 @@ export class DependencyLinker {
             return;
           }
           throw e;
-        },
+        }
       );
 
     this.updateIndex(info.name, info.version, {
@@ -246,7 +249,7 @@ export class DependencyLinker {
       info.version,
       info.path,
       info.tarball,
-      info.sha,
+      info.sha
     );
   }
 
@@ -261,7 +264,7 @@ export class DependencyLinker {
     information: {
       tarball: string;
       sha: string;
-    },
+    }
   ) {
     const index = join(this.cacheDir, name, 'index.json');
     if (!existsSync(index)) {
@@ -295,7 +298,7 @@ export class DependencyLinker {
     version: string,
     path: string,
     tarball: string,
-    sha: string,
+    sha: string
   ) {
     const cachePath = resolve(this.cacheDir, name, version);
 

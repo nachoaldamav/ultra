@@ -1,14 +1,12 @@
+import { UltraError } from '@ultrapkg/error-logger';
 import {
   linkSync,
   lstatSync,
   mkdirSync,
   readdirSync,
   copyFileSync,
-  constants,
 } from 'node:fs';
 import path from 'node:path';
-import ora from 'ora';
-import chalk from 'chalk';
 
 export function hardLinkSync(dir: string, targetDir: string) {
   try {
@@ -28,11 +26,11 @@ export function hardLinkSync(dir: string, targetDir: string) {
         } catch (e: any) {
           if (e.code === 'EEXIST') return;
           if (e.code === 'EXDEV') return copyFileSync(filePath, targetPath);
-          ora(
-            chalk.red(
-              `Error: ${e.message} (file: ${filePath}, target: ${targetPath})`,
-            ),
-          ).fail();
+          throw new UltraError(
+            'ERR_ULTRA_HARDLINK',
+            `Failed to hardlink ${filePath} to ${targetPath}`,
+            '@ultrapkg/linker'
+          );
         }
       }
     });

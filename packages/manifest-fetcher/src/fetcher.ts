@@ -37,8 +37,7 @@ export async function manifestFetcher(spec: string, props?: any) {
     await mkdir(cacheFolder, { recursive: true }).catch((e) => {});
 
     const isExact = !specialChars.some(
-      (char) =>
-        sanitizedSpec.includes(char) || sanitizedSpec.includes('latest'),
+      (char) => sanitizedSpec.includes(char) || sanitizedSpec.includes('latest')
     );
 
     // Check if cache file exists
@@ -74,7 +73,7 @@ export async function manifestFetcher(spec: string, props?: any) {
         // Add 5 minutes to cache
         expires: now + 300000,
       }),
-      'utf-8',
+      'utf-8'
     );
 
     return manifest;
@@ -91,10 +90,10 @@ export async function manifestFetcher(spec: string, props?: any) {
         },
       })
       .catch((e) => {
-        return new UltraError(
+        throw new UltraError(
           'ERR_ULTRA_MANIFEST_FETCHER',
           e.message,
-          '@ultrapkg/manifest-fetcher',
+          '@ultrapkg/manifest-fetcher'
         );
       });
 
@@ -108,7 +107,7 @@ export async function manifestFetcher(spec: string, props?: any) {
         // Add 5 minutes to cache
         expires: now + 300000,
       }),
-      'utf-8',
+      'utf-8'
     );
 
     return manifest;

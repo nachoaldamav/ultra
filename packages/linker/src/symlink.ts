@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, symlinkSync } from 'fs';
+import { symlinkSync } from 'fs';
 
 export function symlink(src: string, dest: string) {
   return symlinkSync(src, dest, 'junction');

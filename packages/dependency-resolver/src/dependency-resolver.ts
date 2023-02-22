@@ -2,11 +2,11 @@ import { logger } from '@ultrapkg/logger';
 import { readPackage } from '@ultrapkg/read-package';
 import { DependencyType, getDeps } from '@ultrapkg/get-deps';
 import { manifestFetcher } from '@ultrapkg/manifest-fetcher';
-import { satisfies } from 'semver';
+import { satisfies, maxSatisfying } from 'semver';
 import { getPackageDir, PackageDirectoryMap } from './get-dep-directory';
 import { join } from 'path';
 import { existsSync, readFileSync } from 'fs';
-import { eventHandler, EventType } from '@ultrapkg/event-handler';
+import { eventHandler } from '@ultrapkg/event-handler';
 
 const directories: PackageDirectoryMap = {};
 
@@ -22,8 +22,8 @@ export async function resolver(packageDir: string) {
         await resolveDep({
           ...dep,
           parent: ['node_modules'],
-        }),
-    ),
+        })
+    )
   );
 
   return depCache;
@@ -50,19 +50,19 @@ async function resolveDep(dep: {
   if (existsSync(cacheIndex)) {
     const cache = JSON.parse(readFileSync(cacheIndex, 'utf-8'));
     const versions = Object.keys(cache);
-    const satisfiesVersion = versions.find((v) => satisfies(v, version));
+    const satisfiesVersion = maxSatisfying(versions, version);
     if (satisfiesVersion) {
       const map = depCache.get(name) || {};
 
       const manifest = readPackage(
-        join(userUltraCache, name, satisfiesVersion, 'package.json'),
+        join(userUltraCache, name, satisfiesVersion, 'package.json')
       );
 
       const selectedDir = getPackageDir(
         name,
         manifest.version,
         parent,
-        directories,
+        directories
       );
 
       if (!selectedDir) return;
@@ -75,6 +75,7 @@ async function resolveDep(dep: {
         cachePath: join(userUltraCache, name, manifest.version),
         path: selectedDir,
         type: dep.type,
+        parentPath: parent ? parent[0] : undefined,
       });
 
       map[satisfiesVersion] = {
@@ -112,7 +113,7 @@ async function resolveDep(dep: {
           }
 
           return resolveDep({ ...dep, parent: [selectedDir] });
-        }),
+        })
       );
     }
   }
@@ -125,7 +126,7 @@ async function resolveDep(dep: {
     name,
     manifest.version,
     parent,
-    directories,
+    directories
   );
 
   if (!selectedDir) {
@@ -177,13 +178,13 @@ async function resolveDep(dep: {
         return;
       }
       return resolveDep({ ...dep, parent: [selectedDir] });
-    }),
+    })
   );
 }
 
 function depSatisfies(
   name: string,
-  version: string,
+  version: string
 ): null | 'satisfies' | string {
   const baseDir = join('node_modules', name);
 

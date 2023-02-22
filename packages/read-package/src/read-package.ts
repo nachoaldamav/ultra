@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { UltraError } from '@ultrapkg/error-logger';
 
 export function readPackage(path: string) {
@@ -6,7 +6,7 @@ export function readPackage(path: string) {
     throw new UltraError(
       'ERR_ULTRA_NO_PACKAGE',
       `No package.json found at ${path}`,
-      '@ultrapkg/read-package',
+      '@ultrapkg/read-package'
     );
 
   try {
@@ -20,10 +20,10 @@ export function readPackage(path: string) {
     }
     return pkg;
   } catch (err: any) {
-    return new UltraError(
+    throw new UltraError(
       'ERR_ULTRA_READ_PACKAGE',
       `Failed to read package.json at ${path}`,
-      '@ultrapkg/read-package',
+      '@ultrapkg/read-package'
     );
   }
 }

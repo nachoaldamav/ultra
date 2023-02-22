@@ -17,23 +17,27 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@ultrapkg/types": "workspace:*",
     "@types/node": "^18.11.13",
-    "@types/yargs": "^17.0.19",
     "@types/semver": "7.3.11",
-    "tsup": "6.5.0",
+    "@types/yargs": "^17.0.19",
+    "@ultrapkg/types": "workspace:*",
     "ava": "5.1.0",
+    "tsup": "6.5.0",
     "typescript": "4.9.5"
   },
   "dependencies": {
-    "@ultrapkg/logger": "workspace:*",
-    "@ultrapkg/dependency-resolver": "workspace:*",
     "@ultrapkg/dependency-linker": "workspace:*",
-    "@ultrapkg/globals": "workspace:*",
+    "@ultrapkg/dependency-resolver": "workspace:*",
+    "@ultrapkg/error-logger": "workspace:*",
     "@ultrapkg/event-handler": "workspace:*",
-    "@ultrapkg/read-package": "workspace:*",
+    "@ultrapkg/get-deps": "workspace:*",
+    "@ultrapkg/globals": "workspace:*",
+    "@ultrapkg/lockfile": "workspace:*",
+    "@ultrapkg/logger": "workspace:*",
     "@ultrapkg/manifest-fetcher": "workspace:*",
-    "yargs": "17.6.2",
-    "semver": "7.3.8"
+    "@ultrapkg/read-package": "workspace:*",
+    "execa": "6.1.0",
+    "semver": "7.3.8",
+    "yargs": "17.6.2"
   }
 }

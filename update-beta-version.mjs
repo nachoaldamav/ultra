@@ -1,6 +1,8 @@
 import { readFile, writeFile, readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import glob from 'glob';
+import { existsSync } from 'node:fs';
 
 async function computeMetaHash(folder, inputHash = null) {
   const hash = inputHash ? inputHash : createHash('sha256');
@@ -25,26 +27,41 @@ async function computeMetaHash(folder, inputHash = null) {
 }
 
 async function updateVersion() {
-  const packageJson = JSON.parse(
-    await readFile(
-      path.join(process.cwd(), 'packages', 'cli', 'package.json'),
-      'utf8',
-    ),
-  );
-  const hash = await computeMetaHash(
-    path.join(process.cwd(), 'packages', 'cli', 'src'),
-  );
-  // Convert the hash to a hex string
-  const hashString = hash.toString('hex');
-  // Update the version
-  packageJson.version = `${packageJson.version}-next-${hashString}`;
+  // get all "package.json" files inside the "packages" subfolders
+  const packageJsonFiles = glob.sync('packages/**/package.json', {
+    cwd: process.cwd(),
+    // ignore node_modules
+    ignore: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/tests/**',
+      '**/src/**',
+      '**/eslint-config-custom/**',
+      '**/tsconfig/**',
+      '**/types/**',
+    ],
+  });
+  // for each package.json file, update the version
+  for (const packageJsonFile of packageJsonFiles) {
+    const packageJson = JSON.parse(await readFile(packageJsonFile, 'utf8'));
+    const hash = await computeMetaHash(
+      path.join(process.cwd(), path.dirname(packageJsonFile), 'src')
+    );
+    // Convert the hash to a trimmed hex string
+    const hashString = hash.toString('hex').slice(0, 8);
 
-  console.log(`${packageJson.version}`);
+    // Update the version
+    packageJson.version = `${packageJson.version}-next-${hashString}`;
 
-  await writeFile(
-    path.join(process.cwd(), 'packages', 'cli', 'package.json'),
-    JSON.stringify(packageJson, null, 2),
-  );
+    console.log(
+      `Updated version for ${packageJson.name}: ${packageJson.version}`
+    );
+
+    await writeFile(
+      path.join(process.cwd(), packageJsonFile),
+      JSON.stringify(packageJson, null, 2)
+    );
+  }
 }
 
 updateVersion();

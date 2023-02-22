@@ -3,12 +3,12 @@ import events from 'node:events';
 type ResolveDepInfo = {
   name: string;
   version: string;
-  parentPath?: string;
   path: string;
   cachePath: string;
   tarball: string;
   sha: string;
   type: string;
+  parentPath?: string;
   alias?: string;
 };
 

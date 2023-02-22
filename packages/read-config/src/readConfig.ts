@@ -22,7 +22,7 @@ export function readConfig(): CONFIG {
     if (existsSync(workspaceConfigPath)) {
       // Replace basic config with workspace config
       const workspaceConfig = JSON.parse(
-        readFileSync(workspaceConfigPath, 'utf8'),
+        readFileSync(workspaceConfigPath, 'utf8')
       );
       return { ...BASIC_CONFIG, ...workspaceConfig };
     }
@@ -36,10 +36,10 @@ export function readConfig(): CONFIG {
       return JSON.parse(readFileSync(configPath, 'utf-8')) as CONFIG;
     }
   } catch (error) {
-    return new UltraError(
+    throw new UltraError(
       'ERR_ULTRA_READ_CONFIG',
       'Error reading config',
-      '@ultrapkg/read-config',
+      '@ultrapkg/read-config'
     ) as unknown as CONFIG;
   }
 }

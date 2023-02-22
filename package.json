@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@changesets/cli": "2.25.0",
+    "glob": "8.0.3",
     "inquirer": "9.1.4"
   },
   "devDependencies": {
