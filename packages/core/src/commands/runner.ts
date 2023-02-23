@@ -1,16 +1,16 @@
 import { UltraError } from '@ultrapkg/error-logger';
-import { readPackage } from '@ultrapkg/read-package';
 import { readdirSync } from 'fs';
 import { join } from 'path';
 import { execa } from 'execa';
 import { Yargs } from '../types/yargs';
+import { getScript } from '../utils/get-scripts';
 
 export async function runner(argv: Yargs) {
   const script = argv.script as string;
-  const pkg = readPackage(join(process.cwd(), 'package.json'));
-  const binaries = getBinaries(join(process.cwd(), 'node_modules', '.bin'));
 
-  if (!pkg.scripts || !pkg.scripts[script]) {
+  const scriptToRun = getScript(script);
+
+  if (!scriptToRun) {
     throw new UltraError(
       'ERROR_ULTRA_NO_SCRIPT_FOUND',
       `No script found with the name "${script}".`,
@@ -18,7 +18,7 @@ export async function runner(argv: Yargs) {
     );
   }
 
-  const scriptToRun = pkg.scripts[script];
+  const binaries = getBinaries(join(process.cwd(), 'node_modules', '.bin'));
 
   // Extract env variabled at the start of the script VARIABLE=ENV
   const envVariables = getEnvVariables(scriptToRun);

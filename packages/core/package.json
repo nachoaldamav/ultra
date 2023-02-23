@@ -36,6 +36,7 @@
     "@ultrapkg/logger": "workspace:*",
     "@ultrapkg/manifest-fetcher": "workspace:*",
     "@ultrapkg/read-package": "workspace:*",
+    "chalk": "5.2.0",
     "execa": "6.1.0",
     "semver": "7.3.8",
     "yargs": "17.6.2"

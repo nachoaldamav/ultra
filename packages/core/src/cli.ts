@@ -9,6 +9,8 @@ import { coerce } from 'semver';
 import { hideBin } from 'yargs/helpers';
 import { fileURLToPath } from 'url';
 import { getVersion } from './utils/get-version';
+import { getScript } from './utils/get-scripts';
+import chalk from 'chalk';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -139,8 +141,46 @@ async function ultraCore(argv?: string) {
     const { add } = await import('./commands/add');
     await add(args);
   } else if (command === 'run') {
+    if (!args.script) {
+      const pkg = readPackage(join(process.cwd(), 'package.json'));
+      if (!pkg.scripts) {
+        throw new UltraError(
+          'ERROR_ULTRA_NO_SCRIPTS_FOUND',
+          'No scripts found in the package.json.',
+          '@ultrapkg/core',
+          true
+        );
+      }
+      console.log(chalk.bold.overline('Available scripts:'));
+      for (const script of Object.keys(pkg.scripts)) {
+        console.log(
+          chalk.green(`  - ${script} ${chalk.gray(`[${pkg.scripts[script]}]`)}`)
+        );
+      }
+      return;
+    }
+
     const { runner } = await import('./commands/runner');
     await runner(args);
+  } else if (command === 'remove') {
+    const { remove } = await import('./commands/remove');
+    await remove(args);
+  } else {
+    const script = getScript(command);
+    if (script) {
+      const { runner } = await import('./commands/runner');
+      runner({
+        ...args,
+        script: command,
+      });
+    } else {
+      throw new UltraError(
+        'ERROR_ULTRA_NO_COMMAND_FOUND',
+        `No command found with the name "${command}".`,
+        '@ultrapkg/core',
+        true
+      );
+    }
   }
 
   if (argv) {

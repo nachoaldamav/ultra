@@ -281,6 +281,7 @@ importers:
       '@ultrapkg/read-package': workspace:*
       '@ultrapkg/types': workspace:*
       ava: 5.1.0
+      chalk: 5.2.0
       execa: 6.1.0
       semver: 7.3.8
       tsup: 6.5.0
@@ -297,6 +298,7 @@ importers:
       '@ultrapkg/logger': link:../logger
       '@ultrapkg/manifest-fetcher': link:../manifest-fetcher
       '@ultrapkg/read-package': link:../read-package
+      chalk: 5.2.0
       execa: 6.1.0
       semver: 7.3.8
       yargs: 17.6.2
